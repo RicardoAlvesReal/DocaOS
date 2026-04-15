@@ -13,6 +13,7 @@ const DEFAULT_STUDENTS = [
     senha: '123456',
     mensalidade: 250,
     meses: {
+      janeiro: 'pendente', fevereiro: 'pendente',
       marco: 'pago', abril: 'pago', maio: 'pago',
       junho: 'pendente', julho: 'pendente', agosto: 'pendente',
       setembro: 'pendente', outubro: 'pendente', novembro: 'pendente', dezembro: 'pendente',
@@ -25,6 +26,7 @@ const DEFAULT_STUDENTS = [
     senha: '654321',
     mensalidade: 280,
     meses: {
+      janeiro: 'pendente', fevereiro: 'pendente',
       marco: 'pago', abril: 'pago',
       maio: 'pendente', junho: 'pendente', julho: 'pendente', agosto: 'pendente',
       setembro: 'pendente', outubro: 'pendente', novembro: 'pendente', dezembro: 'pendente',
@@ -37,6 +39,7 @@ const DEFAULT_STUDENTS = [
     senha: '111222',
     mensalidade: 300,
     meses: {
+      janeiro: 'pendente', fevereiro: 'pendente',
       marco: 'pago', abril: 'pago', maio: 'pago', junho: 'pago',
       julho: 'pendente', agosto: 'pendente',
       setembro: 'pendente', outubro: 'pendente', novembro: 'pendente', dezembro: 'pendente',
@@ -45,14 +48,23 @@ const DEFAULT_STUDENTS = [
 ];
 
 const MONTHS_MAP = {
+  janeiro: 'Janeiro', fevereiro: 'Fevereiro',
   marco: 'Março', abril: 'Abril', maio: 'Maio', junho: 'Junho',
   julho: 'Julho', agosto: 'Agosto', setembro: 'Setembro',
   outubro: 'Outubro', novembro: 'Novembro', dezembro: 'Dezembro',
 };
 
-const MONTH_KEYS = ['marco', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+const MONTH_KEYS = ['janeiro', 'fevereiro', 'marco', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
 
 function initData() {
+  // Force reset if schema version changed (janeiro/fevereiro added)
+  const schemaVersion = '2';
+  if (localStorage.getItem('vanescolar_schema') !== schemaVersion) {
+    localStorage.removeItem('vanescolar_students');
+    localStorage.removeItem('vanescolar_comprovantes');
+    localStorage.removeItem('vanescolar_next_id');
+    localStorage.setItem('vanescolar_schema', schemaVersion);
+  }
   if (!localStorage.getItem('vanescolar_students')) {
     localStorage.setItem('vanescolar_students', JSON.stringify(DEFAULT_STUDENTS));
   }
@@ -128,6 +140,7 @@ function addStudent(nome, responsavel, mensalidade) {
     nome, responsavel, matricula, senha,
     mensalidade: parseFloat(mensalidade),
     meses: {
+      janeiro: 'pendente', fevereiro: 'pendente',
       marco: 'pendente', abril: 'pendente', maio: 'pendente', junho: 'pendente',
       julho: 'pendente', agosto: 'pendente', setembro: 'pendente',
       outubro: 'pendente', novembro: 'pendente', dezembro: 'pendente',

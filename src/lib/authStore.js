@@ -151,8 +151,8 @@ function addStudent(nome, responsavel, mensalidade, matriculaCustom, senhaCustom
     nome, responsavel, matricula, senha,
     mensalidade: parseFloat(mensalidade),
     meses: {
-      janeiro: 'pendente', fevereiro: 'pendente',
-      marco: 'pendente', abril: 'pendente', maio: 'pendente', junho: 'pendente',
+      janeiro: 'pago', fevereiro: 'pago',
+      marco: 'pago', abril: 'pendente', maio: 'pendente', junho: 'pendente',
       julho: 'pendente', agosto: 'pendente', setembro: 'pendente',
       outubro: 'pendente', novembro: 'pendente', dezembro: 'pendente',
     },
@@ -222,10 +222,18 @@ function getStudentByMatricula(matricula) {
   return students.find(s => s.matricula === matricula) || null;
 }
 
+function removeStudent(matricula) {
+  const students = getStudents().filter(s => s.matricula !== matricula);
+  saveStudents(students);
+  // Remove comprovantes desse aluno também
+  const comprovantes = getComprovantes().filter(c => c.matricula !== matricula);
+  saveComprovantes(comprovantes);
+}
+
 export {
   MONTHS_MAP, MONTH_KEYS,
   initData, getStudents, saveStudents, getComprovantes, saveComprovantes,
   login, getSession, logout,
   addStudent, addComprovante, confirmarComprovante, rejeitarComprovante,
-  getStudentByMatricula,
+  getStudentByMatricula, removeStudent,
 };

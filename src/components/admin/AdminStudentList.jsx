@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Eye, CheckCircle, Clock, AlertTriangle, XCircle, Search } from 'lucide-react';
-import { getStudents, MONTHS_MAP, MONTH_KEYS } from '@/lib/authStore';
+import { Eye, CheckCircle, Clock, AlertTriangle, XCircle, Search, Trash2 } from 'lucide-react';
+import { getStudents, MONTHS_MAP, MONTH_KEYS, removeStudent } from '@/lib/authStore';
 import { Input } from '@/components/ui/input';
+import { toast } from 'sonner';
 
 const statusConfig = {
   pago: { label: 'Pago', icon: CheckCircle, bg: 'bg-success/10 border-success/20', text: 'text-success' },
@@ -13,9 +14,17 @@ const statusConfig = {
 };
 
 export default function AdminStudentList() {
-  const students = getStudents();
+  const [students, setStudents] = useState(getStudents());
   const [selected, setSelected] = useState(null);
   const [search, setSearch] = useState('');
+  const [confirmDelete, setConfirmDelete] = useState(null);
+
+  const handleRemove = (matricula) => {
+    removeStudent(matricula);
+    setStudents(getStudents());
+    setConfirmDelete(null);
+    toast.success('Aluno removido.');
+  };
 
   const filtered = students.filter(s =>
     s.nome.toLowerCase().includes(search.toLowerCase()) ||
@@ -66,14 +75,24 @@ export default function AdminStudentList() {
                   <span className="font-bold text-foreground text-sm">R$ {s.mensalidade.toFixed(2).replace('.', ',')}</span>
                   <p className="text-xs text-muted-foreground mt-0.5">{pagos}/{total} meses pagos</p>
                 </div>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => setSelected(s)}
-                  className="h-8 px-3 rounded-lg text-xs"
-                >
-                  <Eye className="w-3.5 h-3.5 mr-1.5" /> Detalhes
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setSelected(s)}
+                    className="h-8 px-3 rounded-lg text-xs"
+                  >
+                    <Eye className="w-3.5 h-3.5 mr-1.5" /> Detalhes
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setConfirmDelete(s)}
+                    className="h-8 w-8 px-0 rounded-lg text-destructive border-destructive/20 hover:bg-destructive/10"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
               </div>
             );
           })}
@@ -82,6 +101,31 @@ export default function AdminStudentList() {
           )}
         </div>
       </div>
+
+      {/* Confirm delete dialog */}
+      <Dialog open={!!confirmDelete} onOpenChange={() => setConfirmDelete(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="text-destructive">Remover Aluno</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground mt-1">
+            Tem certeza que deseja remover <strong className="text-foreground">{confirmDelete?.nome}</strong>?
+            Esta ação não pode ser desfeita.
+          </p>
+          <div className="flex gap-3 mt-4">
+            <Button variant="outline" onClick={() => setConfirmDelete(null)} className="flex-1">
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => handleRemove(confirmDelete.matricula)}
+              className="flex-1"
+            >
+              <Trash2 className="w-4 h-4 mr-2" /> Remover
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={!!selected} onOpenChange={() => setSelected(null)}>
         <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">

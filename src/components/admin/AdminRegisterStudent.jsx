@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { UserPlus, Copy, CheckCircle } from 'lucide-react';
+import { UserPlus, Save, Eye, EyeOff } from 'lucide-react';
 import { addStudent } from '@/lib/authStore';
 import { toast } from 'sonner';
 
@@ -11,88 +10,111 @@ export default function AdminRegisterStudent({ onStudentAdded }) {
   const [nome, setNome] = useState('');
   const [responsavel, setResponsavel] = useState('');
   const [mensalidade, setMensalidade] = useState('');
-  const [generated, setGenerated] = useState(null);
+  const [matriculaCustom, setMatriculaCustom] = useState('');
+  const [senhaCustom, setSenhaCustom] = useState('');
+  const [showSenha, setShowSenha] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  const handleGenerate = () => {
+  const handleSave = () => {
     if (!nome.trim() || !responsavel.trim() || !mensalidade.trim()) {
-      toast.error('Preencha todos os campos.');
+      toast.error('Preencha nome, responsável e mensalidade.');
       return;
     }
-    const student = addStudent(nome.trim(), responsavel.trim(), mensalidade);
-    setGenerated(student);
-    toast.success('Matrícula e senha geradas!');
-  };
+    setSaving(true);
+    const result = addStudent(nome.trim(), responsavel.trim(), mensalidade, matriculaCustom, senhaCustom);
+    setSaving(false);
 
-  const handleConfirm = () => {
+    if (result?.error) {
+      toast.error(result.error);
+      return;
+    }
+
+    toast.success(`Aluno ${result.matricula} cadastrado com sucesso!`);
     setNome('');
     setResponsavel('');
     setMensalidade('');
-    setGenerated(null);
+    setMatriculaCustom('');
+    setSenhaCustom('');
     onStudentAdded();
-    toast.success('Aluno cadastrado com sucesso!');
-  };
-
-  const copyText = (text) => {
-    navigator.clipboard.writeText(text);
-    toast.success('Copiado!');
   };
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold text-foreground mb-6">Cadastrar Novo Aluno</h2>
-      <Card className="p-6 max-w-lg">
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label className="font-semibold">Nome Completo do Aluno</Label>
-            <Input value={nome} onChange={e => setNome(e.target.value)} placeholder="Nome do aluno" disabled={!!generated} />
-          </div>
-          <div className="space-y-2">
-            <Label className="font-semibold">Nome do Responsável</Label>
-            <Input value={responsavel} onChange={e => setResponsavel(e.target.value)} placeholder="Nome do responsável" disabled={!!generated} />
-          </div>
-          <div className="space-y-2">
-            <Label className="font-semibold">Valor da Mensalidade (R$)</Label>
-            <Input type="number" value={mensalidade} onChange={e => setMensalidade(e.target.value)} placeholder="Ex: 250" disabled={!!generated} />
-          </div>
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-xl font-bold text-foreground">Cadastrar Novo Aluno</h2>
+        <p className="text-muted-foreground text-sm mt-0.5">Preencha os dados do aluno. Matrícula e senha são opcionais — serão geradas automaticamente se não informadas.</p>
+      </div>
 
-          {!generated && (
-            <Button onClick={handleGenerate} className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-bold">
-              <UserPlus className="w-5 h-5 mr-2" />
-              Gerar Matrícula e Senha
-            </Button>
-          )}
-
-          {generated && (
-            <div className="mt-6 bg-success/5 border-2 border-success/30 rounded-xl p-6 space-y-3">
-              <h3 className="font-bold text-success flex items-center gap-2">
-                <CheckCircle className="w-5 h-5" /> Dados Gerados
-              </h3>
-              <div className="flex items-center justify-between bg-white rounded-lg px-4 py-3 border">
-                <div>
-                  <span className="text-xs text-muted-foreground">Matrícula</span>
-                  <p className="text-xl font-mono font-bold">{generated.matricula}</p>
-                </div>
-                <Button variant="ghost" size="icon" onClick={() => copyText(generated.matricula)}>
-                  <Copy className="w-4 h-4" />
-                </Button>
-              </div>
-              <div className="flex items-center justify-between bg-white rounded-lg px-4 py-3 border">
-                <div>
-                  <span className="text-xs text-muted-foreground">Senha</span>
-                  <p className="text-xl font-mono font-bold">{generated.senha}</p>
-                </div>
-                <Button variant="ghost" size="icon" onClick={() => copyText(generated.senha)}>
-                  <Copy className="w-4 h-4" />
-                </Button>
-              </div>
-              <p className="text-xs text-muted-foreground">⚠️ Anote esses dados e entregue ao responsável.</p>
-              <Button onClick={handleConfirm} className="w-full bg-success text-success-foreground hover:bg-success/90 font-bold">
-                Confirmar Cadastro
-              </Button>
+      <div className="bg-card rounded-2xl border border-border p-6 max-w-xl space-y-5">
+        {/* Dados pessoais */}
+        <div>
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">Dados Pessoais</p>
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label className="font-semibold text-sm">Nome Completo do Aluno *</Label>
+              <Input value={nome} onChange={e => setNome(e.target.value)} placeholder="Ex: João da Silva" className="h-10 bg-muted/30" />
             </div>
-          )}
+            <div className="space-y-1.5">
+              <Label className="font-semibold text-sm">Nome do Responsável *</Label>
+              <Input value={responsavel} onChange={e => setResponsavel(e.target.value)} placeholder="Ex: Maria da Silva" className="h-10 bg-muted/30" />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="font-semibold text-sm">Mensalidade (R$) *</Label>
+              <Input type="number" value={mensalidade} onChange={e => setMensalidade(e.target.value)} placeholder="Ex: 250" className="h-10 bg-muted/30" />
+            </div>
+          </div>
         </div>
-      </Card>
+
+        {/* Acesso */}
+        <div>
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">Acesso ao Sistema</p>
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label className="font-semibold text-sm">
+                Matrícula
+                <span className="ml-2 text-[10px] font-normal text-muted-foreground bg-muted px-2 py-0.5 rounded-full">opcional — gerada automaticamente</span>
+              </Label>
+              <Input
+                value={matriculaCustom}
+                onChange={e => setMatriculaCustom(e.target.value)}
+                placeholder="Ex: ALU0010 (deixe em branco para gerar)"
+                className="h-10 bg-muted/30 font-mono"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="font-semibold text-sm">
+                Senha
+                <span className="ml-2 text-[10px] font-normal text-muted-foreground bg-muted px-2 py-0.5 rounded-full">opcional — gerada automaticamente</span>
+              </Label>
+              <div className="relative">
+                <Input
+                  type={showSenha ? 'text' : 'password'}
+                  value={senhaCustom}
+                  onChange={e => setSenhaCustom(e.target.value)}
+                  placeholder="Deixe em branco para gerar"
+                  className="h-10 bg-muted/30 pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowSenha(!showSenha)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  {showSenha ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <Button
+          onClick={handleSave}
+          disabled={saving}
+          className="w-full h-11 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl shadow-lg shadow-primary/20"
+        >
+          <UserPlus className="w-4 h-4 mr-2" />
+          Cadastrar Aluno
+        </Button>
+      </div>
     </div>
   );
 }

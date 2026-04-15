@@ -1,95 +1,107 @@
 import React, { useState } from 'react';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Eye, CheckCircle, Clock, AlertTriangle, XCircle } from 'lucide-react';
+import { Eye, CheckCircle, Clock, AlertTriangle, XCircle, Search } from 'lucide-react';
 import { getStudents, MONTHS_MAP, MONTH_KEYS } from '@/lib/authStore';
+import { Input } from '@/components/ui/input';
+
+const statusConfig = {
+  pago: { label: 'Pago', icon: CheckCircle, bg: 'bg-success/10 border-success/20', text: 'text-success' },
+  pendente: { label: 'Pendente', icon: AlertTriangle, bg: 'bg-destructive/10 border-destructive/20', text: 'text-destructive' },
+  aguardando: { label: 'Aguardando', icon: Clock, bg: 'bg-warning/10 border-warning/20', text: 'text-warning' },
+  rejeitado: { label: 'Rejeitado', icon: XCircle, bg: 'bg-destructive/10 border-destructive/20', text: 'text-destructive' },
+};
 
 export default function AdminStudentList() {
   const students = getStudents();
-  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [selected, setSelected] = useState(null);
+  const [search, setSearch] = useState('');
 
-  const statusConfig = {
-    pago: { label: 'Pago', icon: CheckCircle, className: 'bg-success/10 text-success border-success/20' },
-    pendente: { label: 'Pendente', icon: AlertTriangle, className: 'bg-destructive/10 text-destructive border-destructive/20' },
-    aguardando: { label: 'Aguardando', icon: Clock, className: 'bg-warning/10 text-warning border-warning/20' },
-    rejeitado: { label: 'Rejeitado', icon: XCircle, className: 'bg-destructive/10 text-destructive border-destructive/20' },
-  };
+  const filtered = students.filter(s =>
+    s.nome.toLowerCase().includes(search.toLowerCase()) ||
+    s.matricula.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold text-foreground mb-6">Lista de Alunos</h2>
-      
-      {/* Desktop table */}
-      <Card className="hidden md:block overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-muted">
-              <tr>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-muted-foreground">Nome</th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-muted-foreground">Matrícula</th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-muted-foreground">Mensalidade</th>
-                <th className="text-right px-6 py-4 text-sm font-semibold text-muted-foreground">Ação</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {students.map(s => (
-                <tr key={s.matricula} className="hover:bg-muted/50 transition-colors">
-                  <td className="px-6 py-4 font-medium">{s.nome}</td>
-                  <td className="px-6 py-4 font-mono text-sm">{s.matricula}</td>
-                  <td className="px-6 py-4 font-semibold">R$ {s.mensalidade.toFixed(2).replace('.', ',')}</td>
-                  <td className="px-6 py-4 text-right">
-                    <Button size="sm" variant="outline" onClick={() => setSelectedStudent(s)}>
-                      <Eye className="w-4 h-4 mr-1" /> Ver Detalhes
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Card>
-
-      {/* Mobile cards */}
-      <div className="md:hidden space-y-3">
-        {students.map(s => (
-          <Card key={s.matricula} className="p-4">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="font-bold">{s.nome}</p>
-                <p className="text-sm text-muted-foreground font-mono">{s.matricula}</p>
-                <p className="text-sm font-semibold mt-1">R$ {s.mensalidade.toFixed(2).replace('.', ',')}</p>
-              </div>
-              <Button size="sm" variant="outline" onClick={() => setSelectedStudent(s)}>
-                <Eye className="w-4 h-4" />
-              </Button>
-            </div>
-          </Card>
-        ))}
+    <div className="space-y-5">
+      <div>
+        <h2 className="text-xl font-bold text-foreground">Lista de Alunos</h2>
+        <p className="text-muted-foreground text-sm mt-0.5">{students.length} alunos cadastrados</p>
       </div>
 
-      <Dialog open={!!selectedStudent} onOpenChange={() => setSelectedStudent(null)}>
+      <div className="relative max-w-sm">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Input
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Buscar por nome ou matrícula..."
+          className="pl-9 h-10 bg-card"
+        />
+      </div>
+
+      <div className="bg-card rounded-2xl border border-border overflow-hidden">
+        {/* Header */}
+        <div className="hidden md:grid grid-cols-[2fr_1fr_1fr_auto] gap-4 px-5 py-3 bg-muted/50 border-b border-border text-xs font-semibold text-muted-foreground uppercase tracking-widest">
+          <span>Aluno</span>
+          <span>Matrícula</span>
+          <span>Mensalidade</span>
+          <span>Ação</span>
+        </div>
+
+        <div className="divide-y divide-border">
+          {filtered.map(s => {
+            const pagos = Object.values(s.meses).filter(v => v === 'pago').length;
+            const total = MONTH_KEYS.length;
+            return (
+              <div key={s.matricula} className="grid md:grid-cols-[2fr_1fr_1fr_auto] gap-4 items-center px-5 py-4 hover:bg-muted/30 transition-colors">
+                <div>
+                  <p className="font-semibold text-foreground text-sm">{s.nome}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{s.responsavel}</p>
+                  <div className="flex items-center gap-1.5 mt-1.5 md:hidden">
+                    <span className="font-mono text-xs bg-muted px-2 py-0.5 rounded">{s.matricula}</span>
+                  </div>
+                </div>
+                <span className="hidden md:block font-mono text-sm text-foreground">{s.matricula}</span>
+                <div className="hidden md:block">
+                  <span className="font-bold text-foreground text-sm">R$ {s.mensalidade.toFixed(2).replace('.', ',')}</span>
+                  <p className="text-xs text-muted-foreground mt-0.5">{pagos}/{total} meses pagos</p>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setSelected(s)}
+                  className="h-8 px-3 rounded-lg text-xs"
+                >
+                  <Eye className="w-3.5 h-3.5 mr-1.5" /> Detalhes
+                </Button>
+              </div>
+            );
+          })}
+          {filtered.length === 0 && (
+            <div className="px-5 py-12 text-center text-muted-foreground text-sm">Nenhum aluno encontrado.</div>
+          )}
+        </div>
+      </div>
+
+      <Dialog open={!!selected} onOpenChange={() => setSelected(null)}>
         <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
-          {selectedStudent && (
+          {selected && (
             <>
               <DialogHeader>
-                <DialogTitle className="text-lg font-bold">{selectedStudent.nome}</DialogTitle>
-                <p className="text-sm text-muted-foreground">
-                  {selectedStudent.matricula} · R$ {selectedStudent.mensalidade.toFixed(2).replace('.', ',')}
-                </p>
+                <DialogTitle>{selected.nome}</DialogTitle>
+                <p className="text-sm text-muted-foreground font-mono">{selected.matricula} · R$ {selected.mensalidade.toFixed(2).replace('.', ',')}/mês</p>
               </DialogHeader>
-              <div className="grid grid-cols-2 gap-3 mt-4">
+              <div className="grid grid-cols-2 gap-2.5 mt-3">
                 {MONTH_KEYS.map(key => {
-                  const status = selectedStudent.meses[key] || 'pendente';
-                  const config = statusConfig[status];
-                  const Icon = config.icon;
+                  const status = selected.meses[key] || 'pendente';
+                  const cfg = statusConfig[status];
+                  const Icon = cfg.icon;
                   return (
-                    <div key={key} className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border ${config.className}`}>
-                      <Icon className="w-4 h-4 flex-shrink-0" />
+                    <div key={key} className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl border ${cfg.bg}`}>
+                      <Icon className={`w-4 h-4 flex-shrink-0 ${cfg.text}`} />
                       <div>
                         <p className="text-sm font-semibold">{MONTHS_MAP[key]}</p>
-                        <p className="text-xs">{config.label}</p>
+                        <p className={`text-xs ${cfg.text}`}>{cfg.label}</p>
                       </div>
                     </div>
                   );

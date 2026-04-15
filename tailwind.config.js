@@ -5,7 +5,8 @@ module.exports = {
   theme: {
   	extend: {
       fontFamily: {
-        poppins: ['var(--font-poppins)'],
+        inter: ['var(--font-inter)'],
+        poppins: ['var(--font-inter)'],
       },
   		borderRadius: {
   			lg: 'var(--radius)',

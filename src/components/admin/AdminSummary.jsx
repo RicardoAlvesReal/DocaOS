@@ -1,7 +1,6 @@
 import React from 'react';
-import { Users, CheckCircle, AlertTriangle, FileSearch } from 'lucide-react';
-import { Card } from '@/components/ui/card';
-import { getStudents, getComprovantes, MONTH_KEYS } from '@/lib/authStore';
+import { Users, CheckCircle, AlertTriangle, FileSearch, TrendingUp } from 'lucide-react';
+import { getStudents, getComprovantes, MONTH_KEYS, MONTHS_MAP } from '@/lib/authStore';
 
 export default function AdminSummary() {
   const students = getStudents();
@@ -9,9 +8,8 @@ export default function AdminSummary() {
   const pendingComprovantes = comprovantes.filter(c => c.status === 'aguardando');
 
   const now = new Date();
-  const currentMonthIndex = now.getMonth() - 2; // March=0
-  const currentMonthKey = currentMonthIndex >= 0 && currentMonthIndex < MONTH_KEYS.length
-    ? MONTH_KEYS[currentMonthIndex] : null;
+  // Map JS getMonth() (0=Jan) to MONTH_KEYS index
+  const currentMonthKey = MONTH_KEYS[now.getMonth()] || null;
 
   let pagosNoMes = 0;
   let inadimplentes = 0;
@@ -23,28 +21,70 @@ export default function AdminSummary() {
   }
 
   const stats = [
-    { label: 'Total de Alunos', value: students.length, icon: Users, color: 'bg-secondary text-secondary-foreground' },
-    { label: 'Pagamentos Confirmados', value: pagosNoMes, icon: CheckCircle, color: 'bg-success/10 text-success' },
-    { label: 'Inadimplentes', value: inadimplentes, icon: AlertTriangle, color: 'bg-destructive/10 text-destructive' },
-    { label: 'Comprovantes Pendentes', value: pendingComprovantes.length, icon: FileSearch, color: 'bg-warning/10 text-warning', highlight: pendingComprovantes.length > 0 },
+    {
+      label: 'Total de Alunos',
+      value: students.length,
+      icon: Users,
+      iconBg: 'bg-primary/10',
+      iconColor: 'text-primary',
+      trend: null,
+    },
+    {
+      label: `Pagos em ${MONTHS_MAP[currentMonthKey] || '—'}`,
+      value: pagosNoMes,
+      icon: CheckCircle,
+      iconBg: 'bg-success/10',
+      iconColor: 'text-success',
+      trend: null,
+    },
+    {
+      label: 'Inadimplentes',
+      value: inadimplentes,
+      icon: AlertTriangle,
+      iconBg: 'bg-destructive/10',
+      iconColor: 'text-destructive',
+      trend: null,
+    },
+    {
+      label: 'Comprovantes Pendentes',
+      value: pendingComprovantes.length,
+      icon: FileSearch,
+      iconBg: pendingComprovantes.length > 0 ? 'bg-warning/10' : 'bg-muted',
+      iconColor: pendingComprovantes.length > 0 ? 'text-warning' : 'text-muted-foreground',
+      highlight: pendingComprovantes.length > 0,
+    },
   ];
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold text-foreground mb-6">Resumo Geral</h2>
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-xl font-bold text-foreground">Resumo Geral</h2>
+        <p className="text-muted-foreground text-sm mt-0.5">Visão geral do sistema</p>
+      </div>
+
+      <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-4">
         {stats.map((stat, i) => (
-          <Card key={i} className={`p-6 border ${stat.highlight ? 'border-warning bg-warning/5 ring-2 ring-warning/20' : 'border-border'}`}>
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground font-medium">{stat.label}</p>
-                <p className="text-3xl font-bold text-foreground mt-1">{stat.value}</p>
+          <div
+            key={i}
+            className={`bg-card rounded-2xl p-5 border transition-all ${
+              stat.highlight
+                ? 'border-warning/40 shadow-lg shadow-warning/8'
+                : 'border-border hover:border-border/80 hover:shadow-md'
+            }`}
+          >
+            <div className="flex items-start justify-between mb-4">
+              <div className={`w-10 h-10 rounded-xl ${stat.iconBg} flex items-center justify-center`}>
+                <stat.icon className={`w-5 h-5 ${stat.iconColor}`} />
               </div>
-              <div className={`w-12 h-12 rounded-xl ${stat.color} flex items-center justify-center`}>
-                <stat.icon className="w-6 h-6" />
-              </div>
+              {stat.highlight && (
+                <span className="text-[10px] font-bold bg-warning/10 text-warning px-2 py-0.5 rounded-full border border-warning/20">
+                  ATENÇÃO
+                </span>
+              )}
             </div>
-          </Card>
+            <p className="text-3xl font-black text-foreground">{stat.value}</p>
+            <p className="text-sm text-muted-foreground mt-1">{stat.label}</p>
+          </div>
         ))}
       </div>
     </div>

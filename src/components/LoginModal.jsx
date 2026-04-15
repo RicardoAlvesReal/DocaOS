@@ -24,60 +24,54 @@ export default function LoginModal({ open, onOpenChange }) {
     onOpenChange(false);
     setMatricula('');
     setSenha('');
-    if (session.type === 'admin') {
-      navigate('/admin');
-    } else {
-      navigate('/aluno');
-    }
+    navigate(session.type === 'admin' ? '/admin' : '/aluno');
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md border-border/50">
         <DialogHeader>
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
-              <Bus className="w-5 h-5 text-primary-foreground" />
+          <div className="flex items-center gap-3 mb-1">
+            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/30">
+              <Bus className="w-5 h-5 text-white" />
             </div>
-            <DialogTitle className="text-xl font-bold">Área de Acesso</DialogTitle>
+            <div>
+              <DialogTitle className="text-xl font-bold">Área de Acesso</DialogTitle>
+              <p className="text-xs text-muted-foreground">VanEscolar+</p>
+            </div>
           </div>
-          <p className="text-sm text-muted-foreground">
-            Entre com sua matrícula e senha para acessar o sistema.
-          </p>
         </DialogHeader>
 
         <form onSubmit={handleLogin} className="space-y-4 mt-2">
-          <div className="space-y-2">
-            <Label htmlFor="matricula" className="font-semibold">Matrícula</Label>
+          <div className="space-y-1.5">
+            <Label className="font-semibold text-sm">Matrícula</Label>
             <Input
-              id="matricula"
               placeholder="Ex: ALU0001 ou ADMIN2025"
               value={matricula}
-              onChange={(e) => setMatricula(e.target.value)}
-              className="h-12"
+              onChange={e => setMatricula(e.target.value)}
+              className="h-11 bg-muted/40 border-border/60 focus:border-primary"
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="senha" className="font-semibold">Senha</Label>
+          <div className="space-y-1.5">
+            <Label className="font-semibold text-sm">Senha</Label>
             <Input
-              id="senha"
               type="password"
               placeholder="Digite sua senha"
               value={senha}
-              onChange={(e) => setSenha(e.target.value)}
-              className="h-12"
+              onChange={e => setSenha(e.target.value)}
+              className="h-11 bg-muted/40 border-border/60 focus:border-primary"
             />
           </div>
 
           {error && (
-            <div className="flex items-center gap-2 text-destructive text-sm bg-destructive/10 rounded-lg px-3 py-2">
+            <div className="flex items-center gap-2 text-destructive text-sm bg-destructive/8 rounded-xl px-3 py-2.5 border border-destructive/20">
               <AlertCircle className="w-4 h-4 flex-shrink-0" />
               {error}
             </div>
           )}
 
-          <Button type="submit" className="w-full h-12 bg-primary text-primary-foreground hover:bg-primary/90 font-bold text-base rounded-xl">
-            <LogIn className="w-5 h-5 mr-2" />
+          <Button type="submit" className="w-full h-11 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl shadow-lg shadow-primary/20">
+            <LogIn className="w-4 h-4 mr-2" />
             Entrar
           </Button>
         </form>

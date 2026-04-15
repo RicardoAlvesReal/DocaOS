@@ -57,8 +57,7 @@ const MONTHS_MAP = {
 const MONTH_KEYS = ['janeiro', 'fevereiro', 'marco', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
 
 function initData() {
-  // Force reset if schema version changed (janeiro/fevereiro added)
-  const schemaVersion = '2';
+  const schemaVersion = '3';
   if (localStorage.getItem('vanescolar_schema') !== schemaVersion) {
     localStorage.removeItem('vanescolar_students');
     localStorage.removeItem('vanescolar_comprovantes');
@@ -96,8 +95,7 @@ function saveComprovantes(comprovantes) {
 
 function getNextId() {
   initData();
-  const id = parseInt(localStorage.getItem('vanescolar_next_id') || '4');
-  return id;
+  return parseInt(localStorage.getItem('vanescolar_next_id') || '4');
 }
 
 function incrementId() {
@@ -131,11 +129,24 @@ function logout() {
   localStorage.removeItem('vanescolar_session');
 }
 
-function addStudent(nome, responsavel, mensalidade) {
+// Agora aceita matrícula e senha definidos pelo admin
+function addStudent(nome, responsavel, mensalidade, matriculaCustom, senhaCustom) {
   const students = getStudents();
-  const id = incrementId();
-  const matricula = 'ALU' + String(id).padStart(4, '0');
-  const senha = String(Math.floor(100000 + Math.random() * 900000));
+
+  // Se matrícula custom não foi fornecida, gera automaticamente
+  let matricula = matriculaCustom ? matriculaCustom.trim().toUpperCase() : null;
+  if (!matricula) {
+    const id = incrementId();
+    matricula = 'ALU' + String(id).padStart(4, '0');
+  } else {
+    // Verificar duplicata
+    if (students.find(s => s.matricula === matricula)) {
+      return { error: 'Matrícula já existe.' };
+    }
+  }
+
+  const senha = senhaCustom ? senhaCustom.trim() : String(Math.floor(100000 + Math.random() * 900000));
+
   const newStudent = {
     nome, responsavel, matricula, senha,
     mensalidade: parseFloat(mensalidade),
@@ -177,14 +188,14 @@ function confirmarComprovante(comprovanteId) {
   const idx = comprovantes.findIndex(c => c.id === comprovanteId);
   if (idx === -1) return;
   const comp = comprovantes[idx];
-  
+
   const students = getStudents();
   const sIdx = students.findIndex(s => s.matricula === comp.matricula);
   if (sIdx !== -1) {
     students[sIdx].meses[comp.mesKey] = 'pago';
     saveStudents(students);
   }
-  
+
   comprovantes.splice(idx, 1);
   saveComprovantes(comprovantes);
 }

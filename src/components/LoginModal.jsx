@@ -47,7 +47,7 @@ export default function LoginModal({ open, onOpenChange }) {
           <div className="space-y-1.5">
             <Label className="font-semibold text-sm">Matrícula</Label>
             <Input
-              placeholder="Ex: ALU0001 ou ADMIN2025"
+              placeholder="Digite sua matrícula"
               value={matricula}
               onChange={e => setMatricula(e.target.value)}
               className="h-11 bg-muted/40 border-border/60 focus:border-primary"

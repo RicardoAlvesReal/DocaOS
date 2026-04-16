@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Bus, LogIn, AlertCircle } from 'lucide-react';
+import { Bus, LogIn, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { login } from '@/lib/authStore';
 import { useNavigate } from 'react-router-dom';
 
@@ -11,6 +11,7 @@ export default function LoginModal({ open, onOpenChange }) {
   const [matricula, setMatricula] = useState('');
   const [senha, setSenha] = useState('');
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = (e) => {
@@ -54,13 +55,22 @@ export default function LoginModal({ open, onOpenChange }) {
           </div>
           <div className="space-y-1.5">
             <Label className="font-semibold text-sm">Senha</Label>
-            <Input
-              type="password"
-              placeholder="Digite sua senha"
-              value={senha}
-              onChange={e => setSenha(e.target.value)}
-              className="h-11 bg-muted/40 border-border/60 focus:border-primary"
-            />
+            <div className="relative">
+              <Input
+                type={showPassword ? "text" : "password"}
+                placeholder="Digite sua senha"
+                value={senha}
+                onChange={e => setSenha(e.target.value)}
+                className="h-11 bg-muted/40 border-border/60 focus:border-primary pr-11"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
+            </div>
           </div>
 
           {error && (

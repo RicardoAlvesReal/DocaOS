@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, Users, Clock, Calendar, Home, Building2 } from 'lucide-react';
 
@@ -36,6 +36,47 @@ const benefits = [
   },
 ];
 
+function BenefitCard({ b, i }) {
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay: i * 0.07 }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      className="rounded-2xl p-6 border transition-all duration-300 cursor-default"
+      style={{
+        background: hovered ? '#1e2d4a' : '#161b27',
+        borderColor: hovered || b.highlight ? '#3b82f6' : '#1e2535',
+        transform: hovered ? 'translateY(-4px)' : 'translateY(0)',
+        boxShadow: hovered ? '0 8px 32px rgba(59,130,246,0.15)' : 'none',
+      }}
+    >
+      <div
+        className="w-11 h-11 rounded-xl flex items-center justify-center mb-5 transition-all duration-300"
+        style={{ background: hovered || b.highlight ? '#3b82f6' : '#1e2d4a' }}
+      >
+        <b.icon className="w-5 h-5 text-white" />
+      </div>
+      <h3
+        className="text-base font-bold mb-2 transition-colors duration-300"
+        style={{ color: hovered || b.highlight ? '#3b82f6' : '#ffffff' }}
+      >
+        {b.title}
+      </h3>
+      <p className="text-sm leading-relaxed" style={{ color: '#8b92a5' }}>
+        {b.description}
+      </p>
+      {(b.highlight || hovered) && (
+        <div className="mt-4 h-0.5 rounded-full bg-blue-500 transition-all duration-300" style={{ width: hovered ? '100%' : '4rem' }} />
+      )}
+    </motion.div>
+  );
+}
+
 export default function BenefitsSection() {
   return (
     <section style={{ background: '#0d1117' }} className="py-24">
@@ -53,37 +94,7 @@ export default function BenefitsSection() {
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {benefits.map((b, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.07 }}
-              className="rounded-2xl p-6 border transition-all duration-300 cursor-default"
-              style={{
-                background: '#161b27',
-                borderColor: b.highlight ? '#3b82f6' : '#1e2535',
-              }}
-            >
-              <div
-                className="w-11 h-11 rounded-xl flex items-center justify-center mb-5"
-                style={{ background: b.highlight ? '#3b82f6' : '#1e2d4a' }}
-              >
-                <b.icon className="w-5 h-5 text-white" />
-              </div>
-              <h3
-                className="text-base font-bold mb-2"
-                style={{ color: b.highlight ? '#3b82f6' : '#ffffff' }}
-              >
-                {b.title}
-              </h3>
-              <p className="text-sm leading-relaxed" style={{ color: '#8b92a5' }}>
-                {b.description}
-              </p>
-              {b.highlight && (
-                <div className="mt-4 h-0.5 w-16 rounded-full bg-blue-500" />
-              )}
-            </motion.div>
+            <BenefitCard key={i} b={b} i={i} />
           ))}
         </div>
       </div>

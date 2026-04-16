@@ -145,7 +145,7 @@ function addStudent(nome, responsavel, mensalidade, matriculaCustom, senhaCustom
     }
   }
 
-  const senha = senhaCustom ? senhaCustom.trim() : String(Math.floor(100000 + Math.random() * 900000));
+  const senha = (senhaCustom && senhaCustom.trim()) ? senhaCustom.trim() : String(Math.floor(100000 + Math.random() * 900000));
 
   const newStudent = {
     nome, responsavel, matricula, senha,

@@ -6,8 +6,30 @@ export default function StudentPixInfo({ student }) {
   const pixKey = '27997114156';
 
   const copyPix = () => {
-    navigator.clipboard.writeText(pixKey);
-    toast.success('Chave Pix copiada!');
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(pixKey)
+        .then(() => toast.success('Chave Pix copiada!'))
+        .catch(() => fallbackCopy());
+    } else {
+      fallbackCopy();
+    }
+  };
+
+  const fallbackCopy = () => {
+    const el = document.createElement('textarea');
+    el.value = pixKey;
+    el.style.position = 'fixed';
+    el.style.opacity = '0';
+    document.body.appendChild(el);
+    el.focus();
+    el.select();
+    try {
+      document.execCommand('copy');
+      toast.success('Chave Pix copiada!');
+    } catch {
+      toast.error('Não foi possível copiar. Copie manualmente: ' + pixKey);
+    }
+    document.body.removeChild(el);
   };
 
   return (
@@ -17,7 +39,13 @@ export default function StudentPixInfo({ student }) {
         {/* Pix key box */}
         <div className="rounded-xl p-5 border" style={{ background: '#1e2d4a', borderColor: '#3b82f6' }}>
           <p className="text-[10px] font-semibold uppercase tracking-widest mb-2" style={{ color: '#8b92a5' }}>Chave Pix</p>
-          <p className="text-2xl font-mono font-black text-white">{pixKey}</p>
+          <p
+            className="text-2xl font-mono font-black text-white cursor-pointer hover:text-blue-400 transition-colors select-all"
+            onClick={copyPix}
+            title="Clique para copiar"
+          >
+            {pixKey}
+          </p>
           <p className="text-sm mt-1.5 flex items-center gap-1.5" style={{ color: '#8b92a5' }}>
             <Smartphone className="w-4 h-4" /> Tipo da chave: Telefone
           </p>

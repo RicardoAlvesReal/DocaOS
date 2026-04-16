@@ -1,7 +1,4 @@
 import React, { useState, useRef } from 'react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Upload, CheckCircle } from 'lucide-react';
 import { addComprovante, MONTHS_MAP, MONTH_KEYS } from '@/lib/authStore';
@@ -32,7 +29,6 @@ export default function StudentUpload({ student, onUpdate }) {
   const handleSubmit = () => {
     if (!selectedMonth) { toast.error('Selecione o mês.'); return; }
     if (!file) { toast.error('Selecione um arquivo.'); return; }
-    
     setSending(true);
     const reader = new FileReader();
     reader.onload = () => {
@@ -49,60 +45,79 @@ export default function StudentUpload({ student, onUpdate }) {
 
   return (
     <div>
-      <h2 className="text-xl font-bold text-foreground mb-4">📤 Enviar Comprovante</h2>
-      <Card className="p-6 max-w-lg">
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label className="font-semibold">Mês Referente</Label>
-            <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione o mês" />
-              </SelectTrigger>
-              <SelectContent>
-                {availableMonths.map(k => (
-                  <SelectItem key={k} value={k}>{MONTHS_MAP[k]}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label className="font-semibold">Comprovante (JPG, PNG ou PDF)</Label>
-            <div
-              onClick={() => fileRef.current?.click()}
-              className="border-2 border-dashed border-border rounded-xl p-6 text-center cursor-pointer hover:border-primary/50 transition-colors"
+      <h2 className="text-base font-bold text-white mb-5">Enviar Comprovante de Pagamento</h2>
+      <div className="space-y-4 max-w-lg">
+        {/* Month select */}
+        <div className="space-y-2">
+          <label className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#8b92a5' }}>
+            Mês Referente
+          </label>
+          <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+            <SelectTrigger
+              className="h-11 rounded-xl border text-white"
+              style={{ background: '#1e2535', borderColor: '#2a3347' }}
             >
-              {file ? (
-                <div className="flex items-center gap-2 justify-center text-success">
-                  <CheckCircle className="w-5 h-5" />
-                  <span className="font-medium text-sm">{file.name}</span>
-                </div>
+              <SelectValue placeholder="Selecione o mês" />
+            </SelectTrigger>
+            <SelectContent>
+              {availableMonths.length === 0 ? (
+                <SelectItem value="none" disabled>Sem meses pendentes</SelectItem>
               ) : (
-                <>
-                  <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                  <p className="text-sm text-muted-foreground">Clique para selecionar o arquivo</p>
-                </>
+                availableMonths.map(k => (
+                  <SelectItem key={k} value={k}>{MONTHS_MAP[k]}</SelectItem>
+                ))
               )}
-            </div>
-            <input
-              ref={fileRef}
-              type="file"
-              accept=".jpg,.jpeg,.png,.pdf"
-              className="hidden"
-              onChange={handleFileChange}
-            />
-          </div>
-
-          <Button
-            onClick={handleSubmit}
-            disabled={sending || !selectedMonth || !file}
-            className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-bold h-12"
-          >
-            <Upload className="w-5 h-5 mr-2" />
-            Enviar Comprovante
-          </Button>
+            </SelectContent>
+          </Select>
         </div>
-      </Card>
+
+        {/* File upload */}
+        <div className="space-y-2">
+          <label className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#8b92a5' }}>
+            Comprovante (JPG, PNG ou PDF)
+          </label>
+          <div
+            onClick={() => fileRef.current?.click()}
+            className="rounded-xl p-8 text-center cursor-pointer border-2 border-dashed transition-all"
+            style={{
+              background: '#161b27',
+              borderColor: file ? '#22c55e' : '#2a3347',
+            }}
+          >
+            {file ? (
+              <div className="flex items-center gap-2 justify-center">
+                <CheckCircle className="w-5 h-5 text-emerald-400" />
+                <span className="font-medium text-sm text-emerald-400">{file.name}</span>
+              </div>
+            ) : (
+              <>
+                <Upload className="w-8 h-8 mx-auto mb-2" style={{ color: '#8b92a5' }} />
+                <p className="text-sm" style={{ color: '#8b92a5' }}>Clique para selecionar o arquivo</p>
+                <p className="text-xs mt-1" style={{ color: '#4a5165' }}>JPG, PNG ou PDF</p>
+              </>
+            )}
+          </div>
+          <input
+            ref={fileRef}
+            type="file"
+            accept=".jpg,.jpeg,.png,.pdf"
+            className="hidden"
+            onChange={handleFileChange}
+          />
+        </div>
+
+        <button
+          onClick={handleSubmit}
+          disabled={sending || !selectedMonth || !file}
+          className="w-full h-11 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          style={{ background: '#3b82f6' }}
+          onMouseEnter={e => !e.currentTarget.disabled && (e.currentTarget.style.background = '#2563eb')}
+          onMouseLeave={e => (e.currentTarget.style.background = '#3b82f6')}
+        >
+          <Upload className="w-4 h-4" />
+          {sending ? 'Enviando...' : 'Enviar Comprovante'}
+        </button>
+      </div>
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/landing/Navbar';
 import HeroSection from '@/components/landing/HeroSection';
 import BenefitsSection from '@/components/landing/BenefitsSection';
+import FleetSection from '@/components/landing/FleetSection';
 import Footer from '@/components/landing/Footer';
 import LoginModal from '@/components/LoginModal';
 import { getSession } from '@/lib/authStore';
@@ -23,6 +24,7 @@ export default function Landing() {
       <Navbar onOpenLogin={() => setLoginOpen(true)} />
       <HeroSection onOpenLogin={() => setLoginOpen(true)} />
       <BenefitsSection />
+      <FleetSection />
       <Footer />
       <LoginModal open={loginOpen} onOpenChange={setLoginOpen} />
     </div>

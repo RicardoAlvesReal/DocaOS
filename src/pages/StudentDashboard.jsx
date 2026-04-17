@@ -19,22 +19,21 @@ export default function StudentDashboard() {
   const [student, setStudent] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const session = getSession();
-
   useEffect(() => {
+    const session = getSession();
     if (!session || session.type !== 'aluno') {
       navigate('/');
       return;
     }
-    // Delay to avoid rate limiting on rapid refreshes
-    const timeout = setTimeout(() => {
-      getStudentByMatricula(session.matricula).then(s => {
-        if (!s) { navigate('/'); return; }
-        setStudent(s);
-        setLoading(false);
-      });
-    }, refreshKey === 0 ? 0 : 2000);
-    return () => clearTimeout(timeout);
+    let cancelled = false;
+    setLoading(true);
+    getStudentByMatricula(session.matricula).then(s => {
+      if (cancelled) return;
+      if (!s) { navigate('/'); return; }
+      setStudent(s);
+      setLoading(false);
+    });
+    return () => { cancelled = true; };
   }, [refreshKey]);
 
   const handleLogout = () => {

@@ -47,6 +47,8 @@ export async function login(matricula, senha) {
   const alunos = await base44.entities.Aluno.filter({ matricula: matricula.trim().toUpperCase() });
   const aluno = alunos.find(a => a.senha === senha.trim());
   if (aluno) {
+    // Pre-populate cache so StudentDashboard doesn't need to fetch again
+    studentCache.set(aluno.matricula, aluno);
     const session = { type: 'aluno', matricula: aluno.matricula, nome: aluno.nome };
     localStorage.setItem('vanescolar_session', JSON.stringify(session));
     return session;

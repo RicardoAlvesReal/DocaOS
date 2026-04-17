@@ -26,11 +26,15 @@ export default function StudentDashboard() {
       navigate('/');
       return;
     }
-    getStudentByMatricula(session.matricula).then(s => {
-      if (!s) { navigate('/'); return; }
-      setStudent(s);
-      setLoading(false);
-    });
+    // Delay to avoid rate limiting on rapid refreshes
+    const timeout = setTimeout(() => {
+      getStudentByMatricula(session.matricula).then(s => {
+        if (!s) { navigate('/'); return; }
+        setStudent(s);
+        setLoading(false);
+      });
+    }, refreshKey === 0 ? 0 : 2000);
+    return () => clearTimeout(timeout);
   }, [refreshKey]);
 
   const handleLogout = () => {

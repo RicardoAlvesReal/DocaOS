@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getSession, logout, getStudentByMatricula, invalidateStudentCache } from '@/lib/authStore';
+import { getSession, logout, getStudentByMatricula } from '@/lib/authStore';
 import { Bus, LogOut, User, CreditCard, Upload, Info, Loader2 } from 'lucide-react';
 import StudentMonthlyGrid from '@/components/student/StudentMonthlyGrid';
 import StudentUpload from '@/components/student/StudentUpload';
@@ -18,6 +18,7 @@ export default function StudentDashboard() {
   const [activeTab, setActiveTab] = useState('pagamentos');
   const [student, setStudent] = useState(null);
   const [loading, setLoading] = useState(true);
+  const fetchingRef = useRef(false);
 
   useEffect(() => {
     const session = getSession();
@@ -25,14 +26,25 @@ export default function StudentDashboard() {
       navigate('/');
       return;
     }
+
+    // Prevent concurrent fetches
+    if (fetchingRef.current) return;
+    fetchingRef.current = true;
+
     let cancelled = false;
     setLoading(true);
-    getStudentByMatricula(session.matricula, refreshKey > 0).then(s => {
-      if (cancelled) return;
-      if (!s) { navigate('/'); return; }
-      setStudent(s);
-      setLoading(false);
-    });
+
+    getStudentByMatricula(session.matricula, refreshKey > 0)
+      .then(s => {
+        if (cancelled) return;
+        if (!s) { navigate('/'); return; }
+        setStudent(s);
+        setLoading(false);
+      })
+      .finally(() => {
+        fetchingRef.current = false;
+      });
+
     return () => { cancelled = true; };
   }, [refreshKey]);
 

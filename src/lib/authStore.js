@@ -59,9 +59,22 @@ export async function getStudents() {
   return await base44.entities.Aluno.list('-created_date', 200);
 }
 
-export async function getStudentByMatricula(matricula) {
+// In-memory cache to prevent rate limiting
+const studentCache = new Map();
+
+export async function getStudentByMatricula(matricula, bustCache = false) {
+  if (!bustCache && studentCache.has(matricula)) {
+    return studentCache.get(matricula);
+  }
   const alunos = await base44.entities.Aluno.filter({ matricula });
-  return alunos[0] || null;
+  const aluno = alunos[0] || null;
+  if (aluno) studentCache.set(matricula, aluno);
+  return aluno;
+}
+
+export function invalidateStudentCache(matricula) {
+  if (matricula) studentCache.delete(matricula);
+  else studentCache.clear();
 }
 
 export async function addStudent(nome, responsavel, mensalidade, matriculaCustom, senhaCustom) {
@@ -130,6 +143,7 @@ export async function addComprovante(matricula, mesKey, fileUrl, fileName) {
     const aluno = alunos[0];
     const meses = { ...aluno.meses, [mesKey]: 'aguardando' };
     await base44.entities.Aluno.update(aluno.id, { meses });
+    invalidateStudentCache(matricula);
   }
 }
 

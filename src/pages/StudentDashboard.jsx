@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getSession, logout, getStudentByMatricula } from '@/lib/authStore';
+import { getSession, logout, getStudentByMatricula, invalidateStudentCache } from '@/lib/authStore';
 import { Bus, LogOut, User, CreditCard, Upload, Info, Loader2 } from 'lucide-react';
 import StudentMonthlyGrid from '@/components/student/StudentMonthlyGrid';
 import StudentUpload from '@/components/student/StudentUpload';
@@ -27,7 +27,7 @@ export default function StudentDashboard() {
     }
     let cancelled = false;
     setLoading(true);
-    getStudentByMatricula(session.matricula).then(s => {
+    getStudentByMatricula(session.matricula, refreshKey > 0).then(s => {
       if (cancelled) return;
       if (!s) { navigate('/'); return; }
       setStudent(s);

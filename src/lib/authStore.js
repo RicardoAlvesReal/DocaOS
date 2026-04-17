@@ -59,22 +59,44 @@ export async function getStudents() {
   return await base44.entities.Aluno.list('-created_date', 200);
 }
 
-// In-memory cache to prevent rate limiting
+// In-memory cache and in-flight promise deduplication
 const studentCache = new Map();
+const studentInflight = new Map();
 
 export async function getStudentByMatricula(matricula, bustCache = false) {
   if (!bustCache && studentCache.has(matricula)) {
     return studentCache.get(matricula);
   }
-  const alunos = await base44.entities.Aluno.filter({ matricula });
-  const aluno = alunos[0] || null;
-  if (aluno) studentCache.set(matricula, aluno);
-  return aluno;
+
+  // If there's already a request in-flight for this matricula, reuse it
+  if (studentInflight.has(matricula)) {
+    return studentInflight.get(matricula);
+  }
+
+  const promise = base44.entities.Aluno.filter({ matricula })
+    .then(alunos => {
+      const aluno = alunos[0] || null;
+      if (aluno) studentCache.set(matricula, aluno);
+      studentInflight.delete(matricula);
+      return aluno;
+    })
+    .catch(err => {
+      studentInflight.delete(matricula);
+      throw err;
+    });
+
+  studentInflight.set(matricula, promise);
+  return promise;
 }
 
 export function invalidateStudentCache(matricula) {
-  if (matricula) studentCache.delete(matricula);
-  else studentCache.clear();
+  if (matricula) {
+    studentCache.delete(matricula);
+    studentInflight.delete(matricula);
+  } else {
+    studentCache.clear();
+    studentInflight.clear();
+  }
 }
 
 export async function addStudent(nome, responsavel, mensalidade, matriculaCustom, senhaCustom) {

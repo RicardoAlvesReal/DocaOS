@@ -25,8 +25,15 @@ export default function AdminDashboard() {
     navigate('/');
   };
 
+  const [pendingCount, setPendingCount] = useState(0);
+
+  useEffect(() => {
+    getComprovantes().then(comps => {
+      setPendingCount(comps.filter(c => c.status === 'aguardando').length);
+    });
+  }, [refreshKey]);
+
   const refresh = () => setRefreshKey(k => k + 1);
-  const pendingCount = getComprovantes().filter(c => c.status === 'aguardando').length;
 
   return (
     <div className="min-h-screen bg-background">

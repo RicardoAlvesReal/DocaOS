@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { UserPlus, Save, Eye, EyeOff } from 'lucide-react';
+import { UserPlus, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { addStudent } from '@/lib/authStore';
 import { toast } from 'sonner';
 
@@ -15,13 +15,13 @@ export default function AdminRegisterStudent({ onStudentAdded }) {
   const [showSenha, setShowSenha] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!nome.trim() || !responsavel.trim() || !mensalidade.trim()) {
       toast.error('Preencha nome, responsável e mensalidade.');
       return;
     }
     setSaving(true);
-    const result = addStudent(nome.trim(), responsavel.trim(), mensalidade, matriculaCustom, senhaCustom);
+    const result = await addStudent(nome.trim(), responsavel.trim(), mensalidade, matriculaCustom, senhaCustom);
     setSaving(false);
 
     if (result?.error) {
@@ -46,7 +46,6 @@ export default function AdminRegisterStudent({ onStudentAdded }) {
       </div>
 
       <div className="bg-card rounded-2xl border border-border p-6 max-w-xl space-y-5">
-        {/* Dados pessoais */}
         <div>
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">Dados Pessoais</p>
           <div className="space-y-3">
@@ -65,7 +64,6 @@ export default function AdminRegisterStudent({ onStudentAdded }) {
           </div>
         </div>
 
-        {/* Acesso */}
         <div>
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">Acesso ao Sistema</p>
           <div className="space-y-3">
@@ -111,8 +109,8 @@ export default function AdminRegisterStudent({ onStudentAdded }) {
           disabled={saving}
           className="w-full h-11 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl shadow-lg shadow-primary/20"
         >
-          <UserPlus className="w-4 h-4 mr-2" />
-          Cadastrar Aluno
+          {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <UserPlus className="w-4 h-4 mr-2" />}
+          {saving ? 'Cadastrando...' : 'Cadastrar Aluno'}
         </Button>
       </div>
     </div>

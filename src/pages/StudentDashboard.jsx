@@ -1,41 +1,56 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getSession, logout, getStudentByMatricula } from '@/lib/authStore';
-import { Bus, LogOut, User, CreditCard, Upload, Info } from 'lucide-react';
+import { Bus, LogOut, User, CreditCard, Upload, Info, Loader2 } from 'lucide-react';
 import StudentMonthlyGrid from '@/components/student/StudentMonthlyGrid';
 import StudentUpload from '@/components/student/StudentUpload';
 import StudentPixInfo from '@/components/student/StudentPixInfo';
 
 const TABS = [
   { key: 'pagamentos', label: 'Meus Pagamentos', icon: CreditCard },
-  { key: 'enviar', label: 'Enviar Comprovante', icon: Upload },
   { key: 'pix', label: 'Como Pagar', icon: Info },
+  { key: 'enviar', label: 'Enviar Comprovante', icon: Upload },
 ];
 
 export default function StudentDashboard() {
   const navigate = useNavigate();
   const [refreshKey, setRefreshKey] = useState(0);
   const [activeTab, setActiveTab] = useState('pagamentos');
+  const [student, setStudent] = useState(null);
+  const [loading, setLoading] = useState(true);
+
   const session = getSession();
 
-  if (!session || session.type !== 'aluno') {
-    navigate('/');
-    return null;
-  }
-
-  const student = getStudentByMatricula(session.matricula);
-  if (!student) return null;
+  useEffect(() => {
+    if (!session || session.type !== 'aluno') {
+      navigate('/');
+      return;
+    }
+    getStudentByMatricula(session.matricula).then(s => {
+      if (!s) { navigate('/'); return; }
+      setStudent(s);
+      setLoading(false);
+    });
+  }, [refreshKey]);
 
   const handleLogout = () => {
     logout();
     navigate('/');
   };
 
-  const pagoCount = Object.values(student.meses).filter(v => v === 'pago').length;
-  const pendCount = Object.values(student.meses).filter(v => v === 'pendente' || v === 'rejeitado').length;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#0a0c12' }}>
+        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+      </div>
+    );
+  }
+
+  const pagoCount = Object.values(student.meses || {}).filter(v => v === 'pago').length;
+  const pendCount = Object.values(student.meses || {}).filter(v => v === 'pendente' || v === 'rejeitado').length;
 
   return (
-    <div className="min-h-screen" style={{ background: '#0a0c12' }} key={refreshKey}>
+    <div className="min-h-screen" style={{ background: '#0a0c12' }}>
       {/* Header */}
       <header className="sticky top-0 z-40 border-b border-white/5 backdrop-blur-md" style={{ background: 'rgba(10,12,18,0.95)' }}>
         <div className="max-w-5xl mx-auto px-4 flex items-center justify-between h-14">
@@ -84,7 +99,6 @@ export default function StudentDashboard() {
               </div>
             </div>
 
-            {/* Mini stats */}
             <div className="flex gap-3">
               <div className="text-center px-4 py-2 rounded-xl border border-emerald-600/20" style={{ background: '#0d2318' }}>
                 <p className="text-xl font-black text-emerald-400">{pagoCount}</p>
@@ -120,8 +134,8 @@ export default function StudentDashboard() {
         <div className="rounded-2xl border border-white/8 overflow-hidden" style={{ background: '#161b27' }}>
           <div className="p-6">
             {activeTab === 'pagamentos' && <StudentMonthlyGrid student={student} />}
-            {activeTab === 'enviar' && <StudentUpload student={student} onUpdate={() => setRefreshKey(k => k + 1)} />}
             {activeTab === 'pix' && <StudentPixInfo student={student} />}
+            {activeTab === 'enviar' && <StudentUpload student={student} onUpdate={() => setRefreshKey(k => k + 1)} />}
           </div>
         </div>
       </main>

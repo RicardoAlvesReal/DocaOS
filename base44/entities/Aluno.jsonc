@@ -1,0 +1,146 @@
+{
+  "name": "Aluno",
+  "type": "object",
+  "properties": {
+    "nome": {
+      "type": "string",
+      "description": "Nome completo do aluno"
+    },
+    "responsavel": {
+      "type": "string",
+      "description": "Nome do respons\u00e1vel"
+    },
+    "matricula": {
+      "type": "string",
+      "description": "Matr\u00edcula \u00fanica do aluno"
+    },
+    "senha": {
+      "type": "string",
+      "description": "Senha de acesso"
+    },
+    "mensalidade": {
+      "type": "number",
+      "description": "Valor da mensalidade"
+    },
+    "meses": {
+      "type": "object",
+      "description": "Status de pagamento por m\u00eas",
+      "properties": {
+        "janeiro": {
+          "type": "string",
+          "enum": [
+            "pago",
+            "pendente",
+            "aguardando",
+            "rejeitado"
+          ]
+        },
+        "fevereiro": {
+          "type": "string",
+          "enum": [
+            "pago",
+            "pendente",
+            "aguardando",
+            "rejeitado"
+          ]
+        },
+        "marco": {
+          "type": "string",
+          "enum": [
+            "pago",
+            "pendente",
+            "aguardando",
+            "rejeitado"
+          ]
+        },
+        "abril": {
+          "type": "string",
+          "enum": [
+            "pago",
+            "pendente",
+            "aguardando",
+            "rejeitado"
+          ]
+        },
+        "maio": {
+          "type": "string",
+          "enum": [
+            "pago",
+            "pendente",
+            "aguardando",
+            "rejeitado"
+          ]
+        },
+        "junho": {
+          "type": "string",
+          "enum": [
+            "pago",
+            "pendente",
+            "aguardando",
+            "rejeitado"
+          ]
+        },
+        "julho": {
+          "type": "string",
+          "enum": [
+            "pago",
+            "pendente",
+            "aguardando",
+            "rejeitado"
+          ]
+        },
+        "agosto": {
+          "type": "string",
+          "enum": [
+            "pago",
+            "pendente",
+            "aguardando",
+            "rejeitado"
+          ]
+        },
+        "setembro": {
+          "type": "string",
+          "enum": [
+            "pago",
+            "pendente",
+            "aguardando",
+            "rejeitado"
+          ]
+        },
+        "outubro": {
+          "type": "string",
+          "enum": [
+            "pago",
+            "pendente",
+            "aguardando",
+            "rejeitado"
+          ]
+        },
+        "novembro": {
+          "type": "string",
+          "enum": [
+            "pago",
+            "pendente",
+            "aguardando",
+            "rejeitado"
+          ]
+        },
+        "dezembro": {
+          "type": "string",
+          "enum": [
+            "pago",
+            "pendente",
+            "aguardando",
+            "rejeitado"
+          ]
+        }
+      }
+    }
+  },
+  "required": [
+    "nome",
+    "matricula",
+    "senha",
+    "mensalidade"
+  ]
+}

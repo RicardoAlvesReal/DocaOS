@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { CheckCircle, AlertTriangle, Clock, XCircle, ChevronDown } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { CheckCircle, AlertTriangle, Clock, XCircle, ChevronDown, Loader2 } from 'lucide-react';
 import { getStudents, MONTHS_MAP, MONTH_KEYS } from '@/lib/authStore';
 
 const statusConfig = {
@@ -10,15 +10,22 @@ const statusConfig = {
 };
 
 export default function AdminPaymentsStatus() {
-  const students = getStudents();
+  const [students, setStudents] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [filterMonth, setFilterMonth] = useState('todos');
   const [filterStatus, setFilterStatus] = useState('todos');
 
-  // Build rows: one per student+month
+  useEffect(() => {
+    getStudents().then(data => {
+      setStudents(data);
+      setLoading(false);
+    });
+  }, []);
+
   const rows = [];
   students.forEach(s => {
     MONTH_KEYS.forEach(key => {
-      rows.push({ student: s, mesKey: key, status: s.meses[key] || 'pendente' });
+      rows.push({ student: s, mesKey: key, status: (s.meses || {})[key] || 'pendente' });
     });
   });
 
@@ -29,6 +36,14 @@ export default function AdminPaymentsStatus() {
 
   const countByStatus = (status) => rows.filter(r => r.status === status).length;
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-5">
       <div>
@@ -36,7 +51,6 @@ export default function AdminPaymentsStatus() {
         <p className="text-muted-foreground text-sm mt-0.5">Situação de todos os alunos por mês</p>
       </div>
 
-      {/* Summary pills */}
       <div className="flex flex-wrap gap-2">
         {Object.entries(statusConfig).map(([key, cfg]) => {
           const Icon = cfg.icon;
@@ -60,7 +74,6 @@ export default function AdminPaymentsStatus() {
         )}
       </div>
 
-      {/* Filters */}
       <div className="flex flex-wrap gap-3">
         <div className="relative">
           <select
@@ -77,7 +90,6 @@ export default function AdminPaymentsStatus() {
         </div>
       </div>
 
-      {/* Table */}
       <div className="bg-card rounded-2xl border border-border overflow-hidden">
         <div className="hidden md:grid grid-cols-[2fr_1fr_1fr_1fr] gap-4 px-5 py-3 bg-muted/50 border-b border-border text-xs font-semibold text-muted-foreground uppercase tracking-widest">
           <span>Aluno</span>

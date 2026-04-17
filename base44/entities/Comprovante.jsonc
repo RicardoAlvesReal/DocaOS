@@ -1,0 +1,36 @@
+{
+  "name": "Comprovante",
+  "type": "object",
+  "properties": {
+    "matricula": {
+      "type": "string",
+      "description": "Matr\u00edcula do aluno"
+    },
+    "mesKey": {
+      "type": "string",
+      "description": "Chave do m\u00eas (ex: janeiro)"
+    },
+    "fileUrl": {
+      "type": "string",
+      "description": "URL do arquivo do comprovante"
+    },
+    "fileName": {
+      "type": "string",
+      "description": "Nome original do arquivo"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "aguardando",
+        "confirmado",
+        "rejeitado"
+      ],
+      "default": "aguardando"
+    }
+  },
+  "required": [
+    "matricula",
+    "mesKey",
+    "status"
+  ]
+}

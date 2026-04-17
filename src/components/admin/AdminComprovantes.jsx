@@ -1,24 +1,54 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, XCircle, FileSearch, FileImage } from 'lucide-react';
+import { CheckCircle, XCircle, FileSearch, FileImage, Loader2 } from 'lucide-react';
 import { getComprovantes, getStudentByMatricula, confirmarComprovante, rejeitarComprovante, MONTHS_MAP } from '@/lib/authStore';
-import { format } from 'date-fns';
 import { toast } from 'sonner';
 
 export default function AdminComprovantes({ onUpdate }) {
-  const comprovantes = getComprovantes().filter(c => c.status === 'aguardando');
+  const [comprovantes, setComprovantes] = useState([]);
+  const [students, setStudents] = useState({});
+  const [loading, setLoading] = useState(true);
 
-  const handleConfirmar = (id) => {
-    confirmarComprovante(id);
+  const loadData = async () => {
+    setLoading(true);
+    const comps = await getComprovantes();
+    const pending = comps.filter(c => c.status === 'aguardando');
+    setComprovantes(pending);
+
+    // Carrega dados dos alunos para cada comprovante
+    const studentMap = {};
+    for (const comp of pending) {
+      if (!studentMap[comp.matricula]) {
+        studentMap[comp.matricula] = await getStudentByMatricula(comp.matricula);
+      }
+    }
+    setStudents(studentMap);
+    setLoading(false);
+  };
+
+  useEffect(() => { loadData(); }, []);
+
+  const handleConfirmar = async (id) => {
+    await confirmarComprovante(id);
+    await loadData();
     onUpdate();
     toast.success('Pagamento confirmado!');
   };
 
-  const handleRejeitar = (id) => {
-    rejeitarComprovante(id);
+  const handleRejeitar = async (id) => {
+    await rejeitarComprovante(id);
+    await loadData();
     onUpdate();
     toast.error('Comprovante rejeitado.');
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   if (comprovantes.length === 0) {
     return (
@@ -49,11 +79,11 @@ export default function AdminComprovantes({ onUpdate }) {
 
       <div className="space-y-4">
         {comprovantes.map(comp => {
-          const student = getStudentByMatricula(comp.matricula);
+          const student = students[comp.matricula];
           const isPdf = comp.fileName?.toLowerCase().endsWith('.pdf');
+          const fileSource = comp.fileUrl || comp.fileBase64;
           return (
             <div key={comp.id} className="bg-card rounded-2xl border border-border overflow-hidden">
-              {/* Header */}
               <div className="px-6 py-4 border-b border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <p className="font-bold text-foreground">{student?.nome || comp.matricula}</p>
@@ -61,9 +91,6 @@ export default function AdminComprovantes({ onUpdate }) {
                     <span className="text-xs font-mono bg-muted px-2 py-0.5 rounded text-muted-foreground">{comp.matricula}</span>
                     <span className="text-xs bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded font-medium">
                       📅 {MONTHS_MAP[comp.mesKey]}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      🕐 {format(new Date(comp.dataEnvio), 'dd/MM/yyyy HH:mm')}
                     </span>
                   </div>
                 </div>
@@ -73,12 +100,11 @@ export default function AdminComprovantes({ onUpdate }) {
                 </div>
               </div>
 
-              {/* Comprovante image */}
               <div className="px-6 py-4">
-                {comp.fileBase64 ? (
+                {fileSource ? (
                   isPdf ? (
                     <a
-                      href={comp.fileBase64}
+                      href={fileSource}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-3 bg-muted rounded-xl p-4 hover:bg-muted/80 transition-colors w-fit"
@@ -93,7 +119,7 @@ export default function AdminComprovantes({ onUpdate }) {
                     <div>
                       <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">Imagem do Comprovante</p>
                       <img
-                        src={comp.fileBase64}
+                        src={fileSource}
                         alt="Comprovante"
                         className="max-w-sm w-full rounded-xl border border-border object-contain bg-muted"
                         style={{ maxHeight: 320 }}
@@ -107,7 +133,6 @@ export default function AdminComprovantes({ onUpdate }) {
                 )}
               </div>
 
-              {/* Actions */}
               <div className="px-6 py-4 bg-muted/20 border-t border-border flex flex-col sm:flex-row gap-3">
                 <Button
                   onClick={() => handleConfirmar(comp.id)}

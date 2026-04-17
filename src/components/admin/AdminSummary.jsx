@@ -1,39 +1,53 @@
-import React from 'react';
-import { Users, CheckCircle, AlertTriangle, FileSearch, TrendingUp, TrendingDown, DollarSign, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Users, CheckCircle, AlertTriangle, FileSearch, TrendingUp, ArrowUpRight, ArrowDownRight, Loader2 } from 'lucide-react';
 import { getStudents, getComprovantes, MONTH_KEYS, MONTHS_MAP } from '@/lib/authStore';
 
 export default function AdminSummary() {
-  const students = getStudents();
-  const comprovantes = getComprovantes();
+  const [students, setStudents] = useState([]);
+  const [comprovantes, setComprovantes] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([getStudents(), getComprovantes()]).then(([s, c]) => {
+      setStudents(s);
+      setComprovantes(c);
+      setLoading(false);
+    });
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
   const pendingComprovantes = comprovantes.filter(c => c.status === 'aguardando');
 
   const now = new Date();
   const currentMonthKey = MONTH_KEYS[now.getMonth()] || null;
   const currentMonthLabel = MONTHS_MAP[currentMonthKey] || '—';
 
-  // Cálculo financeiro - entradas (meses pagos) e saídas (pendentes/inadimplentes)
   let pagosNoMes = 0;
   let inadimplentes = 0;
   let totalEntradasMes = 0;
-  let totalSaidasMes = 0; // o que deveria entrar mas não entrou
+  let totalSaidasMes = 0;
   let totalEntradasAno = 0;
   let totalPendenteAno = 0;
 
   students.forEach(s => {
-    // Mês atual
     if (currentMonthKey) {
-      if (s.meses[currentMonthKey] === 'pago') {
+      if ((s.meses || {})[currentMonthKey] === 'pago') {
         pagosNoMes++;
         totalEntradasMes += s.mensalidade;
       } else {
         inadimplentes++;
-        totalSaidasMes += s.mensalidade; // valor em aberto
+        totalSaidasMes += s.mensalidade;
       }
     }
-
-    // Ano inteiro
     MONTH_KEYS.forEach(mk => {
-      if (s.meses[mk] === 'pago') {
+      if ((s.meses || {})[mk] === 'pago') {
         totalEntradasAno += s.mensalidade;
       } else {
         totalPendenteAno += s.mensalidade;
@@ -43,7 +57,6 @@ export default function AdminSummary() {
 
   const totalPotencialMes = totalEntradasMes + totalSaidasMes;
   const taxaRecebimento = totalPotencialMes > 0 ? Math.round((totalEntradasMes / totalPotencialMes) * 100) : 0;
-
   const fmt = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
   return (
@@ -53,10 +66,7 @@ export default function AdminSummary() {
         <p className="text-muted-foreground text-sm mt-0.5">Visão financeira e operacional</p>
       </div>
 
-      {/* Financeiro — cards principais */}
       <div className="grid sm:grid-cols-2 gap-4">
-
-        {/* Entradas do mês */}
         <div className="bg-card rounded-2xl p-6 border border-border hover:shadow-lg transition-all">
           <div className="flex items-start justify-between mb-5">
             <div>
@@ -72,16 +82,11 @@ export default function AdminSummary() {
             <span className="text-muted-foreground">{pagosNoMes} aluno{pagosNoMes !== 1 ? 's' : ''} pagou</span>
             <span className="ml-auto font-bold text-emerald-600">{taxaRecebimento}% recebido</span>
           </div>
-          {/* Barra de progresso */}
           <div className="mt-3 h-2 bg-muted rounded-full overflow-hidden">
-            <div
-              className="h-full bg-emerald-500 rounded-full transition-all duration-500"
-              style={{ width: `${taxaRecebimento}%` }}
-            />
+            <div className="h-full bg-emerald-500 rounded-full transition-all duration-500" style={{ width: `${taxaRecebimento}%` }} />
           </div>
         </div>
 
-        {/* Pendente do mês */}
         <div className="bg-card rounded-2xl p-6 border border-border hover:shadow-lg transition-all">
           <div className="flex items-start justify-between mb-5">
             <div>
@@ -98,15 +103,11 @@ export default function AdminSummary() {
             <span className="ml-auto font-bold text-rose-600">{100 - taxaRecebimento}% pendente</span>
           </div>
           <div className="mt-3 h-2 bg-muted rounded-full overflow-hidden">
-            <div
-              className="h-full bg-rose-500 rounded-full transition-all duration-500"
-              style={{ width: `${100 - taxaRecebimento}%` }}
-            />
+            <div className="h-full bg-rose-500 rounded-full transition-all duration-500" style={{ width: `${100 - taxaRecebimento}%` }} />
           </div>
         </div>
       </div>
 
-      {/* Resumo anual */}
       <div className="bg-card rounded-2xl p-6 border border-border">
         <div className="flex items-center justify-between mb-5">
           <div>
@@ -117,50 +118,29 @@ export default function AdminSummary() {
             <TrendingUp className="w-5 h-5 text-primary" />
           </div>
         </div>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="text-center p-4 bg-emerald-50 dark:bg-emerald-950/30 rounded-xl border border-emerald-100 dark:border-emerald-900">
             <p className="text-xs text-emerald-700 dark:text-emerald-400 font-semibold uppercase tracking-wide mb-1">Recebido</p>
-            <p className="text-xl font-black text-emerald-700 dark:text-emerald-400">{fmt(totalEntradasAno)}</p>
+            <p className="text-lg font-black text-emerald-700 dark:text-emerald-400 break-all">{fmt(totalEntradasAno)}</p>
           </div>
           <div className="text-center p-4 bg-rose-50 dark:bg-rose-950/30 rounded-xl border border-rose-100 dark:border-rose-900">
             <p className="text-xs text-rose-700 dark:text-rose-400 font-semibold uppercase tracking-wide mb-1">Pendente</p>
-            <p className="text-xl font-black text-rose-700 dark:text-rose-400">{fmt(totalPendenteAno)}</p>
+            <p className="text-lg font-black text-rose-700 dark:text-rose-400 break-all">{fmt(totalPendenteAno)}</p>
           </div>
           <div className="text-center p-4 bg-muted rounded-xl border border-border">
             <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wide mb-1">Total Esperado</p>
-            <p className="text-xl font-black text-foreground">{fmt(totalEntradasAno + totalPendenteAno)}</p>
+            <p className="text-lg font-black text-foreground break-all">{fmt(totalEntradasAno + totalPendenteAno)}</p>
           </div>
         </div>
       </div>
 
-      {/* Cards operacionais */}
       <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-4">
         {[
+          { label: 'Total de Alunos', value: students.length, icon: Users, iconBg: 'bg-primary/10', iconColor: 'text-primary' },
+          { label: `Pagos em ${currentMonthLabel}`, value: pagosNoMes, icon: CheckCircle, iconBg: 'bg-emerald-500/10', iconColor: 'text-emerald-600' },
+          { label: 'Inadimplentes', value: inadimplentes, icon: AlertTriangle, iconBg: 'bg-rose-500/10', iconColor: 'text-rose-600' },
           {
-            label: 'Total de Alunos',
-            value: students.length,
-            icon: Users,
-            iconBg: 'bg-primary/10',
-            iconColor: 'text-primary',
-          },
-          {
-            label: `Pagos em ${currentMonthLabel}`,
-            value: pagosNoMes,
-            icon: CheckCircle,
-            iconBg: 'bg-emerald-500/10',
-            iconColor: 'text-emerald-600',
-          },
-          {
-            label: 'Inadimplentes',
-            value: inadimplentes,
-            icon: AlertTriangle,
-            iconBg: 'bg-rose-500/10',
-            iconColor: 'text-rose-600',
-          },
-          {
-            label: 'Comprovantes Pendentes',
-            value: pendingComprovantes.length,
-            icon: FileSearch,
+            label: 'Comprovantes Pendentes', value: pendingComprovantes.length, icon: FileSearch,
             iconBg: pendingComprovantes.length > 0 ? 'bg-amber-500/10' : 'bg-muted',
             iconColor: pendingComprovantes.length > 0 ? 'text-amber-600' : 'text-muted-foreground',
             highlight: pendingComprovantes.length > 0,
@@ -169,9 +149,7 @@ export default function AdminSummary() {
           <div
             key={i}
             className={`bg-card rounded-2xl p-5 border transition-all ${
-              stat.highlight
-                ? 'border-amber-400/40 shadow-lg shadow-amber-400/10'
-                : 'border-border hover:border-border/80 hover:shadow-md'
+              stat.highlight ? 'border-amber-400/40 shadow-lg shadow-amber-400/10' : 'border-border hover:border-border/80 hover:shadow-md'
             }`}
           >
             <div className="flex items-start justify-between mb-4">
@@ -179,9 +157,7 @@ export default function AdminSummary() {
                 <stat.icon className={`w-5 h-5 ${stat.iconColor}`} />
               </div>
               {stat.highlight && (
-                <span className="text-[10px] font-bold bg-amber-400/10 text-amber-600 px-2 py-0.5 rounded-full border border-amber-400/20">
-                  ATENÇÃO
-                </span>
+                <span className="text-[10px] font-bold bg-amber-400/10 text-amber-600 px-2 py-0.5 rounded-full border border-amber-400/20">ATENÇÃO</span>
               )}
             </div>
             <p className="text-3xl font-black text-foreground">{stat.value}</p>

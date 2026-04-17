@@ -14,10 +14,14 @@ export default function LoginModal({ open, onOpenChange }) {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
-    const session = login(matricula.trim(), senha.trim());
+    setLoading(true);
+    const session = await login(matricula.trim(), senha.trim());
+    setLoading(false);
     if (!session) {
       setError('Matrícula ou senha incorreta.');
       return;
@@ -80,9 +84,9 @@ export default function LoginModal({ open, onOpenChange }) {
             </div>
           )}
 
-          <Button type="submit" className="w-full h-11 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl shadow-lg shadow-primary/20">
+          <Button type="submit" disabled={loading} className="w-full h-11 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl shadow-lg shadow-primary/20">
             <LogIn className="w-4 h-4 mr-2" />
-            Entrar
+            {loading ? 'Entrando...' : 'Entrar'}
           </Button>
         </form>
       </DialogContent>

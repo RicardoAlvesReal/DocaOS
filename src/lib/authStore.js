@@ -1,3 +1,5 @@
+import { base44 } from '@/api/base44Client';
+
 const ADMIN_USER = {
   type: 'admin',
   matricula: 'ADMIN2025',
@@ -5,235 +7,171 @@ const ADMIN_USER = {
   nome: 'Administrador',
 };
 
-const DEFAULT_STUDENTS = [
-  {
-    nome: 'Carlos Eduardo Silva',
-    responsavel: 'Maria Silva',
-    matricula: 'ALU0001',
-    senha: '123456',
-    mensalidade: 250,
-    meses: {
-      janeiro: 'pendente', fevereiro: 'pendente',
-      marco: 'pago', abril: 'pago', maio: 'pago',
-      junho: 'pendente', julho: 'pendente', agosto: 'pendente',
-      setembro: 'pendente', outubro: 'pendente', novembro: 'pendente', dezembro: 'pendente',
-    },
-  },
-  {
-    nome: 'Ana Beatriz Santos',
-    responsavel: 'João Santos',
-    matricula: 'ALU0002',
-    senha: '654321',
-    mensalidade: 280,
-    meses: {
-      janeiro: 'pendente', fevereiro: 'pendente',
-      marco: 'pago', abril: 'pago',
-      maio: 'pendente', junho: 'pendente', julho: 'pendente', agosto: 'pendente',
-      setembro: 'pendente', outubro: 'pendente', novembro: 'pendente', dezembro: 'pendente',
-    },
-  },
-  {
-    nome: 'Pedro Henrique Costa',
-    responsavel: 'Fernanda Costa',
-    matricula: 'ALU0003',
-    senha: '111222',
-    mensalidade: 300,
-    meses: {
-      janeiro: 'pendente', fevereiro: 'pendente',
-      marco: 'pago', abril: 'pago', maio: 'pago', junho: 'pago',
-      julho: 'pendente', agosto: 'pendente',
-      setembro: 'pendente', outubro: 'pendente', novembro: 'pendente', dezembro: 'pendente',
-    },
-  },
-];
-
-const MONTHS_MAP = {
+export const MONTHS_MAP = {
   janeiro: 'Janeiro', fevereiro: 'Fevereiro',
   marco: 'Março', abril: 'Abril', maio: 'Maio', junho: 'Junho',
   julho: 'Julho', agosto: 'Agosto', setembro: 'Setembro',
   outubro: 'Outubro', novembro: 'Novembro', dezembro: 'Dezembro',
 };
 
-const MONTH_KEYS = ['janeiro', 'fevereiro', 'marco', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+export const MONTH_KEYS = [
+  'janeiro', 'fevereiro', 'marco', 'abril', 'maio', 'junho',
+  'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro',
+];
 
-function initData() {
-  const schemaVersion = '3';
-  if (localStorage.getItem('vanescolar_schema') !== schemaVersion) {
-    localStorage.removeItem('vanescolar_students');
-    localStorage.removeItem('vanescolar_comprovantes');
-    localStorage.removeItem('vanescolar_next_id');
-    localStorage.setItem('vanescolar_schema', schemaVersion);
-  }
-  if (!localStorage.getItem('vanescolar_students')) {
-    localStorage.setItem('vanescolar_students', JSON.stringify(DEFAULT_STUDENTS));
-  }
-  if (!localStorage.getItem('vanescolar_comprovantes')) {
-    localStorage.setItem('vanescolar_comprovantes', JSON.stringify([]));
-  }
-  if (!localStorage.getItem('vanescolar_next_id')) {
-    localStorage.setItem('vanescolar_next_id', '4');
-  }
+const DEFAULT_MESES = () => ({
+  janeiro: 'pendente', fevereiro: 'pendente', marco: 'pendente',
+  abril: 'pendente', maio: 'pendente', junho: 'pendente',
+  julho: 'pendente', agosto: 'pendente', setembro: 'pendente',
+  outubro: 'pendente', novembro: 'pendente', dezembro: 'pendente',
+});
+
+// ── Session (ainda usa localStorage, mas só guarda sessão local) ──
+export function getSession() {
+  const data = localStorage.getItem('vanescolar_session');
+  return data ? JSON.parse(data) : null;
 }
 
-function getStudents() {
-  initData();
-  return JSON.parse(localStorage.getItem('vanescolar_students') || '[]');
+export function logout() {
+  localStorage.removeItem('vanescolar_session');
 }
 
-function saveStudents(students) {
-  localStorage.setItem('vanescolar_students', JSON.stringify(students));
-}
-
-function getComprovantes() {
-  initData();
-  return JSON.parse(localStorage.getItem('vanescolar_comprovantes') || '[]');
-}
-
-function saveComprovantes(comprovantes) {
-  localStorage.setItem('vanescolar_comprovantes', JSON.stringify(comprovantes));
-}
-
-function getNextId() {
-  initData();
-  return parseInt(localStorage.getItem('vanescolar_next_id') || '4');
-}
-
-function incrementId() {
-  const id = getNextId();
-  localStorage.setItem('vanescolar_next_id', String(id + 1));
-  return id;
-}
-
-function login(matricula, senha) {
+// ── Auth ──
+export async function login(matricula, senha) {
   if (matricula === ADMIN_USER.matricula && senha === ADMIN_USER.senha) {
     const session = { type: 'admin', matricula: ADMIN_USER.matricula, nome: ADMIN_USER.nome };
     localStorage.setItem('vanescolar_session', JSON.stringify(session));
     return session;
   }
-  const students = getStudents();
-  const student = students.find(s => s.matricula === matricula && s.senha === senha);
-  if (student) {
-    const session = { type: 'aluno', matricula: student.matricula, nome: student.nome };
+  // Busca no banco
+  const alunos = await base44.entities.Aluno.filter({ matricula: matricula.trim().toUpperCase() });
+  const aluno = alunos.find(a => a.senha === senha.trim());
+  if (aluno) {
+    const session = { type: 'aluno', matricula: aluno.matricula, nome: aluno.nome };
     localStorage.setItem('vanescolar_session', JSON.stringify(session));
     return session;
   }
   return null;
 }
 
-function getSession() {
-  const data = localStorage.getItem('vanescolar_session');
-  return data ? JSON.parse(data) : null;
+// ── Alunos ──
+export async function getStudents() {
+  return await base44.entities.Aluno.list('-created_date', 200);
 }
 
-function logout() {
-  localStorage.removeItem('vanescolar_session');
+export async function getStudentByMatricula(matricula) {
+  const alunos = await base44.entities.Aluno.filter({ matricula });
+  return alunos[0] || null;
 }
 
-// Agora aceita matrícula e senha definidos pelo admin
-function addStudent(nome, responsavel, mensalidade, matriculaCustom, senhaCustom) {
-  const students = getStudents();
-
-  // Se matrícula custom não foi fornecida, gera automaticamente
+export async function addStudent(nome, responsavel, mensalidade, matriculaCustom, senhaCustom) {
+  const students = await getStudents();
+  
   let matricula = matriculaCustom ? matriculaCustom.trim().toUpperCase() : null;
   if (!matricula) {
-    const id = incrementId();
-    matricula = 'ALU' + String(id).padStart(4, '0');
+    // Gera próxima matrícula automaticamente
+    const nums = students
+      .map(s => parseInt(s.matricula.replace(/\D/g, ''), 10))
+      .filter(n => !isNaN(n));
+    const nextNum = nums.length > 0 ? Math.max(...nums) + 1 : 1;
+    matricula = 'ALU' + String(nextNum).padStart(4, '0');
   } else {
-    // Verificar duplicata
     if (students.find(s => s.matricula === matricula)) {
       return { error: 'Matrícula já existe.' };
     }
   }
 
-  const senha = (senhaCustom && senhaCustom.trim()) ? senhaCustom.trim() : String(Math.floor(100000 + Math.random() * 900000));
+  const senha = (senhaCustom && senhaCustom.trim()) 
+    ? senhaCustom.trim() 
+    : String(Math.floor(100000 + Math.random() * 900000));
 
-  const newStudent = {
-    nome, responsavel, matricula, senha,
+  const newStudent = await base44.entities.Aluno.create({
+    nome: nome.trim(),
+    responsavel: responsavel.trim(),
+    matricula,
+    senha,
     mensalidade: parseFloat(mensalidade),
-    meses: {
-      janeiro: 'pago', fevereiro: 'pago',
-      marco: 'pago', abril: 'pendente', maio: 'pendente', junho: 'pendente',
-      julho: 'pendente', agosto: 'pendente', setembro: 'pendente',
-      outubro: 'pendente', novembro: 'pendente', dezembro: 'pendente',
-    },
-  };
-  students.push(newStudent);
-  saveStudents(students);
+    meses: DEFAULT_MESES(),
+  });
+
   return newStudent;
 }
 
-function addComprovante(matricula, mesKey, fileBase64, fileName) {
-  const comprovantes = getComprovantes();
-  comprovantes.push({
-    id: Date.now().toString(),
+export async function removeStudent(matriculaOrId) {
+  // Tenta encontrar pelo campo matricula
+  const students = await base44.entities.Aluno.filter({ matricula: matriculaOrId });
+  if (students.length > 0) {
+    await base44.entities.Aluno.delete(students[0].id);
+  }
+  // Remove comprovantes
+  const comps = await base44.entities.Comprovante.filter({ matricula: matriculaOrId });
+  for (const c of comps) {
+    await base44.entities.Comprovante.delete(c.id);
+  }
+}
+
+// ── Comprovantes ──
+export async function getComprovantes() {
+  return await base44.entities.Comprovante.list('-created_date', 200);
+}
+
+export async function addComprovante(matricula, mesKey, fileUrl, fileName) {
+  await base44.entities.Comprovante.create({
     matricula,
     mesKey,
-    fileBase64,
+    fileUrl,
     fileName,
-    dataEnvio: new Date().toISOString(),
     status: 'aguardando',
   });
-  saveComprovantes(comprovantes);
 
-  const students = getStudents();
-  const idx = students.findIndex(s => s.matricula === matricula);
-  if (idx !== -1) {
-    students[idx].meses[mesKey] = 'aguardando';
-    saveStudents(students);
+  // Atualiza o status do mês no aluno
+  const alunos = await base44.entities.Aluno.filter({ matricula });
+  if (alunos.length > 0) {
+    const aluno = alunos[0];
+    const meses = { ...aluno.meses, [mesKey]: 'aguardando' };
+    await base44.entities.Aluno.update(aluno.id, { meses });
   }
 }
 
-function confirmarComprovante(comprovanteId) {
-  const comprovantes = getComprovantes();
-  const idx = comprovantes.findIndex(c => c.id === comprovanteId);
-  if (idx === -1) return;
-  const comp = comprovantes[idx];
+export async function confirmarComprovante(comprovanteId) {
+  const comp = (await base44.entities.Comprovante.filter({ id: comprovanteId }))[0];
+  if (!comp) return;
 
-  const students = getStudents();
-  const sIdx = students.findIndex(s => s.matricula === comp.matricula);
-  if (sIdx !== -1) {
-    students[sIdx].meses[comp.mesKey] = 'pago';
-    saveStudents(students);
+  const alunos = await base44.entities.Aluno.filter({ matricula: comp.matricula });
+  if (alunos.length > 0) {
+    const aluno = alunos[0];
+    const meses = { ...aluno.meses, [comp.mesKey]: 'pago' };
+    await base44.entities.Aluno.update(aluno.id, { meses });
   }
 
-  comprovantes.splice(idx, 1);
-  saveComprovantes(comprovantes);
+  await base44.entities.Comprovante.delete(comp.id);
 }
 
-function rejeitarComprovante(comprovanteId) {
-  const comprovantes = getComprovantes();
-  const idx = comprovantes.findIndex(c => c.id === comprovanteId);
-  if (idx === -1) return;
-  const comp = comprovantes[idx];
+export async function rejeitarComprovante(comprovanteId) {
+  const comps = await base44.entities.Comprovante.list();
+  const comp = comps.find(c => c.id === comprovanteId);
+  if (!comp) return;
 
-  const students = getStudents();
-  const sIdx = students.findIndex(s => s.matricula === comp.matricula);
-  if (sIdx !== -1) {
-    students[sIdx].meses[comp.mesKey] = 'rejeitado';
-    saveStudents(students);
+  const alunos = await base44.entities.Aluno.filter({ matricula: comp.matricula });
+  if (alunos.length > 0) {
+    const aluno = alunos[0];
+    const meses = { ...aluno.meses, [comp.mesKey]: 'rejeitado' };
+    await base44.entities.Aluno.update(aluno.id, { meses });
   }
 
-  comprovantes.splice(idx, 1);
-  saveComprovantes(comprovantes);
+  await base44.entities.Comprovante.delete(comp.id);
 }
 
-function getStudentByMatricula(matricula) {
-  const students = getStudents();
-  return students.find(s => s.matricula === matricula) || null;
+export async function updateStudentMes(matricula, mesKey, status) {
+  const alunos = await base44.entities.Aluno.filter({ matricula });
+  if (alunos.length > 0) {
+    const aluno = alunos[0];
+    const meses = { ...aluno.meses, [mesKey]: status };
+    await base44.entities.Aluno.update(aluno.id, { meses });
+  }
 }
 
-function removeStudent(matricula) {
-  const students = getStudents().filter(s => s.matricula !== matricula);
-  saveStudents(students);
-  // Remove comprovantes desse aluno também
-  const comprovantes = getComprovantes().filter(c => c.matricula !== matricula);
-  saveComprovantes(comprovantes);
-}
-
-export {
-  MONTHS_MAP, MONTH_KEYS,
-  initData, getStudents, saveStudents, getComprovantes, saveComprovantes,
-  login, getSession, logout,
-  addStudent, addComprovante, confirmarComprovante, rejeitarComprovante,
-  getStudentByMatricula, removeStudent,
-};
+// Legacy: manter compatibilidade
+export function initData() {}
+export function saveStudents() {}
+export function saveComprovantes() {}

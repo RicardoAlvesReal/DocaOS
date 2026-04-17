@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Eye, CheckCircle, Clock, AlertTriangle, XCircle, Search, Trash2 } from 'lucide-react';
+import { Eye, CheckCircle, Clock, AlertTriangle, XCircle, Search, Trash2, Loader2 } from 'lucide-react';
 import { getStudents, MONTHS_MAP, MONTH_KEYS, removeStudent } from '@/lib/authStore';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
@@ -14,15 +14,28 @@ const statusConfig = {
 };
 
 export default function AdminStudentList() {
-  const [students, setStudents] = useState(getStudents());
+  const [students, setStudents] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
   const [search, setSearch] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
-  const handleRemove = (matricula) => {
-    removeStudent(matricula);
-    setStudents(getStudents());
+  const loadStudents = async () => {
+    setLoading(true);
+    const data = await getStudents();
+    setStudents(data);
+    setLoading(false);
+  };
+
+  useEffect(() => { loadStudents(); }, []);
+
+  const handleRemove = async (matricula) => {
+    setDeleting(true);
+    await removeStudent(matricula);
+    await loadStudents();
     setConfirmDelete(null);
+    setDeleting(false);
     toast.success('Aluno removido.');
   };
 
@@ -30,6 +43,14 @@ export default function AdminStudentList() {
     s.nome.toLowerCase().includes(search.toLowerCase()) ||
     s.matricula.toLowerCase().includes(search.toLowerCase())
   );
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-5">
@@ -49,7 +70,6 @@ export default function AdminStudentList() {
       </div>
 
       <div className="bg-card rounded-2xl border border-border overflow-hidden">
-        {/* Header */}
         <div className="hidden md:grid grid-cols-[2fr_1fr_1fr_auto] gap-4 px-5 py-3 bg-muted/50 border-b border-border text-xs font-semibold text-muted-foreground uppercase tracking-widest">
           <span>Aluno</span>
           <span>Matrícula</span>
@@ -59,7 +79,7 @@ export default function AdminStudentList() {
 
         <div className="divide-y divide-border">
           {filtered.map(s => {
-            const pagos = Object.values(s.meses).filter(v => v === 'pago').length;
+            const pagos = Object.values(s.meses || {}).filter(v => v === 'pago').length;
             const total = MONTH_KEYS.length;
             return (
               <div key={s.matricula} className="grid md:grid-cols-[2fr_1fr_1fr_auto] gap-4 items-center px-5 py-4 hover:bg-muted/30 transition-colors">
@@ -76,12 +96,7 @@ export default function AdminStudentList() {
                   <p className="text-xs text-muted-foreground mt-0.5">{pagos}/{total} meses pagos</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setSelected(s)}
-                    className="h-8 px-3 rounded-lg text-xs"
-                  >
+                  <Button size="sm" variant="outline" onClick={() => setSelected(s)} className="h-8 px-3 rounded-lg text-xs">
                     <Eye className="w-3.5 h-3.5 mr-1.5" /> Detalhes
                   </Button>
                   <Button
@@ -102,7 +117,6 @@ export default function AdminStudentList() {
         </div>
       </div>
 
-      {/* Confirm delete dialog */}
       <Dialog open={!!confirmDelete} onOpenChange={() => setConfirmDelete(null)}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
@@ -113,15 +127,15 @@ export default function AdminStudentList() {
             Esta ação não pode ser desfeita.
           </p>
           <div className="flex gap-3 mt-4">
-            <Button variant="outline" onClick={() => setConfirmDelete(null)} className="flex-1">
-              Cancelar
-            </Button>
+            <Button variant="outline" onClick={() => setConfirmDelete(null)} className="flex-1">Cancelar</Button>
             <Button
               variant="destructive"
               onClick={() => handleRemove(confirmDelete.matricula)}
+              disabled={deleting}
               className="flex-1"
             >
-              <Trash2 className="w-4 h-4 mr-2" /> Remover
+              {deleting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trash2 className="w-4 h-4 mr-2" />}
+              Remover
             </Button>
           </div>
         </DialogContent>
@@ -137,7 +151,7 @@ export default function AdminStudentList() {
               </DialogHeader>
               <div className="grid grid-cols-2 gap-2.5 mt-3">
                 {MONTH_KEYS.map(key => {
-                  const status = selected.meses[key] || 'pendente';
+                  const status = (selected.meses || {})[key] || 'pendente';
                   const cfg = statusConfig[status];
                   const Icon = cfg.icon;
                   return (

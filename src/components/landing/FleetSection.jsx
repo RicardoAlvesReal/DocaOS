@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle2 } from 'lucide-react';
 
@@ -12,6 +12,29 @@ const features = [
   'Extintor de incêndio e kit primeiros socorros',
   'Câmeras internas de monitoramento',
 ];
+
+function FleetItem({ text, index }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: -16 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay: index * 0.06 }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      className="flex items-center gap-3 rounded-xl px-4 py-3 cursor-default transition-all duration-200"
+      style={{
+        background: hovered ? '#1e2d4a' : '#1e2535',
+        borderLeft: hovered ? '3px solid #3b82f6' : '3px solid transparent',
+        transform: hovered ? 'translateX(4px)' : 'translateX(0)',
+      }}
+    >
+      <CheckCircle2 className="w-4 h-4 flex-shrink-0 transition-colors duration-200" style={{ color: hovered ? '#60a5fa' : '#3b82f6' }} />
+      <span className="text-sm transition-colors duration-200" style={{ color: hovered ? '#ffffff' : '#c8d0e0' }}>{text}</span>
+    </motion.div>
+  );
+}
 
 export default function FleetSection() {
   return (
@@ -49,18 +72,7 @@ export default function FleetSection() {
             </h3>
             <div className="space-y-3">
               {features.map((f, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, x: -16 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.06 }}
-                  className="flex items-center gap-3 rounded-xl px-4 py-3"
-                  style={{ background: '#1e2535' }}
-                >
-                  <CheckCircle2 className="w-4 h-4 text-blue-500 flex-shrink-0" />
-                  <span className="text-sm" style={{ color: '#c8d0e0' }}>{f}</span>
-                </motion.div>
+                <FleetItem key={i} text={f} index={i} />
               ))}
             </div>
           </motion.div>

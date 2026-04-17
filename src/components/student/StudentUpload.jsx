@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Upload, CheckCircle } from 'lucide-react';
 import { addComprovante, MONTHS_MAP, MONTH_KEYS } from '@/lib/authStore';
+import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 
 export default function StudentUpload({ student, onUpdate }) {
@@ -11,7 +12,7 @@ export default function StudentUpload({ student, onUpdate }) {
   const fileRef = useRef(null);
 
   const availableMonths = MONTH_KEYS.filter(k => {
-    const s = student.meses[k];
+    const s = (student.meses || {})[k];
     return s === 'pendente' || s === 'rejeitado';
   });
 
@@ -26,28 +27,27 @@ export default function StudentUpload({ student, onUpdate }) {
     setFile(f);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!selectedMonth) { toast.error('Selecione o mês.'); return; }
     if (!file) { toast.error('Selecione um arquivo.'); return; }
     setSending(true);
-    const reader = new FileReader();
-    reader.onload = () => {
-      addComprovante(student.matricula, selectedMonth, reader.result, file.name);
-      setSending(false);
-      setSelectedMonth('');
-      setFile(null);
-      if (fileRef.current) fileRef.current.value = '';
-      onUpdate();
-      toast.success('Comprovante enviado! Aguarde a análise.');
-    };
-    reader.readAsDataURL(file);
+
+    // Upload do arquivo para o servidor (URL permanente, acessível entre dispositivos)
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    await addComprovante(student.matricula, selectedMonth, file_url, file.name);
+
+    setSending(false);
+    setSelectedMonth('');
+    setFile(null);
+    if (fileRef.current) fileRef.current.value = '';
+    onUpdate();
+    toast.success('Comprovante enviado! Aguarde a análise.');
   };
 
   return (
     <div>
       <h2 className="text-base font-bold text-white mb-5">Enviar Comprovante de Pagamento</h2>
       <div className="space-y-4 max-w-lg">
-        {/* Month select */}
         <div className="space-y-2">
           <label className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#8b92a5' }}>
             Mês Referente
@@ -71,7 +71,6 @@ export default function StudentUpload({ student, onUpdate }) {
           </Select>
         </div>
 
-        {/* File upload */}
         <div className="space-y-2">
           <label className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#8b92a5' }}>
             Comprovante (JPG, PNG ou PDF)

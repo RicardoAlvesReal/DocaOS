@@ -24,7 +24,7 @@ export default function HeroSection({ onOpenLogin }) {
               <span className="text-blue-500">Seguro e<br />Confiável</span>
             </h1>
             <p className="text-sm text-white/50 mb-10 max-w-md uppercase tracking-widest leading-relaxed">
-              Levamos seu filho para a escola com total segurança, pontualidade e conforto. Acompanhamento em tempo real para sua tranquilidade.
+              Levamos seu filho para a escola com total segurança, pontualidade e conforto.
             </p>
             <Button
               onClick={onOpenLogin}

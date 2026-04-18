@@ -8,9 +8,7 @@ const features = [
   'Ar condicionado',
   'Cintos de segurança em todos os assentos',
   'Bancos acolchoados e confortáveis',
-  'Sistema de áudio para comunicação',
-  'Extintor de incêndio e kit primeiros socorros',
-  'Câmeras internas de monitoramento',
+  'Extintor de incêndio',
 ];
 
 function FleetItem({ text, index }) {

@@ -31,8 +31,8 @@ const benefits = [
   },
   {
     icon: Building2,
-    title: 'Todas as Escolas',
-    description: 'Atendemos instituições de ensino públicas e privadas em toda a região.',
+    title: 'São Camilo',
+    description: 'A escola que seu filho merece.',
   },
 ];
 

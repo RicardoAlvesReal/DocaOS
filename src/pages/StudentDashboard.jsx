@@ -47,7 +47,7 @@ export default function StudentDashboard() {
     navigate('/');
   };
 
-  if (loading) {
+  if (loading || !student) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#0a0c12' }}>
         <Loader2 className="w-8 h-8 animate-spin text-blue-500" />

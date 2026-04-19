@@ -2,8 +2,8 @@ import { base44 } from '@/api/base44Client';
 
 const ADMIN_USER = {
   type: 'admin',
-  matricula: 'ADMIN2025',
-  senha: 'Escola@Master99',
+  matricula: 'ADMINwerley81',
+  senha: 'pd200326',
   nome: 'Administrador',
 };
 

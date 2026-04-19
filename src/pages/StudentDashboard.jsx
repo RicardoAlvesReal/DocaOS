@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getSession, logout, getStudentByMatricula } from '@/lib/authStore';
 import { Bus, LogOut, User, CreditCard, Upload, Info, Loader2 } from 'lucide-react';
@@ -18,18 +18,12 @@ export default function StudentDashboard() {
   const [activeTab, setActiveTab] = useState('pagamentos');
   const [student, setStudent] = useState(null);
   const [loading, setLoading] = useState(true);
-  const fetchingRef = useRef(false);
-
   useEffect(() => {
     const session = getSession();
     if (!session || session.type !== 'aluno') {
       navigate('/');
       return;
     }
-
-    // Prevent concurrent fetches
-    if (fetchingRef.current) return;
-    fetchingRef.current = true;
 
     let cancelled = false;
     setLoading(true);
@@ -41,8 +35,8 @@ export default function StudentDashboard() {
         setStudent(s);
         setLoading(false);
       })
-      .finally(() => {
-        fetchingRef.current = false;
+      .catch(() => {
+        if (!cancelled) setLoading(false);
       });
 
     return () => { cancelled = true; };

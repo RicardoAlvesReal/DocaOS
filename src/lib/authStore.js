@@ -49,8 +49,8 @@ export async function login(matricula, senha) {
   if (aluno) {
     // Pre-populate cache so StudentDashboard doesn't need to fetch again
     studentCache.set(aluno.matricula, aluno);
-    const session = { type: 'aluno', matricula: aluno.matricula, nome: aluno.nome };
-    localStorage.setItem('vanescolar_session', JSON.stringify(session));
+    const session = { type: 'aluno', matricula: aluno.matricula, nome: aluno.nome, primeiro_acesso: aluno.primeiro_acesso !== false, alunoData: aluno };
+    localStorage.setItem('vanescolar_session', JSON.stringify({ type: 'aluno', matricula: aluno.matricula, nome: aluno.nome }));
     return session;
   }
   return null;
@@ -127,6 +127,7 @@ export async function addStudent(nome, responsavel, mensalidade, matriculaCustom
     responsavel: responsavel.trim(),
     matricula,
     senha,
+    primeiro_acesso: true,
     mensalidade: parseFloat(mensalidade),
     meses: DEFAULT_MESES(),
   });

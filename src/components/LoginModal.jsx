@@ -6,15 +6,16 @@ import { Label } from '@/components/ui/label';
 import { Bus, LogIn, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { login } from '@/lib/authStore';
 import { useNavigate } from 'react-router-dom';
+import ChangePasswordModal from '@/components/ChangePasswordModal';
 
 export default function LoginModal({ open, onOpenChange }) {
   const [matricula, setMatricula] = useState('');
   const [senha, setSenha] = useState('');
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const navigate = useNavigate();
-
   const [loading, setLoading] = useState(false);
+  const [alunoParaTrocarSenha, setAlunoParaTrocarSenha] = useState(null);
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -26,14 +27,34 @@ export default function LoginModal({ open, onOpenChange }) {
       setError('Matrícula ou senha incorreta.');
       return;
     }
+    if (session.type === 'aluno' && session.primeiro_acesso) {
+      setAlunoParaTrocarSenha(session.alunoData);
+      return;
+    }
     onOpenChange(false);
     setMatricula('');
     setSenha('');
     navigate(session.type === 'admin' ? '/admin' : '/aluno');
   };
 
+  const handleSenhaTrocada = () => {
+    setAlunoParaTrocarSenha(null);
+    onOpenChange(false);
+    setMatricula('');
+    setSenha('');
+    navigate('/aluno');
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <>
+    {alunoParaTrocarSenha && (
+      <ChangePasswordModal
+        open={true}
+        aluno={alunoParaTrocarSenha}
+        onSuccess={handleSenhaTrocada}
+      />
+    )}
+    <Dialog open={open && !alunoParaTrocarSenha} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md border-border/50">
         <DialogHeader>
           <div className="flex items-center gap-3 mb-1">
@@ -91,5 +112,6 @@ export default function LoginModal({ open, onOpenChange }) {
         </form>
       </DialogContent>
     </Dialog>
-  );
-}
+    </>
+    );
+    }

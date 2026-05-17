@@ -47,7 +47,7 @@ export default function HeroSection({ onOpenLogin }) {
                 src="https://media.base44.com/images/public/69def39fda42a347c0451860/770f447f0_ChatGPTImage17demaide202612_33_25.png"
                 alt="Van escolar"
                 className="relative w-full rounded-2xl object-cover shadow-2xl border border-white/10"
-                style={{ height: 420 }}
+                style={{ height: 420, objectPosition: 'center 60%' }}
               />
             </div>
           </motion.div>

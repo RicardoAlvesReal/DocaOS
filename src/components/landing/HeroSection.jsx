@@ -39,7 +39,7 @@ export default function HeroSection({ onOpenLogin }) {
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="hidden lg:flex justify-center"
+            className="flex justify-center"
           >
             <div className="relative w-full max-w-lg">
               <div className="absolute -inset-2 bg-blue-500/20 rounded-3xl blur-2xl" />

@@ -44,8 +44,8 @@ export default function HeroSection({ onOpenLogin }) {
             <div className="relative w-full max-w-lg">
               <div className="absolute -inset-2 bg-blue-500/20 rounded-3xl blur-2xl" />
               <img
-                src="https://images.unsplash.com/photo-1570125909232-eb263c188f7e?w=800&q=80"
-                alt="Ônibus escolar"
+                src="https://media.base44.com/images/public/69def39fda42a347c0451860/770f447f0_ChatGPTImage17demaide202612_33_25.png"
+                alt="Van escolar"
                 className="relative w-full rounded-2xl object-cover shadow-2xl border border-white/10"
                 style={{ height: 320 }}
               />

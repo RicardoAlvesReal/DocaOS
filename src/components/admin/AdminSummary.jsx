@@ -171,7 +171,7 @@ export default function AdminSummary() {
                 <span className="text-[10px] font-bold bg-amber-400/10 text-amber-600 px-2 py-0.5 rounded-full border border-amber-400/20">ATENÇÃO</span>
               )}
             </div>
-            <p className="text-3xl font-black text-foreground">{stat.value}</p>
+            <p className="text-3xl font-black text-foreground">{showValues ? stat.value : '••'}</p>
             <p className="text-sm text-muted-foreground mt-1">{stat.label}</p>
           </div>
         ))}

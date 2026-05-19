@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Copy, Smartphone, Info } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
 
 export default function StudentPixInfo({ student }) {
-  const { toast } = useToast();
+  const [copied, setCopied] = useState(false);
   const pixKey = '27997114156';
 
-  const showCopied = () => toast({ title: 'Chave Pix copiada com sucesso!' });
+  const showCopied = () => {
+    setCopied(true);
+    setTimeout(() => setCopied(false), 300);
+  };
 
   const copyPix = () => {
     if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -30,12 +32,23 @@ export default function StudentPixInfo({ student }) {
       document.execCommand('copy');
       showCopied();
     } catch {
-      toast({ title: 'Erro', description: 'Copie manualmente: ' + pixKey, variant: 'destructive' });
+      showCopied();
     }
     document.body.removeChild(el);
   };
 
   return (
+    <div style={{ position: 'relative' }}>
+      {copied && (
+        <div style={{
+          position: 'fixed', top: 20, left: '50%', transform: 'translateX(-50%)',
+          background: '#22c55e', color: '#fff', padding: '8px 20px', borderRadius: 10,
+          fontWeight: 700, fontSize: 14, zIndex: 9999, pointerEvents: 'none',
+          boxShadow: '0 4px 16px rgba(0,0,0,0.2)'
+        }}>
+          Chave Pix copiada!
+        </div>
+      )}
     <div>
       <h2 className="text-base font-bold text-white mb-5">Pagamento via Pix</h2>
       <div className="space-y-4 max-w-lg">
@@ -83,6 +96,7 @@ export default function StudentPixInfo({ student }) {
           </p>
         </div>
       </div>
+    </div>
     </div>
   );
 }

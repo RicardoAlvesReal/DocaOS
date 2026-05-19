@@ -90,11 +90,11 @@ export default function AdminSummary() {
           </div>
           <div className="flex items-center gap-2 text-sm">
             <CheckCircle className="w-4 h-4 text-emerald-500" />
-            <span className="text-muted-foreground">{pagosNoMes} aluno{pagosNoMes !== 1 ? 's' : ''} pagou</span>
-            <span className="ml-auto font-bold text-emerald-600">{taxaRecebimento}% recebido</span>
+            <span className="text-muted-foreground">{showValues ? `${pagosNoMes} aluno${pagosNoMes !== 1 ? 's' : ''} pagou` : '•• alunos pagou'}</span>
+            <span className="ml-auto font-bold text-emerald-600">{showValues ? `${taxaRecebimento}% recebido` : '••% recebido'}</span>
           </div>
           <div className="mt-3 h-2 bg-muted rounded-full overflow-hidden">
-            <div className="h-full bg-emerald-500 rounded-full transition-all duration-500" style={{ width: `${taxaRecebimento}%` }} />
+            <div className="h-full bg-emerald-500 rounded-full transition-all duration-500" style={{ width: showValues ? `${taxaRecebimento}%` : '0%' }} />
           </div>
         </div>
 
@@ -110,11 +110,11 @@ export default function AdminSummary() {
           </div>
           <div className="flex items-center gap-2 text-sm">
             <AlertTriangle className="w-4 h-4 text-rose-500" />
-            <span className="text-muted-foreground">{inadimplentes} inadimplente{inadimplentes !== 1 ? 's' : ''}</span>
-            <span className="ml-auto font-bold text-rose-600">{100 - taxaRecebimento}% pendente</span>
+            <span className="text-muted-foreground">{showValues ? `${inadimplentes} inadimplente${inadimplentes !== 1 ? 's' : ''}` : '•• inadimplentes'}</span>
+            <span className="ml-auto font-bold text-rose-600">{showValues ? `${100 - taxaRecebimento}% pendente` : '••% pendente'}</span>
           </div>
           <div className="mt-3 h-2 bg-muted rounded-full overflow-hidden">
-            <div className="h-full bg-rose-500 rounded-full transition-all duration-500" style={{ width: `${100 - taxaRecebimento}%` }} />
+            <div className="h-full bg-rose-500 rounded-full transition-all duration-500" style={{ width: showValues ? `${100 - taxaRecebimento}%` : '0%' }} />
           </div>
         </div>
       </div>
@@ -171,7 +171,7 @@ export default function AdminSummary() {
                 <span className="text-[10px] font-bold bg-amber-400/10 text-amber-600 px-2 py-0.5 rounded-full border border-amber-400/20">ATENÇÃO</span>
               )}
             </div>
-            <p className="text-3xl font-black text-foreground">{showValues ? stat.value : '••'}</p>
+            <p className="text-3xl font-black text-foreground">{showValues ? stat.value : '•'}</p>
             <p className="text-sm text-muted-foreground mt-1">{stat.label}</p>
           </div>
         ))}

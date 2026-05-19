@@ -8,7 +8,7 @@ export default function StudentPixInfo({ student }) {
   const copyPix = () => {
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(pixKey)
-        .then(() => toast.success('Chave Pix copiada!'))
+        .then(() => toast.success('Chave Pix copiada com sucesso!'))
         .catch(() => fallbackCopy());
     } else {
       fallbackCopy();
@@ -25,7 +25,7 @@ export default function StudentPixInfo({ student }) {
     el.select();
     try {
       document.execCommand('copy');
-      toast.success('Chave Pix copiada!');
+      toast.success('Chave Pix copiada com sucesso!');
     } catch {
       toast.error('Não foi possível copiar. Copie manualmente: ' + pixKey);
     }

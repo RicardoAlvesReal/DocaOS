@@ -38,28 +38,30 @@ export default function AdminSummary() {
   let totalPendenteAno = 0;
 
   students.forEach(s => {
+    const mensalidade = Number(s.mensalidade) || 0;
+    const meses = s.meses || {};
     if (currentMonthKey) {
-      if ((s.meses || {})[currentMonthKey] === 'pago') {
+      if (meses[currentMonthKey] === 'pago') {
         pagosNoMes++;
-        totalEntradasMes += s.mensalidade;
+        totalEntradasMes += mensalidade;
       } else {
         inadimplentes++;
-        totalSaidasMes += s.mensalidade;
+        totalSaidasMes += mensalidade;
       }
     }
     MONTH_KEYS.forEach(mk => {
-      if ((s.meses || {})[mk] === 'pago') {
-        totalEntradasAno += s.mensalidade;
+      if (meses[mk] === 'pago') {
+        totalEntradasAno += mensalidade;
       } else {
-        totalPendenteAno += s.mensalidade;
+        totalPendenteAno += mensalidade;
       }
     });
   });
 
   const totalPotencialMes = totalEntradasMes + totalSaidasMes;
   const taxaRecebimento = totalPotencialMes > 0 ? Math.round((totalEntradasMes / totalPotencialMes) * 100) : 0;
-  const fmt = (v) => showValues ? v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : 'R$ ••••••';
-  const fmtYear = (v) => showValues ? v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : 'R$ ••••••';
+  const fmt = (v) => showValues ? (Number(v) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : 'R$ ••••••';
+  const fmtYear = (v) => showValues ? (Number(v) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : 'R$ ••••••';
 
   return (
     <div className="space-y-8">

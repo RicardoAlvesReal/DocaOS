@@ -7,6 +7,7 @@ import AdminRegisterStudent from '@/components/admin/AdminRegisterStudent';
 import AdminStudentList from '@/components/admin/AdminStudentList';
 import AdminComprovantes from '@/components/admin/AdminComprovantes';
 import AdminPaymentsStatus from '@/components/admin/AdminPaymentsStatus';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -44,11 +45,13 @@ export default function AdminDashboard() {
         pendingCount={pendingCount}
       />
       <main className="lg:ml-64 p-5 lg:p-8 pb-28 lg:pb-8" key={refreshKey}>
-        {activeTab === 'resumo'       && <AdminSummary />}
-        {activeTab === 'cadastro'     && <AdminRegisterStudent onStudentAdded={refresh} />}
-        {activeTab === 'lista'        && <AdminStudentList />}
-        {activeTab === 'pagamentos'   && <AdminPaymentsStatus />}
-        {activeTab === 'comprovantes' && <AdminComprovantes onUpdate={refresh} />}
+        <ErrorBoundary>
+          {activeTab === 'resumo'       && <AdminSummary />}
+          {activeTab === 'cadastro'     && <AdminRegisterStudent onStudentAdded={refresh} />}
+          {activeTab === 'lista'        && <AdminStudentList />}
+          {activeTab === 'pagamentos'   && <AdminPaymentsStatus />}
+          {activeTab === 'comprovantes' && <AdminComprovantes onUpdate={refresh} />}
+        </ErrorBoundary>
       </main>
     </div>
   );

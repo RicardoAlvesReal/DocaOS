@@ -5,6 +5,7 @@ import { Bus, LogOut, User, CreditCard, Upload, Info, Loader2 } from 'lucide-rea
 import StudentMonthlyGrid from '@/components/student/StudentMonthlyGrid';
 import StudentUpload from '@/components/student/StudentUpload';
 import StudentPixInfo from '@/components/student/StudentPixInfo';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 const TABS = [
   { key: 'pagamentos', label: 'Meus Pagamentos', icon: CreditCard },
@@ -101,7 +102,7 @@ export default function StudentDashboard() {
                   <span className="text-xs text-white/40">
                     Mensalidade:{' '}
                     <span className="text-white font-semibold">
-                      {(student.mensalidade).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                      {(Number(student.mensalidade) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                     </span>
                   </span>
                 </div>
@@ -142,9 +143,11 @@ export default function StudentDashboard() {
         {/* Tab content */}
         <div className="rounded-2xl border border-white/8 overflow-hidden" style={{ background: '#161b27' }}>
           <div className="p-6">
-            {activeTab === 'pagamentos' && <StudentMonthlyGrid student={student} />}
-            {activeTab === 'pix' && <StudentPixInfo student={student} />}
-            {activeTab === 'enviar' && <StudentUpload student={student} onUpdate={() => setRefreshKey(k => k + 1)} />}
+            <ErrorBoundary>
+              {activeTab === 'pagamentos' && <StudentMonthlyGrid student={student} />}
+              {activeTab === 'pix' && <StudentPixInfo student={student} />}
+              {activeTab === 'enviar' && <StudentUpload student={student} onUpdate={() => setRefreshKey(k => k + 1)} />}
+            </ErrorBoundary>
           </div>
         </div>
       </main>

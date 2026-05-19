@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Users, CheckCircle, AlertTriangle, FileSearch, TrendingUp, ArrowUpRight, ArrowDownRight, Loader2 } from 'lucide-react';
+import { Users, CheckCircle, AlertTriangle, FileSearch, TrendingUp, ArrowUpRight, ArrowDownRight, Loader2, Eye, EyeOff } from 'lucide-react';
 import { getStudents, getComprovantes, MONTH_KEYS, MONTHS_MAP } from '@/lib/authStore';
 
 export default function AdminSummary() {
   const [students, setStudents] = useState([]);
   const [comprovantes, setComprovantes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showValues, setShowValues] = useState(false);
 
   useEffect(() => {
     Promise.all([getStudents(), getComprovantes()]).then(([s, c]) => {
@@ -57,13 +58,23 @@ export default function AdminSummary() {
 
   const totalPotencialMes = totalEntradasMes + totalSaidasMes;
   const taxaRecebimento = totalPotencialMes > 0 ? Math.round((totalEntradasMes / totalPotencialMes) * 100) : 0;
-  const fmt = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  const fmt = (v) => showValues ? v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : 'R$ ••••••';
+  const fmtYear = (v) => showValues ? v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : 'R$ ••••••';
 
   return (
     <div className="space-y-8">
-      <div>
-        <h2 className="text-xl font-bold text-foreground">Resumo Geral</h2>
-        <p className="text-muted-foreground text-sm mt-0.5">Visão financeira e operacional</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-bold text-foreground">Resumo Geral</h2>
+          <p className="text-muted-foreground text-sm mt-0.5">Visão financeira e operacional</p>
+        </div>
+        <button
+          onClick={() => setShowValues(v => !v)}
+          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-lg hover:bg-muted"
+        >
+          {showValues ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+          {showValues ? 'Ocultar' : 'Exibir'}
+        </button>
       </div>
 
       <div className="grid sm:grid-cols-2 gap-4">
@@ -121,15 +132,15 @@ export default function AdminSummary() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="text-center p-4 bg-emerald-50 dark:bg-emerald-950/30 rounded-xl border border-emerald-100 dark:border-emerald-900">
             <p className="text-xs text-emerald-700 dark:text-emerald-400 font-semibold uppercase tracking-wide mb-1">Recebido</p>
-            <p className="text-lg font-black text-emerald-700 dark:text-emerald-400 break-all">{fmt(totalEntradasAno)}</p>
+            <p className="text-lg font-black text-emerald-700 dark:text-emerald-400 break-all">{fmtYear(totalEntradasAno)}</p>
           </div>
           <div className="text-center p-4 bg-rose-50 dark:bg-rose-950/30 rounded-xl border border-rose-100 dark:border-rose-900">
             <p className="text-xs text-rose-700 dark:text-rose-400 font-semibold uppercase tracking-wide mb-1">Pendente</p>
-            <p className="text-lg font-black text-rose-700 dark:text-rose-400 break-all">{fmt(totalPendenteAno)}</p>
+            <p className="text-lg font-black text-rose-700 dark:text-rose-400 break-all">{fmtYear(totalPendenteAno)}</p>
           </div>
           <div className="text-center p-4 bg-muted rounded-xl border border-border">
             <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wide mb-1">Total Esperado</p>
-            <p className="text-lg font-black text-foreground break-all">{fmt(totalEntradasAno + totalPendenteAno)}</p>
+            <p className="text-lg font-black text-foreground break-all">{fmtYear(totalEntradasAno + totalPendenteAno)}</p>
           </div>
         </div>
       </div>

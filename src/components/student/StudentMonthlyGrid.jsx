@@ -35,7 +35,7 @@ export default function StudentMonthlyGrid({ student }) {
       <h2 className="text-base font-bold text-white mb-5">Situação das Mensalidades</h2>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
         {MONTH_KEYS.map(key => {
-          const status = student.meses[key] || 'pendente';
+          const status = (student.meses || {})[key] || 'pendente';
           const cfg = statusConfig[status];
           const Icon = cfg.icon;
           return (

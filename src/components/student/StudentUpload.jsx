@@ -61,7 +61,7 @@ export default function StudentUpload({ student, onUpdate }) {
             </SelectTrigger>
             <SelectContent>
               {availableMonths.length === 0 ? (
-                <SelectItem value="none" disabled>Sem meses pendentes</SelectItem>
+                <SelectItem value="_empty" disabled>Sem meses pendentes</SelectItem>
               ) : (
                 availableMonths.map(k => (
                   <SelectItem key={k} value={k}>{MONTHS_MAP[k]}</SelectItem>

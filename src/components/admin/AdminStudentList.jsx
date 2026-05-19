@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Eye, CheckCircle, Clock, AlertTriangle, XCircle, Search, Trash2, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, CheckCircle, Clock, AlertTriangle, XCircle, Search, Trash2, Loader2 } from 'lucide-react';
 import { getStudents, MONTHS_MAP, MONTH_KEYS, removeStudent } from '@/lib/authStore';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
@@ -20,6 +20,7 @@ export default function AdminStudentList() {
   const [search, setSearch] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const [showValues, setShowValues] = useState(false);
 
   const loadStudents = async () => {
     setLoading(true);
@@ -54,9 +55,18 @@ export default function AdminStudentList() {
 
   return (
     <div className="space-y-5">
-      <div>
-        <h2 className="text-xl font-bold text-foreground">Lista de Alunos</h2>
-        <p className="text-muted-foreground text-sm mt-0.5">{students.length} alunos cadastrados</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-bold text-foreground">Lista de Alunos</h2>
+          <p className="text-muted-foreground text-sm mt-0.5">{students.length} alunos cadastrados</p>
+        </div>
+        <button
+          onClick={() => setShowValues(v => !v)}
+          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-lg hover:bg-muted"
+        >
+          {showValues ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+          {showValues ? 'Ocultar' : 'Exibir'}
+        </button>
       </div>
 
       <div className="relative max-w-sm">
@@ -84,16 +94,16 @@ export default function AdminStudentList() {
             return (
               <div key={s.matricula} className="grid md:grid-cols-[2fr_1fr_1fr_auto] gap-4 items-center px-5 py-4 hover:bg-muted/30 transition-colors">
                 <div>
-                  <p className="font-semibold text-foreground text-sm">{s.nome}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{s.responsavel}</p>
+                  <p className="font-semibold text-foreground text-sm">{showValues ? s.nome : '••••••••••'}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{showValues ? s.responsavel : '••••••••••'}</p>
                   <div className="flex items-center gap-1.5 mt-1.5 md:hidden">
-                    <span className="font-mono text-xs bg-muted px-2 py-0.5 rounded">{s.matricula}</span>
+                    <span className="font-mono text-xs bg-muted px-2 py-0.5 rounded">{showValues ? s.matricula : '•••••••'}</span>
                   </div>
                 </div>
-                <span className="hidden md:block font-mono text-sm text-foreground">{s.matricula}</span>
+                <span className="hidden md:block font-mono text-sm text-foreground">{showValues ? s.matricula : '•••••••'}</span>
                 <div className="hidden md:block">
-                  <span className="font-bold text-foreground text-sm">R$ {s.mensalidade.toFixed(2).replace('.', ',')}</span>
-                  <p className="text-xs text-muted-foreground mt-0.5">{pagos}/{total} meses pagos</p>
+                  <span className="font-bold text-foreground text-sm">{showValues ? `R$ ${s.mensalidade.toFixed(2).replace('.', ',')}` : 'R$ ••••'}</span>
+                  <p className="text-xs text-muted-foreground mt-0.5">{showValues ? `${pagos}/${total} meses pagos` : '••/•• meses pagos'}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <Button size="sm" variant="outline" onClick={() => setSelected(s)} className="h-8 px-3 rounded-lg text-xs">

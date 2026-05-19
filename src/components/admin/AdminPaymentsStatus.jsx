@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CheckCircle, AlertTriangle, Clock, XCircle, ChevronDown, Loader2 } from 'lucide-react';
+import { CheckCircle, AlertTriangle, Clock, XCircle, ChevronDown, Loader2, Eye, EyeOff } from 'lucide-react';
 import { getStudents, MONTHS_MAP, MONTH_KEYS } from '@/lib/authStore';
 
 const statusConfig = {
@@ -14,6 +14,7 @@ export default function AdminPaymentsStatus() {
   const [loading, setLoading] = useState(true);
   const [filterMonth, setFilterMonth] = useState('todos');
   const [filterStatus, setFilterStatus] = useState('todos');
+  const [showValues, setShowValues] = useState(false);
 
   useEffect(() => {
     getStudents().then(data => {
@@ -46,9 +47,18 @@ export default function AdminPaymentsStatus() {
 
   return (
     <div className="space-y-5">
-      <div>
-        <h2 className="text-xl font-bold text-foreground">Painel de Pagamentos</h2>
-        <p className="text-muted-foreground text-sm mt-0.5">Situação de todos os alunos por mês</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-bold text-foreground">Painel de Pagamentos</h2>
+          <p className="text-muted-foreground text-sm mt-0.5">Situação de todos os alunos por mês</p>
+        </div>
+        <button
+          onClick={() => setShowValues(v => !v)}
+          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-lg hover:bg-muted"
+        >
+          {showValues ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+          {showValues ? 'Ocultar' : 'Exibir'}
+        </button>
       </div>
 
       <div className="flex flex-wrap gap-2">
@@ -63,7 +73,7 @@ export default function AdminPaymentsStatus() {
               }`}
             >
               <Icon className="w-3.5 h-3.5" />
-              {cfg.label}: {countByStatus(key)}
+              {cfg.label}: {showValues ? countByStatus(key) : '••'}
             </button>
           );
         })}
@@ -104,8 +114,8 @@ export default function AdminPaymentsStatus() {
             const Icon = cfg.icon;
             return (
               <div key={i} className="grid md:grid-cols-[2fr_1fr_1fr_1fr] gap-4 items-center px-5 py-3.5 hover:bg-muted/20 transition-colors">
-                <p className="font-medium text-sm text-foreground">{r.student.nome}</p>
-                <span className="font-mono text-xs text-muted-foreground">{r.student.matricula}</span>
+                <p className="font-medium text-sm text-foreground">{showValues ? r.student.nome : '••••••••••'}</p>
+                <span className="font-mono text-xs text-muted-foreground">{showValues ? r.student.matricula : '•••••••'}</span>
                 <span className="text-sm font-medium">{MONTHS_MAP[r.mesKey]}</span>
                 <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-semibold w-fit ${cfg.pill}`}>
                   <Icon className="w-3 h-3" />

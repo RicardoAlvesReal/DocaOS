@@ -102,7 +102,7 @@ export default function AdminStudentList() {
                 </div>
                 <span className="hidden md:block font-mono text-sm text-foreground">{showValues ? s.matricula : '•••••••'}</span>
                 <div className="hidden md:block">
-                  <span className="font-bold text-foreground text-sm">{showValues ? `R$ ${s.mensalidade.toFixed(2).replace('.', ',')}` : 'R$ ••••'}</span>
+                  <span className="font-bold text-foreground text-sm">{showValues ? `R$ ${(Number(s.mensalidade) || 0).toFixed(2).replace('.', ',')}` : 'R$ ••••'}</span>
                   <p className="text-xs text-muted-foreground mt-0.5">{showValues ? `${pagos}/${total} meses pagos` : '••/•• meses pagos'}</p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -157,7 +157,7 @@ export default function AdminStudentList() {
             <>
               <DialogHeader>
                 <DialogTitle>{selected.nome}</DialogTitle>
-                <p className="text-sm text-muted-foreground font-mono">{selected.matricula} · R$ {selected.mensalidade.toFixed(2).replace('.', ',')}/mês</p>
+                <p className="text-sm text-muted-foreground font-mono">{selected.matricula} · R$ {(Number(selected.mensalidade) || 0).toFixed(2).replace('.', ',')}/mês</p>
               </DialogHeader>
               <div className="grid grid-cols-2 gap-2.5 mt-3">
                 {MONTH_KEYS.map(key => {

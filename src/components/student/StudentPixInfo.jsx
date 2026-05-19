@@ -1,14 +1,17 @@
 import React from 'react';
 import { Copy, Smartphone, Info } from 'lucide-react';
-import { toast } from 'sonner';
+import { useToast } from '@/components/ui/use-toast';
 
 export default function StudentPixInfo({ student }) {
+  const { toast } = useToast();
   const pixKey = '27997114156';
+
+  const showCopied = () => toast({ title: 'Chave Pix copiada com sucesso!' });
 
   const copyPix = () => {
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(pixKey)
-        .then(() => toast.success('Chave Pix copiada com sucesso!'))
+        .then(() => showCopied())
         .catch(() => fallbackCopy());
     } else {
       fallbackCopy();
@@ -25,9 +28,9 @@ export default function StudentPixInfo({ student }) {
     el.select();
     try {
       document.execCommand('copy');
-      toast.success('Chave Pix copiada com sucesso!');
+      showCopied();
     } catch {
-      toast.error('Não foi possível copiar. Copie manualmente: ' + pixKey);
+      toast({ title: 'Erro', description: 'Copie manualmente: ' + pixKey, variant: 'destructive' });
     }
     document.body.removeChild(el);
   };

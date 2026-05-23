@@ -1,13 +1,15 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/landing/Navbar';
 import HeroSection from '@/components/landing/HeroSection';
 import BenefitsSection from '@/components/landing/BenefitsSection';
 import FleetSection from '@/components/landing/FleetSection';
 import Footer from '@/components/landing/Footer';
+import LoginModal from '@/components/LoginModal';
 import { getSession } from '@/lib/authStore';
 
 export default function Landing() {
+  const [loginOpen, setLoginOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -17,15 +19,14 @@ export default function Landing() {
     }
   }, [navigate]);
 
-  const goToAcesso = () => navigate('/acesso');
-
   return (
     <div className="min-h-screen">
-      <Navbar onOpenLogin={goToAcesso} />
-      <HeroSection onOpenLogin={goToAcesso} />
+      <Navbar onOpenLogin={() => setLoginOpen(true)} />
+      <HeroSection onOpenLogin={() => setLoginOpen(true)} />
       <BenefitsSection />
       <FleetSection />
       <Footer />
+      <LoginModal open={loginOpen} onOpenChange={setLoginOpen} />
     </div>
   );
 }

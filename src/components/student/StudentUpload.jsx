@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Upload, CheckCircle } from 'lucide-react';
-import { addComprovante, MONTHS_MAP, MONTH_KEYS } from '@/lib/authStore';
+import { MONTHS_MAP, MONTH_KEYS } from '@/lib/authStore';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 
@@ -32,9 +32,22 @@ export default function StudentUpload({ student, onUpdate }) {
     if (!file) { toast.error('Selecione um arquivo.'); return; }
     setSending(true);
 
-    // Upload do arquivo para o servidor (URL permanente, acessível entre dispositivos)
+    // Upload do arquivo
     const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    await addComprovante(student.matricula, selectedMonth, file_url, file.name);
+
+    // Envia via backend function (contorna RLS)
+    const res = await base44.functions.invoke('enviarComprovante', {
+      matricula: student.matricula,
+      mesKey: selectedMonth,
+      fileUrl: file_url,
+      fileName: file.name,
+    });
+
+    if (res.data?.error) {
+      toast.error('Erro ao enviar: ' + res.data.error);
+      setSending(false);
+      return;
+    }
 
     setSending(false);
     setSelectedMonth('');

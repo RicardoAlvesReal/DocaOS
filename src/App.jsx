@@ -9,6 +9,7 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import Landing from '@/pages/Landing';
 import AdminDashboard from '@/pages/AdminDashboard';
 import StudentDashboard from '@/pages/StudentDashboard';
+import AcessoPage from '@/pages/AcessoPage';
 import { initData } from '@/lib/authStore';
 
 const AuthenticatedApp = () => {
@@ -40,6 +41,7 @@ const AuthenticatedApp = () => {
       <Route path="/" element={<Landing />} />
       <Route path="/admin" element={<AdminDashboard />} />
       <Route path="/aluno" element={<StudentDashboard />} />
+      <Route path="/acesso" element={<AcessoPage />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

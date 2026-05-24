@@ -1,18 +1,13 @@
 import React from 'react';
-import { Bus, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 export default function Navbar({ onOpenLogin }) {
   return (
     <nav className="fixed w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
         {/* Logo */}
-        <div className="flex items-center gap-2">
-          <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/20">
-            <Bus className="text-white w-6 h-6" />
-          </div>
-          <span className="text-2xl font-bold tracking-tight text-slate-900">
-            Rota<span className="text-blue-600">Flow</span>
-          </span>
+        <div className="flex items-center">
+          <img src="/logo-full.png" alt="RotaFlow" className="h-[150px] w-auto" />
         </div>
 
         {/* Nav links */}

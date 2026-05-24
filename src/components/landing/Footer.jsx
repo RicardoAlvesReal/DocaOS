@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bus, Facebook, Instagram } from 'lucide-react';
+import { Facebook, Instagram } from 'lucide-react';
 import { MessageCircle } from 'lucide-react';
 
 const SOCIAL_LINKS = [
@@ -13,9 +13,8 @@ export default function Footer() {
     <footer className="bg-slate-900 text-slate-400 border-t border-slate-800">
       <div className="max-w-7xl mx-auto px-6 py-12 flex flex-col items-center gap-6 text-center">
         {/* Logo */}
-        <div className="flex items-center gap-2 opacity-60">
-          <Bus className="w-6 h-6 text-white" />
-          <span className="text-xl font-bold text-white tracking-tight">RotaFlow</span>
+        <div className="flex items-center opacity-70">
+          <img src="/logo-full.png" alt="RotaFlow" className="h-[150px] w-auto brightness-0 invert" />
         </div>
 
         {/* Social links */}

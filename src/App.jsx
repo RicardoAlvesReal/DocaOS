@@ -7,8 +7,8 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import Landing from '@/pages/Landing';
-import AdminDashboard from '@/pages/AdminDashboard';
-import StudentDashboard from '@/pages/StudentDashboard';
+import SuperAdminDashboard from '@/pages/SuperAdminDashboard';
+import EmpresaDashboard from '@/pages/EmpresaDashboard';
 import { initData } from '@/lib/authStore';
 
 const AuthenticatedApp = () => {
@@ -38,8 +38,8 @@ const AuthenticatedApp = () => {
   return (
     <Routes>
       <Route path="/" element={<Landing />} />
-      <Route path="/admin" element={<AdminDashboard />} />
-      <Route path="/aluno" element={<StudentDashboard />} />
+      <Route path="/super-admin" element={<SuperAdminDashboard />} />
+      <Route path="/empresa" element={<EmpresaDashboard />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

@@ -6,55 +6,36 @@ import { Label } from '@/components/ui/label';
 import { Bus, LogIn, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { login } from '@/lib/authStore';
 import { useNavigate } from 'react-router-dom';
-import ChangePasswordModal from '@/components/ChangePasswordModal';
-
 export default function LoginModal({ open, onOpenChange }) {
-  const [matricula, setMatricula] = useState('');
+  const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [alunoParaTrocarSenha, setAlunoParaTrocarSenha] = useState(null);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
-    const session = await login(matricula.trim(), senha.trim());
+    const session = await login(email.trim(), senha.trim());
     setLoading(false);
     if (!session) {
-      setError('Matrícula ou senha incorreta.');
-      return;
-    }
-    if (session.type === 'aluno' && session.primeiro_acesso) {
-      setAlunoParaTrocarSenha(session.alunoData);
+      setError('E-mail ou senha incorreta.');
       return;
     }
     onOpenChange(false);
-    setMatricula('');
+    setEmail('');
     setSenha('');
-    navigate(session.type === 'admin' ? '/admin' : '/aluno');
-  };
-
-  const handleSenhaTrocada = () => {
-    setAlunoParaTrocarSenha(null);
-    onOpenChange(false);
-    setMatricula('');
-    setSenha('');
-    navigate('/aluno');
+    const dest =
+      session.type === 'super_admin' ? '/super-admin' :
+      session.type === 'empresa'     ? '/empresa'     : '/';
+    navigate(dest);
   };
 
   return (
     <>
-    {alunoParaTrocarSenha && (
-      <ChangePasswordModal
-        open={true}
-        aluno={alunoParaTrocarSenha}
-        onSuccess={handleSenhaTrocada}
-      />
-    )}
-    <Dialog open={open && !alunoParaTrocarSenha} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md border-border/50">
         <DialogHeader>
           <div className="flex items-center gap-3 mb-1">
@@ -63,18 +44,18 @@ export default function LoginModal({ open, onOpenChange }) {
             </div>
             <div>
               <DialogTitle className="text-xl font-bold">Área de Acesso</DialogTitle>
-              <p className="text-xs text-muted-foreground">VanEscolar+</p>
+              <p className="text-xs text-muted-foreground">RotaFlow</p>
             </div>
           </div>
         </DialogHeader>
 
         <form onSubmit={handleLogin} className="space-y-4 mt-2">
           <div className="space-y-1.5">
-            <Label className="font-semibold text-sm">Matrícula</Label>
+            <Label className="font-semibold text-sm">E-mail</Label>
             <Input
-              placeholder="Digite sua matrícula"
-              value={matricula}
-              onChange={e => setMatricula(e.target.value)}
+              placeholder="Digite seu e-mail"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
               className="h-11 bg-muted/40 border-border/60 focus:border-primary"
             />
           </div>
@@ -113,5 +94,5 @@ export default function LoginModal({ open, onOpenChange }) {
       </DialogContent>
     </Dialog>
     </>
-    );
-    }
+  );
+}

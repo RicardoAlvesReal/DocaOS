@@ -7,8 +7,8 @@ const features = [
   'Manutenção preventiva mensal',
   'Ar condicionado',
   'Cintos de segurança em todos os assentos',
-  'Bancos acolchoados e confortáveis',
-  'Extintor de incêndio',
+  'Rastreamento em tempo real',
+  'Extintor de incêndio e equipamentos de segurança',
 ];
 
 function FleetItem({ text, index }) {
@@ -46,7 +46,7 @@ export default function FleetSection() {
         >
           <h2 className="text-4xl font-black text-white mb-3">Nossa Frota</h2>
           <p className="text-white/50 text-sm">
-            Veículos modernos, seguros e confortáveis para garantir o bem-estar das crianças
+            Veículos modernos, seguros e climatizados para todos os tipos de rota e contratante
           </p>
         </motion.div>
 
@@ -66,7 +66,7 @@ export default function FleetSection() {
               Diferenciais da Nossa Frota
             </span>
             <h3 className="text-2xl font-bold text-white mb-6">
-              Conforto e Segurança em Cada Detalhe
+              Conforto, Segurança e Tecnologia em Cada Rota
             </h3>
             <div className="space-y-3">
               {features.map((f, i) => (

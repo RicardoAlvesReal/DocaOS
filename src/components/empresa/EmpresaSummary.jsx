@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '@/api/apiClient';
 import { Card, CardContent } from '@/components/ui/card';
-import { Layers, Truck, UserCheck, Users, Route, FileText, CreditCard, AlertCircle } from 'lucide-react';
+import { Layers, Truck, UserCheck, Users, Route, FileText, CreditCard, AlertCircle, Upload } from 'lucide-react';
 
 function StatCard({ title, value, icon: Icon, color }) {
   return (
@@ -23,6 +23,37 @@ export default function EmpresaSummary({ session }) {
   const id = session?.empresa_id;
   const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(true);
+  const [logoUploading, setLogoUploading] = useState(false);
+  const [logoError, setLogoError] = useState('');
+  const [currentLogo, setCurrentLogo] = useState(session?.empresa_logo || '');
+
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      setLogoError('Formato inválido. Use JPG, PNG ou WebP.');
+      return;
+    }
+    setLogoUploading(true);
+    setLogoError('');
+    try {
+      const { file_url } = await api.uploadFile(file);
+      await api.entities.Empresa.update(id, { logo_url: file_url });
+      // Atualiza sessão em localStorage e recarrega para propagar a logo
+      const raw = localStorage.getItem('rotaflow_session');
+      if (raw) {
+        const s = JSON.parse(raw);
+        s.empresa_logo = file_url;
+        localStorage.setItem('rotaflow_session', JSON.stringify(s));
+      }
+      setCurrentLogo(file_url);
+      window.location.reload();
+    } catch (err) {
+      setLogoError(err.message || 'Erro ao guardar logo.');
+    } finally {
+      setLogoUploading(false);
+    }
+  };
 
   useEffect(() => {
     if (!id) return;
@@ -71,6 +102,35 @@ export default function EmpresaSummary({ session }) {
         <h1 className="text-2xl font-bold">Resumo da Empresa</h1>
         <p className="text-muted-foreground text-sm mt-1">{session?.empresa_nome}</p>
       </div>
+
+      {/* Logo da empresa — apenas admin pode alterar */}
+      {session?.role === 'admin' && (
+        <Card>
+          <CardContent className="p-5 flex items-center gap-4 flex-wrap">
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-sm">Logo da empresa</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Visível para todos os utilizadores da empresa na barra lateral.
+              </p>
+              {logoError && <p className="text-red-500 text-xs mt-1">{logoError}</p>}
+            </div>
+            {currentLogo && (
+              <img src={currentLogo} alt="Logo" className="h-12 w-auto max-w-[140px] object-contain rounded border border-border" />
+            )}
+            <label className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium border border-border transition-colors shrink-0 ${logoUploading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-muted cursor-pointer'}`}>
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="hidden"
+                onChange={handleLogoUpload}
+                disabled={logoUploading}
+              />
+              <Upload className="w-4 h-4" />
+              {logoUploading ? 'A guardar...' : currentLogo ? 'Alterar logo' : 'Adicionar logo'}
+            </label>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
         {loading

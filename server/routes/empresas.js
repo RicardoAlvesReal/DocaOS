@@ -54,7 +54,7 @@ router.post('/', async (req, res) => {
 // UPDATE
 router.put('/:id', async (req, res) => {
   try {
-    const { nome, cnpj, email, telefone, plano, ativo, admin_id } = req.body;
+    const { nome, cnpj, email, telefone, plano, ativo, admin_id, logo_url } = req.body;
     const { rows } = await pool.query(
       `UPDATE empresas SET
          nome      = COALESCE($1, nome),
@@ -63,10 +63,11 @@ router.put('/:id', async (req, res) => {
          telefone  = COALESCE($4, telefone),
          plano     = COALESCE($5, plano),
          ativo     = COALESCE($6, ativo),
-         admin_id  = COALESCE($7, admin_id)
-       WHERE id = $8
+         admin_id  = COALESCE($7, admin_id),
+         logo_url  = COALESCE($8, logo_url)
+       WHERE id = $9
        RETURNING *`,
-      [nome, cnpj, email, telefone, plano, ativo, admin_id, req.params.id]
+      [nome, cnpj, email, telefone, plano, ativo, admin_id, logo_url ?? null, req.params.id]
     );
     if (!rows.length) return res.status(404).json({ error: 'Empresa não encontrada.' });
     res.json(rows[0]);

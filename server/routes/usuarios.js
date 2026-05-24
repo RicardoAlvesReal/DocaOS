@@ -116,4 +116,21 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+// PATCH /api/usuarios/:id/foto-perfil
+router.patch('/:id/foto-perfil', async (req, res) => {
+  try {
+    const { foto_perfil } = req.body;
+    if (!foto_perfil) return res.status(400).json({ error: 'URL da foto obrigatória.' });
+    const { rowCount } = await pool.query(
+      `UPDATE usuarios SET foto_perfil = $1 WHERE id = $2`,
+      [foto_perfil, req.params.id]
+    );
+    if (!rowCount) return res.status(404).json({ error: 'Usuário não encontrado.' });
+    res.json({ ok: true, foto_perfil });
+  } catch (err) {
+    console.error('PATCH /api/usuarios/:id/foto-perfil error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;

@@ -77,6 +77,14 @@ app.post('/api/functions/enviarComprovante', async (req, res) => {
 app.get('/api/health', (_req, res) => res.json({ ok: true }));
 
 // ── Start ─────────────────────────────────────────────────────────────────────
-app.listen(PORT, () => {
+const pool = require('./db');
+app.listen(PORT, async () => {
   console.log(`[RotaFlow Server] rodando em http://localhost:${PORT}`);
+  // Migração automática: adiciona logo_url à tabela empresas se não existir
+  try {
+    await pool.query(`ALTER TABLE empresas ADD COLUMN IF NOT EXISTS logo_url VARCHAR(500)`);
+    await pool.query(`ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS foto_perfil VARCHAR(500)`);
+  } catch (e) {
+    console.warn('[migrate] logo_url:', e.message);
+  }
 });

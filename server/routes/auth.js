@@ -12,8 +12,8 @@ router.post('/login', async (req, res) => {
 
   try {
     const { rows: users } = await pool.query(
-      `SELECT u.id, u.nome, u.email, u.role, u.empresa_id, u.frota_id, u.primeiro_acesso,
-              e.nome AS empresa_nome, e.plano AS empresa_plano
+      `SELECT u.id, u.nome, u.email, u.role, u.empresa_id, u.frota_id, u.primeiro_acesso, u.foto_perfil,
+              e.nome AS empresa_nome, e.plano AS empresa_plano, e.logo_url AS empresa_logo
        FROM usuarios u
        LEFT JOIN empresas e ON e.id = u.empresa_id
        WHERE u.email = $1
@@ -32,6 +32,8 @@ router.post('/login', async (req, res) => {
         empresa_id:     u.empresa_id,
         empresa_nome:   u.empresa_nome,
         empresa_plano:  u.empresa_plano,
+        empresa_logo:   u.empresa_logo,
+        foto_perfil:    u.foto_perfil,
         frota_id:       u.frota_id,
         primeiro_acesso: u.primeiro_acesso,
       });

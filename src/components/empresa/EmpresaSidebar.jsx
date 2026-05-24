@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
-  Bus, LayoutDashboard, Layers, Truck, Users, UserCheck,
-  Route, FileText, CreditCard, LogOut,
+  LayoutDashboard, Layers, Truck, Users, UserCheck,
+  Route, FileText, CreditCard, LogOut, Camera,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -30,23 +30,55 @@ const getNavItems = (role) => {
 
 export default function EmpresaSidebar({ activeTab, setActiveTab, onLogout, session, pendingCount }) {
   const navItems = getNavItems(session?.role);
+  const [avatarSrc, setAvatarSrc] = useState(session?.foto_perfil || '');
+  const [avatarUploading, setAvatarUploading] = useState(false);
+
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setAvatarUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const uploadRes = await fetch('/api/upload', { method: 'POST', body: formData });
+      const { file_url } = await uploadRes.json();
+      await fetch(`/api/usuarios/${session.id}/foto-perfil`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ foto_perfil: file_url }),
+      });
+      const raw = localStorage.getItem('rotaflow_session');
+      if (raw) {
+        const s = JSON.parse(raw);
+        s.foto_perfil = file_url;
+        localStorage.setItem('rotaflow_session', JSON.stringify(s));
+      }
+      setAvatarSrc(file_url);
+    } catch (err) {
+      console.error('Erro ao atualizar foto:', err);
+    } finally {
+      setAvatarUploading(false);
+    }
+  };
 
   return (
     <>
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex flex-col w-64 bg-secondary min-h-screen fixed left-0 top-0 z-40">
-        <div className="p-5 border-b border-white/6">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/30">
-              <Bus className="w-4 h-4 text-white" />
-            </div>
-            <div>
-              <span className="text-white font-bold text-sm truncate max-w-[140px] block">
-                {session?.empresa_nome || 'RotaFlow'}
-              </span>
-              <p className="text-white/30 text-[11px] mt-0.5 capitalize">{session?.role?.replace('_', ' ')}</p>
-            </div>
-          </div>
+        {/* Empresa info */}
+        <div className="px-5 py-4 border-b border-white/6">
+          {session?.empresa_logo ? (
+            <img
+              src={session.empresa_logo}
+              alt={session?.empresa_nome}
+              className="h-10 w-auto max-w-[180px] object-contain mb-1"
+            />
+          ) : (
+            <span className="text-white font-bold text-sm truncate max-w-[200px] block">
+              {session?.empresa_nome || 'RotaFlow'}
+            </span>
+          )}
+          <p className="text-white/30 text-[11px] mt-0.5 capitalize">{session?.role?.replace('_', ' ')}</p>
         </div>
 
         <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
@@ -73,9 +105,21 @@ export default function EmpresaSidebar({ activeTab, setActiveTab, onLogout, sess
         </nav>
 
         <div className="p-3 border-t border-white/6 space-y-1">
-          <div className="px-3.5 py-2">
-            <p className="text-white/60 text-xs font-medium truncate">{session?.nome}</p>
-            <p className="text-white/25 text-[11px]">{session?.email}</p>
+          <div className="px-3.5 py-2 flex items-center gap-2.5">
+            <label className={`relative group shrink-0 w-8 h-8 rounded-full overflow-hidden bg-primary/20 flex items-center justify-center ${avatarUploading ? 'opacity-50' : 'cursor-pointer'}`}>
+              <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleAvatarUpload} disabled={avatarUploading} />
+              {avatarSrc
+                ? <img src={avatarSrc} alt={session?.nome} className="w-full h-full object-cover" />
+                : <span className="text-white/70 text-xs font-bold">{session?.nome?.[0]?.toUpperCase()}</span>
+              }
+              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <Camera className="w-3 h-3 text-white" />
+              </div>
+            </label>
+            <div className="min-w-0">
+              <p className="text-white/60 text-xs font-medium truncate">{session?.nome}</p>
+              <p className="text-white/25 text-[11px] truncate">{session?.email}</p>
+            </div>
           </div>
           <button
             onClick={onLogout}
@@ -84,6 +128,11 @@ export default function EmpresaSidebar({ activeTab, setActiveTab, onLogout, sess
             <LogOut className="w-4 h-4" />
             Sair do sistema
           </button>
+          {/* RotaFlow branding */}
+          <div className="flex items-center justify-center gap-1.5 pt-2 pb-1 opacity-60">
+            <img src="/logo-icon.png" alt="RotaFlow" className="w-5 h-5 object-contain" />
+            <span className="text-white text-[11px] font-medium">RotaFlow</span>
+          </div>
         </div>
       </aside>
 

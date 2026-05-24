@@ -1,39 +1,129 @@
-**Welcome to your Base44 project** 
+# RotaFlow
 
-**About**
+Plataforma multi-tenant de gestão de transporte escolar. Permite que empresas de van escolar gerenciem frotas, motoristas, rotas, passageiros e pagamentos em um único painel.
 
-View and Edit  your app on [Base44.com](http://Base44.com) 
+---
 
-This project contains everything you need to run your app locally.
+## Tecnologias
 
-**Edit the code in your local development environment**
+| Camada | Stack |
+|---|---|
+| Frontend | React 18 + Vite + Tailwind CSS + shadcn/ui |
+| Backend | Node.js + Express |
+| Banco de dados | PostgreSQL |
 
-Any change pushed to the repo will also be reflected in the Base44 Builder.
+---
 
-**Prerequisites:** 
-
-1. Clone the repository using the project's Git URL 
-2. Navigate to the project directory
-3. Install dependencies: `npm install`
-4. Create an `.env.local` file and set the right environment variables
+## Estrutura do projeto
 
 ```
-VITE_BASE44_APP_ID=your_app_id
-VITE_BASE44_APP_BASE_URL=your_backend_url
-
-e.g.
-VITE_BASE44_APP_ID=cbef744a8545c389ef439ea6
-VITE_BASE44_APP_BASE_URL=https://my-to-do-list-81bfaad7.base44.app
+rotaflow/
+├── src/          # Frontend React
+├── server/       # Backend Express + rotas da API
+└── public/       # Assets estáticos
 ```
 
-Run the app: `npm run dev`
+---
 
-**Publish your changes**
+## Pré-requisitos
 
-Open [Base44.com](http://Base44.com) and click on Publish.
+- Node.js 18+
+- PostgreSQL 14+
+- pnpm (ou npm)
 
-**Docs & Support**
+---
 
-Documentation: [https://docs.base44.com/Integrations/Using-GitHub](https://docs.base44.com/Integrations/Using-GitHub)
+## Configuração
 
-Support: [https://app.base44.com/support](https://app.base44.com/support)
+### 1. Clone o repositório
+
+```bash
+git clone https://github.com/RicardoAlvesReal/rotaflow.git
+cd rotaflow
+```
+
+### 2. Instale as dependências do frontend
+
+```bash
+pnpm install
+# ou: npm install
+```
+
+### 3. Configure o backend
+
+```bash
+cd server
+npm install
+```
+
+Crie o arquivo `server/.env` com as variáveis de ambiente:
+
+```env
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=rotaflow
+DB_USER=postgres
+DB_PASSWORD=sua_senha
+PORT=3001
+```
+
+### 4. Crie o banco de dados
+
+```bash
+# Dentro da pasta server/
+npm run setup-db
+```
+
+---
+
+## Rodando o projeto
+
+### Backend (porta 3001)
+
+```bash
+cd server
+npm run dev
+```
+
+### Frontend (porta 5173)
+
+```bash
+# Na raiz do projeto
+pnpm dev
+# ou: npm run dev
+```
+
+Acesse: [http://localhost:5173](http://localhost:5173)
+
+---
+
+## Scripts disponíveis
+
+### Frontend
+
+| Comando | Descrição |
+|---|---|
+| `pnpm dev` | Inicia o servidor de desenvolvimento |
+| `pnpm build` | Gera o build de produção |
+| `pnpm preview` | Pré-visualiza o build de produção |
+
+### Backend (`/server`)
+
+| Comando | Descrição |
+|---|---|
+| `npm run dev` | Inicia com hot-reload (`node --watch`) |
+| `npm start` | Inicia em modo produção |
+| `npm run setup-db` | Cria as tabelas no banco de dados |
+| `npm run migrate` | Migra dados legados |
+
+---
+
+## Funcionalidades
+
+- **Super Admin** — gerencia todas as empresas cadastradas na plataforma
+- **Admin da Empresa** — gerencia frotas, motoristas, veículos, rotas, passageiros e pagamentos
+- **Motorista** — acessa suas rotas e passageiros
+- **Passageiro** — visualiza contratos, rotas e pagamentos
+- Atribuição de rotas, veículos e passageiros a motoristas
+- Upload de comprovantes de pagamento
+- Controle de contratos e mensalidades

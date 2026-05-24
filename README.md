@@ -1,6 +1,6 @@
 # RotaFlow
 
-Plataforma multi-tenant de gestão de transporte escolar. Permite que empresas de van escolar gerenciem frotas, motoristas, rotas, passageiros e pagamentos em um único painel.
+Plataforma multi-tenant de gestão de transporte de passageiros. Permite que empresas de transporte gerenciem frotas, motoristas, rotas, passageiros e pagamentos em um único painel.
 
 ---
 

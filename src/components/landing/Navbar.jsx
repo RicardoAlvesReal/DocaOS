@@ -21,12 +21,6 @@ export default function Navbar({ onOpenLogin }) {
         <div className="flex items-center gap-4">
           <button
             onClick={onOpenLogin}
-            className="hidden sm:block text-slate-600 hover:text-slate-900 font-medium transition-colors text-sm"
-          >
-            Login
-          </button>
-          <button
-            onClick={onOpenLogin}
             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-full font-medium transition-all shadow-lg shadow-blue-600/25 flex items-center gap-2 group text-sm"
           >
             Acessar Sistema

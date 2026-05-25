@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { fadeUp, fadeLeft } from '@/lib/animations';
 import { CheckCircle2 } from 'lucide-react';
 
 const features = [
@@ -15,9 +16,7 @@ function FleetItem({ text, index }) {
   const [hovered, setHovered] = useState(false);
   return (
     <motion.div
-      initial={{ opacity: 0, x: -16 }}
-      whileInView={{ opacity: 1, x: 0 }}
-      viewport={{ once: true }}
+      {...fadeLeft}
       transition={{ delay: index * 0.06 }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -38,12 +37,7 @@ export default function FleetSection() {
   return (
     <section style={{ background: '#000000' }} className="py-24">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-14"
-        >
+        <motion.div {...fadeUp} className="text-center mb-14">
           <h2 className="text-4xl font-black text-white mb-3">Nossa Frota</h2>
           <p className="text-white/50 text-sm">
             Veículos modernos, seguros e climatizados para todos os tipos de rota e contratante
@@ -52,9 +46,7 @@ export default function FleetSection() {
 
         <div className="flex justify-center">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            {...fadeUp}
             transition={{ delay: 0.15 }}
             className="w-full max-w-2xl rounded-2xl border p-8"
             style={{ background: '#161b27', borderColor: '#1e2535' }}

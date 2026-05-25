@@ -21,7 +21,10 @@ const app  = express();
 const PORT = parseInt(process.env.PORT || '3001');
 
 // ── Middlewares ──────────────────────────────────────────────────────────────
-app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
+app.use(cors({
+  origin: ['http://localhost:5173', 'http://25.41.113.185:5173'],
+  credentials: true
+}));
 app.use(express.json({ limit: '2mb' }));
 
 // Serve arquivos de comprovante enviados localmente
@@ -78,7 +81,7 @@ app.get('/api/health', (_req, res) => res.json({ ok: true }));
 
 // ── Start ─────────────────────────────────────────────────────────────────────
 const pool = require('./db');
-app.listen(PORT, async () => {
+app.listen(PORT, '0.0.0.0', async () => {
   console.log(`[RotaFlow Server] rodando em http://localhost:${PORT}`);
   // Migração automática: adiciona logo_url à tabela empresas se não existir
   try {

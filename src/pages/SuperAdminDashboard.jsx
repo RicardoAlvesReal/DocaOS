@@ -10,6 +10,7 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 export default function SuperAdminDashboard() {
   const navigate   = useNavigate();
   const [activeTab, setActiveTab] = useState('resumo');
+  const [collapsed, setCollapsed] = useState(false);
   const session    = getSession();
 
   useEffect(() => {
@@ -30,8 +31,10 @@ export default function SuperAdminDashboard() {
         setActiveTab={setActiveTab}
         onLogout={handleLogout}
         session={session}
+        collapsed={collapsed}
+        onToggleCollapse={setCollapsed}
       />
-      <main className="lg:ml-64 p-5 lg:p-8 pb-28 lg:pb-8">
+      <main className={`transition-all duration-200 p-5 lg:p-8 pb-28 lg:pb-8 ${collapsed ? 'lg:ml-20' : 'lg:ml-64'}`}>
         <ErrorBoundary>
           {activeTab === 'resumo'   && <SuperAdminSummary />}
           {activeTab === 'empresas' && <SuperAdminEmpresas />}

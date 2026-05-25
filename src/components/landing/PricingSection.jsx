@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { fadeUpFast, staggerItem } from '@/lib/animations';
 import { Check, Zap, Building2, Rocket } from 'lucide-react';
 
 const DISCOUNT = 0.2; // 20% de desconto no plano anual
@@ -78,11 +79,7 @@ export default function PricingSection() {
       <div className="max-w-7xl mx-auto px-6">
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-12">
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
+          <motion.div {...fadeUpFast}>
             <span className="inline-block text-sm font-semibold text-primary bg-primary/10 px-4 py-1.5 rounded-full mb-4">
               Planos e Preços
             </span>
@@ -125,10 +122,7 @@ export default function PricingSection() {
             return (
               <motion.div
                 key={plan.id}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
+                {...staggerItem(i * 0.1)}
                 className={`relative rounded-3xl p-8 border flex flex-col gap-6 ${
                   plan.highlight
                     ? 'bg-primary text-white border-primary shadow-2xl shadow-primary/30 scale-105'

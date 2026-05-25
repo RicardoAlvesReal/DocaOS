@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { staggerItem } from '@/lib/animations';
 
 const SERVICES = [
   {
@@ -39,10 +40,7 @@ export default function BenefitsSection() {
           {SERVICES.map((item, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
+              {...staggerItem(i * 0.1)}
               className="group rounded-3xl overflow-hidden bg-slate-50 hover:bg-white hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300 border border-slate-100"
             >
               <div className="h-48 overflow-hidden relative">

@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { staggerItem } from '@/lib/animations';
 import {
   CreditCard,
   MapPin,
@@ -68,10 +69,7 @@ export default function FeaturesSection() {
           {FEATURES.map((f, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.08 }}
+              {...staggerItem(i * 0.08)}
               className="bg-white rounded-2xl p-8 border border-slate-100 hover:shadow-lg hover:shadow-slate-200/60 hover:-translate-y-1 transition-all duration-300"
             >
               <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-5 ${f.color}`}>

@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Users, Plus, MoreHorizontal, KeyRound, Trash2, Eye, EyeOff, Power, PowerOff } from 'lucide-react';
+import { Users, Plus, MoreHorizontal, KeyRound, Pencil, Trash2, Eye, EyeOff, Power, PowerOff } from 'lucide-react';
 import { toast } from 'sonner';
 
 const ROLES = [
@@ -49,6 +49,10 @@ export default function SuperAdminUsuarios() {
 
   const [deleteTarget, setDeleteTarget]   = useState(null);
   const [deleting, setDeleting]           = useState(false);
+
+  const [editTarget, setEditTarget]       = useState(null);
+  const [editForm, setEditForm]           = useState({});
+  const [editing, setEditing]             = useState(false);
 
   const [togglingId, setTogglingId]       = useState(null);
 
@@ -157,6 +161,32 @@ export default function SuperAdminUsuarios() {
     }
   };
 
+  const handleEdit = async (e) => {
+    e.preventDefault();
+    setEditing(true);
+    try {
+      const res = await fetch(`/api/usuarios/${editTarget.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nome: editForm.nome.trim(),
+          email: editForm.email.trim(),
+          role: editForm.role,
+          empresa_id: editForm.empresa_id || null,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      toast.success(`Usuario ${data.nome} atualizado.`);
+      setEditTarget(null);
+      load();
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setEditing(false);
+    }
+  };
+
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
@@ -252,6 +282,12 @@ export default function SuperAdminUsuarios() {
                               <KeyRound className="w-4 h-4 mr-2" /> Resetar senha
                             </DropdownMenuItem>
                             {u.role !== 'super_admin' && (
+                              <>
+                              <DropdownMenuItem
+                                onClick={() => { setEditTarget(u); setEditForm({ nome: u.nome, email: u.email, role: u.role, empresa_id: u.empresa_id || '' }); }}
+                              >
+                                <Pencil className="w-4 h-4 mr-2" /> Editar
+                              </DropdownMenuItem>
                               <DropdownMenuItem
                                 disabled={togglingId === u.id}
                                 onClick={() => handleToggleAtivo(u)}
@@ -260,14 +296,13 @@ export default function SuperAdminUsuarios() {
                                   ? <><PowerOff className="w-4 h-4 mr-2 text-amber-500" /> Desativar</>
                                   : <><Power    className="w-4 h-4 mr-2 text-emerald-500" /> Ativar</>}
                               </DropdownMenuItem>
-                            )}
-                            {u.role !== 'super_admin' && (
                               <DropdownMenuItem
                                 className="text-destructive focus:text-destructive"
                                 onClick={() => setDeleteTarget({ id: u.id, nome: u.nome })}
                               >
                                 <Trash2 className="w-4 h-4 mr-2" /> Excluir
                               </DropdownMenuItem>
+                              </>
                             )}
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -339,6 +374,49 @@ export default function SuperAdminUsuarios() {
         </DialogContent>
       </Dialog>
 
+      {/* ── EDIT DIALOG ── */}
+      <Dialog open={!!editTarget} onOpenChange={open => !open && setEditTarget(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Editar Usuario</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleEdit} className="space-y-4 pt-1">
+            <div className="space-y-1">
+              <Label>Nome</Label>
+              <Input value={editForm.nome || ''} onChange={e => setEditForm(f => ({ ...f, nome: e.target.value }))} placeholder="Nome completo" required />
+            </div>
+            <div className="space-y-1">
+              <Label>E-mail</Label>
+              <Input type="email" value={editForm.email || ''} onChange={e => setEditForm(f => ({ ...f, email: e.target.value }))} placeholder="email@exemplo.com" required />
+            </div>
+            <div className="space-y-1">
+              <Label>Role</Label>
+              <Select value={editForm.role} onValueChange={v => setEditForm(f => ({ ...f, role: v }))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {ROLES.map(r => <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label>Empresa <span className="text-muted-foreground text-xs">(opcional)</span></Label>
+              <Select value={editForm.empresa_id || '__none__'} onValueChange={v => setEditForm(f => ({ ...f, empresa_id: v === '__none__' ? '' : v }))}>
+                <SelectTrigger><SelectValue placeholder="Nenhuma" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">Nenhuma</SelectItem>
+                  {empresas.map(e => <SelectItem key={e.id} value={e.id}>{e.nome}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setEditTarget(null)}>Cancelar</Button>
+              <Button type="submit" disabled={editing}>{editing ? 'Salvando...' : 'Salvar'}</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── RESET SENHA DIALOG ── */}
       <Dialog open={!!resetTarget} onOpenChange={open => !open && setResetTarget(null)}>
         <DialogContent className="max-w-sm">
           <DialogHeader>

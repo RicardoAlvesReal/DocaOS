@@ -79,13 +79,13 @@ export default function EmpresaSummary({ session }) {
   }, [id]);
 
   const cards = [
-    { title: 'Frotas',          key: 'frotas',      icon: Layers,      color: 'bg-primary'     },
-    { title: 'Veículos',        key: 'veiculos',    icon: Truck,       color: 'bg-blue-500'    },
-    { title: 'Motoristas',      key: 'motoristas',  icon: UserCheck,   color: 'bg-emerald-500' },
-    { title: 'Passageiros',     key: 'passageiros', icon: Users,       color: 'bg-violet-500'  },
-    { title: 'Rotas Ativas',    key: 'rotas',       icon: Route,       color: 'bg-cyan-500'    },
-    { title: 'Contratos Ativos',key: 'contratos',   icon: FileText,    color: 'bg-indigo-500'  },
-    { title: 'Pag. Pendentes',  key: 'pendentes',   icon: AlertCircle, color: 'bg-amber-500'   },
+    { title: 'Frotas',          key: 'frotas',      icon: Layers,      color: 'bg-gradient-to-br from-blue-500 to-blue-600'     },
+    { title: 'Veículos',        key: 'veiculos',    icon: Truck,       color: 'bg-gradient-to-br from-blue-400 to-blue-500'    },
+    { title: 'Motoristas',      key: 'motoristas',  icon: UserCheck,   color: 'bg-gradient-to-br from-emerald-400 to-emerald-500' },
+    { title: 'Passageiros',     key: 'passageiros', icon: Users,       color: 'bg-gradient-to-br from-violet-400 to-violet-500' },
+    { title: 'Rotas Ativas',    key: 'rotas',       icon: Route,       color: 'bg-gradient-to-br from-cyan-400 to-cyan-500'    },
+    { title: 'Contratos Ativos',key: 'contratos',   icon: FileText,    color: 'bg-gradient-to-br from-indigo-400 to-indigo-500' },
+    { title: 'Pag. Pendentes',  key: 'pendentes',   icon: AlertCircle, color: 'bg-gradient-to-br from-amber-400 to-amber-500'  },
   ];
 
   // Motorista vê apenas cards de frotas, veículos, passageiros e rotas

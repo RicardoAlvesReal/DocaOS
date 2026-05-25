@@ -7,8 +7,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Plus, Pencil, PowerOff, Layers } from 'lucide-react';
+import { Plus, Pencil, PowerOff, Layers, Eye } from 'lucide-react';
 import { toast } from 'sonner';
+import FrotaDetalhesSheet from './FrotaDetalhesSheet';
 
 export default function EmpresaFrotas({ session }) {
   const empresaId = session?.empresa_id;
@@ -18,6 +19,8 @@ export default function EmpresaFrotas({ session }) {
   const [dialog, setDialog] = useState({ open: false, editing: null });
   const [form, setForm]     = useState({});
   const [saving, setSaving] = useState(false);
+  const [selectedFleet, setSelectedFleet] = useState(null);
+  const [detailOpen, setDetailOpen] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -129,6 +132,9 @@ export default function EmpresaFrotas({ session }) {
                     {!isMotorista && (
                       <TableCell>
                         <div className="flex gap-1">
+                          <Button variant="ghost" size="icon" onClick={() => { setSelectedFleet(i); setDetailOpen(true); }} title="Gerenciar detalhes">
+                            <Eye className="w-4 h-4" />
+                          </Button>
                           <Button variant="ghost" size="icon" onClick={() => openEdit(i)}><Pencil className="w-4 h-4" /></Button>
                           <Button
                             variant="ghost" size="icon"
@@ -163,6 +169,17 @@ export default function EmpresaFrotas({ session }) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <FrotaDetalhesSheet
+        frota={selectedFleet}
+        empresaId={empresaId}
+        open={detailOpen}
+        onClose={(refetch) => {
+          setDetailOpen(false);
+          setSelectedFleet(null);
+          if (refetch) load();
+        }}
+      />
     </div>
   );
 }

@@ -6,9 +6,9 @@ const pool    = require('../db');
 // Query params: empresa_id, role
 router.get('/', async (req, res) => {
   try {
-    const conditions = ['1=1'];
-    const params     = [];
-    let   idx        = 1;
+    const conditions = ['u.role != $1'];
+    const params     = ['super_admin'];
+    let   idx        = 2;
 
     if (req.query.empresa_id) {
       conditions.push(`u.empresa_id = $${idx++}`);
@@ -96,6 +96,36 @@ router.patch('/:id/toggle-ativo', async (req, res) => {
     res.json({ ok: true, ativo: novoAtivo });
   } catch (err) {
     console.error('PATCH /api/usuarios/:id/toggle-ativo error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// PUT /api/usuarios/:id — atualizar dados do usuário
+router.put('/:id', async (req, res) => {
+  try {
+    const { nome, email, role, empresa_id } = req.body;
+
+    const { rows: existing } = await pool.query('SELECT role FROM usuarios WHERE id = $1', [req.params.id]);
+    if (!existing.length) return res.status(404).json({ error: 'Usuário não encontrado.' });
+    if (existing[0].role === 'super_admin') {
+      return res.status(403).json({ error: 'Não é possível alterar o super admin por este endpoint.' });
+    }
+
+    const { rows } = await pool.query(
+      `UPDATE usuarios
+       SET nome = COALESCE($1, nome),
+           email = COALESCE($2, email),
+           role = COALESCE($3, role),
+           empresa_id = $4
+       WHERE id = $5
+       RETURNING id, nome, email, role, ativo, empresa_id, created_date`,
+      [nome || null, email || null, role || null, empresa_id !== undefined ? empresa_id : null, req.params.id]
+    );
+
+    res.json(rows[0]);
+  } catch (err) {
+    console.error('PUT /api/usuarios/:id error:', err);
+    if (err.code === '23505') return res.status(409).json({ error: 'E-mail já cadastrado.' });
     res.status(500).json({ error: err.message });
   }
 });

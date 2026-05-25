@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import {
   LayoutDashboard, Layers, Truck, Users, UserCheck,
-  Route, FileText, CreditCard, LogOut, Camera,
+  Route, FileText, CreditCard, LogOut, Camera, ChevronLeft,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -28,7 +29,7 @@ const getNavItems = (role) => {
   return base;
 };
 
-export default function EmpresaSidebar({ activeTab, setActiveTab, onLogout, session, pendingCount }) {
+export default function EmpresaSidebar({ activeTab, setActiveTab, onLogout, session, pendingCount, collapsed, onToggleCollapse }) {
   const navItems = getNavItems(session?.role);
   const [avatarSrc, setAvatarSrc] = useState(session?.foto_perfil || '');
   const [avatarUploading, setAvatarUploading] = useState(false);
@@ -64,90 +65,160 @@ export default function EmpresaSidebar({ activeTab, setActiveTab, onLogout, sess
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex flex-col w-64 bg-secondary min-h-screen fixed left-0 top-0 z-40">
-        {/* Empresa info */}
-        <div className="px-5 py-4 border-b border-white/6">
+      <motion.aside
+        animate={{ width: collapsed ? 80 : 256 }}
+        className="hidden lg:flex flex-col bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 min-h-screen fixed left-0 top-0 z-40 border-r border-white/[0.04]"
+      >
+        {/* Toggle */}
+        <button
+          onClick={() => onToggleCollapse(!collapsed)}
+          className="absolute -right-3 top-5 z-50 w-6 h-6 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center text-white/60 hover:text-white hover:bg-white/20 transition-all shadow-lg"
+        >
+          <ChevronLeft className={`w-3.5 h-3.5 transition-transform duration-200 ${collapsed ? 'rotate-180' : ''}`} />
+        </button>
+
+        <div className="flex-1 overflow-hidden flex flex-col">
+
+        {/* Header */}
+        <div className="relative px-5 py-5 flex items-center gap-3 min-h-[68px]">
+          <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/[0.08] to-transparent" />
           {session?.empresa_logo ? (
             <img
               src={session.empresa_logo}
               alt={session?.empresa_nome}
-              className="h-10 w-auto max-w-[180px] object-contain mb-1"
+              className="h-9 w-9 rounded-xl object-cover ring-2 ring-white/[0.06] shrink-0"
             />
           ) : (
-            <span className="text-white font-bold text-sm truncate max-w-[200px] block">
-              {session?.empresa_nome || 'RotaFlow'}
-            </span>
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shrink-0 shadow-lg shadow-primary/25">
+              <span className="text-white font-bold text-sm">{session?.empresa_nome?.[0] || 'R'}</span>
+            </div>
           )}
-          <p className="text-white/30 text-[11px] mt-0.5 capitalize">{session?.role?.replace('_', ' ')}</p>
+          {!collapsed && (
+            <motion.div
+              initial={false}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -10 }}
+              className="min-w-0"
+            >
+              <span className="text-white font-semibold text-sm truncate block max-w-[160px]">
+                {session?.empresa_nome || 'RotaFlow'}
+              </span>
+              <p className="text-white/35 text-[11px] mt-0.5 capitalize truncate font-medium">{session?.role?.replace('_', ' ')}</p>
+            </motion.div>
+          )}
         </div>
 
+        {/* Nav */}
         <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
-          {navItems.map(item => (
-            <button
-              key={item.key}
-              onClick={() => setActiveTab(item.key)}
-              className={cn(
-                'w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all',
-                activeTab === item.key
-                  ? 'bg-primary text-white shadow-lg shadow-primary/20'
-                  : 'text-white/50 hover:text-white hover:bg-white/5'
-              )}
-            >
-              <item.icon className="w-4 h-4 shrink-0" />
-              {item.label}
-              {item.key === 'pagamentos' && pendingCount > 0 && (
-                <span className="ml-auto bg-amber-400 text-amber-900 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                  {pendingCount}
-                </span>
-              )}
-            </button>
-          ))}
+          {navItems.map(item => {
+            const isActive = activeTab === item.key;
+            const Icon = item.icon;
+            return (
+              <motion.button
+                key={item.key}
+                onClick={() => setActiveTab(item.key)}
+                whileHover={!collapsed ? { x: 2 } : {}}
+                whileTap={{ scale: 0.97 }}
+                className={cn(
+                  'relative w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors',
+                  collapsed ? 'justify-center px-0' : ''
+                )}
+                title={collapsed ? item.label : undefined}
+              >
+                {isActive && (
+                  <motion.div
+                    layoutId="nav-active"
+                    className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary/20 via-primary/15 to-transparent border border-primary/30"
+                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                  />
+                )}
+                <div className={cn(
+                  'absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full transition-all duration-200',
+                  isActive ? 'bg-primary scale-100' : 'scale-0'
+                )} />
+                <Icon className={cn(
+                  'w-4 h-4 shrink-0 relative z-10 transition-all duration-200',
+                  isActive ? 'text-primary scale-110' : 'text-white/40 group-hover:text-white/60'
+                )} />
+                {!collapsed && (
+                  <span className={cn(
+                    'relative z-10 truncate',
+                    isActive ? 'text-white font-semibold' : 'text-white/50'
+                  )}>
+                    {item.label}
+                  </span>
+                )}
+                {!collapsed && item.key === 'pagamentos' && pendingCount > 0 && (
+                  <span className="ml-auto relative z-10 bg-amber-400/20 text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-400/30">
+                    {pendingCount}
+                  </span>
+                )}
+              </motion.button>
+            );
+          })}
         </nav>
 
-        <div className="p-3 border-t border-white/6 space-y-1">
-          <div className="px-3.5 py-2 flex items-center gap-2.5">
-            <label className={`relative group shrink-0 w-8 h-8 rounded-full overflow-hidden bg-primary/20 flex items-center justify-center ${avatarUploading ? 'opacity-50' : 'cursor-pointer'}`}>
+        {/* Footer */}
+        <div className="relative p-3 space-y-1">
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.08] to-transparent" />
+          <div className={`flex items-center gap-2.5 ${collapsed ? 'justify-center' : ''} px-1 py-1.5`}>
+            <label className={`relative group shrink-0 w-9 h-9 rounded-xl overflow-hidden bg-white/[0.04] flex items-center justify-center ring-1 ring-white/[0.06] ${avatarUploading ? 'opacity-50' : 'cursor-pointer'}`}>
               <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleAvatarUpload} disabled={avatarUploading} />
               {avatarSrc
                 ? <img src={avatarSrc} alt={session?.nome} className="w-full h-full object-cover" />
-                : <span className="text-white/70 text-xs font-bold">{session?.nome?.[0]?.toUpperCase()}</span>
+                : <span className="text-white/60 text-xs font-bold">{session?.nome?.[0]?.toUpperCase()}</span>
               }
-              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <Camera className="w-3 h-3 text-white" />
+              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
+                <Camera className="w-3.5 h-3.5 text-white" />
               </div>
             </label>
-            <div className="min-w-0">
-              <p className="text-white/60 text-xs font-medium truncate">{session?.nome}</p>
-              <p className="text-white/25 text-[11px] truncate">{session?.email}</p>
-            </div>
+            {!collapsed && (
+              <motion.div
+                initial={false}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+                className="min-w-0"
+              >
+                <p className="text-white/70 text-xs font-medium truncate">{session?.nome}</p>
+                <p className="text-white/30 text-[11px] truncate">{session?.email}</p>
+              </motion.div>
+            )}
           </div>
-          <button
+          <motion.button
             onClick={onLogout}
-            className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-white/40 hover:text-white hover:bg-white/5 transition-all"
+            whileHover={{ x: 2 }}
+            whileTap={{ scale: 0.97 }}
+            className={cn(
+              'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors',
+              collapsed ? 'justify-center px-0' : '',
+              'text-white/40 hover:text-red-400 hover:bg-red-500/10'
+            )}
+            title={collapsed ? 'Sair' : undefined}
           >
-            <LogOut className="w-4 h-4" />
-            Sair do sistema
-          </button>
-          {/* RotaFlow branding */}
-          <div className="flex items-center justify-center gap-1.5 pt-2 pb-1 opacity-60">
-            <img src="/logo-icon.png" alt="RotaFlow" className="w-5 h-5 object-contain" />
-            <span className="text-white text-[11px] font-medium">RotaFlow</span>
-          </div>
+            <LogOut className="w-4 h-4 shrink-0" />
+            {!collapsed && 'Sair do sistema'}
+          </motion.button>
+          {!collapsed && (
+            <div className="flex items-center justify-center gap-1.5 pt-2 pb-0.5 opacity-40">
+              <span className="text-white/30 text-[10px] font-medium tracking-wider uppercase">RotaFlow</span>
+            </div>
+          )}
         </div>
-      </aside>
+        </div>
+      </motion.aside>
 
       {/* Mobile bottom nav */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-secondary border-t border-white/6 flex justify-around overflow-x-auto px-1 py-2">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-t from-slate-900 to-slate-900/95 border-t border-white/[0.06] flex justify-around overflow-x-auto px-1 py-2 backdrop-blur-xl">
         {navItems.slice(0, 5).map(item => (
           <button
             key={item.key}
             onClick={() => setActiveTab(item.key)}
             className={cn(
-              'flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl text-[10px] font-medium shrink-0',
+              'flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl text-[10px] font-medium shrink-0 transition-all',
               activeTab === item.key ? 'text-primary' : 'text-white/40'
             )}
           >
-            <item.icon className="w-5 h-5" />
+            <item.icon className={cn('w-5 h-5 transition-all', activeTab === item.key && 'scale-110')} />
             <span>{item.label.split(' ')[0]}</span>
           </button>
         ))}

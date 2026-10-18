@@ -1,0 +1,566 @@
+<script setup>
+import { ref, computed } from 'vue'
+import { useYardStore } from '../stores/yard'
+import KanbanCard from '../components/KanbanCard.vue'
+import { 
+  Calendar, 
+  Clock, 
+  Warehouse, 
+  CheckCircle, 
+  AlertCircle, 
+  DoorClosed, 
+  Filter, 
+  Search,
+  X,
+  Truck,
+  Building2,
+  Phone,
+  CreditCard
+} from 'lucide-vue-next'
+
+const yardStore = useYardStore()
+const searchQuery = ref('')
+const selectedCargoFilter = ref('')
+
+// Modal de Alocação de Doca
+const isAssignDockModalOpen = ref(false)
+const scheduleToAssign = ref(null)
+const selectedDockId = ref('')
+
+// Modal de Novo Agendamento
+const isNewScheduleModalOpen = ref(false)
+const newScheduleForm = ref({
+  carrier_name: '',
+  cargo_type: 'Carga Geral',
+  invoice_number: '',
+  driver_name: '',
+  driver_cpf: '',
+  driver_phone: '',
+  vehicle_plate: '',
+  trailer_plate: '',
+  scheduled_window_start: '',
+  scheduled_window_end: '',
+  dock_id: '',
+  notes: ''
+})
+const scheduleError = ref('')
+const isSubmitting = ref(false)
+
+// Configuração padrão de horário para novo agendamento
+function initNewScheduleForm() {
+  const start = new Date()
+  start.setMinutes(start.getMinutes() + 15)
+  const end = new Date(start)
+  end.setHours(end.getHours() + 2)
+
+  newScheduleForm.value = {
+    carrier_name: '',
+    cargo_type: 'Carga Geral',
+    invoice_number: '',
+    driver_name: '',
+    driver_cpf: '',
+    driver_phone: '',
+    vehicle_plate: '',
+    trailer_plate: '',
+    scheduled_window_start: start.toISOString().slice(0, 16),
+    scheduled_window_end: end.toISOString().slice(0, 16),
+    dock_id: '',
+    notes: ''
+  }
+  scheduleError.value = ''
+}
+
+defineExpose({
+  openNewScheduleModal() {
+    initNewScheduleForm()
+    isNewScheduleModalOpen.value = true
+  }
+})
+
+// Filtragem
+function filterList(list) {
+  return list.filter(item => {
+    const matchesSearch = !searchQuery.value || 
+      item.vehicle_plate.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      item.carrier_name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      item.driver_name.toLowerCase().includes(searchQuery.value.toLowerCase())
+
+    const matchesCargo = !selectedCargoFilter.value || 
+      item.cargo_type === selectedCargoFilter.value
+
+    return matchesSearch && matchesCargo
+  })
+}
+
+const filteredScheduled = computed(() => filterList(yardStore.scheduledList))
+const filteredWaiting = computed(() => filterList(yardStore.waitingYardList))
+const filteredDocked = computed(() => filterList(yardStore.dockedList))
+const filteredReleased = computed(() => filterList(yardStore.releasedList))
+
+// Estatísticas
+const overdueCount = computed(() => {
+  const now = Date.now()
+  const graceMs = (yardStore.currentTenant?.grace_period_minutes || 30) * 60000
+  return yardStore.schedules.filter(s => {
+    if (s.status === 'Agendado') {
+      return now > new Date(s.scheduled_window_end).getTime()
+    }
+    if (['Aguardando_Patio', 'Em_Doca'].includes(s.status)) {
+      const refTime = s.docked_at ? new Date(s.docked_at).getTime() : (s.checkin_at ? new Date(s.checkin_at).getTime() : now)
+      return (now - refTime) > graceMs
+    }
+    return false
+  }).length
+})
+
+function handleAssignDock(schedule) {
+  scheduleToAssign.value = schedule
+  selectedDockId.value = schedule.dock_id || ''
+  isAssignDockModalOpen.value = true
+}
+
+async function confirmAssignDock() {
+  if (!scheduleToAssign.value || !selectedDockId.value) return
+  try {
+    await yardStore.updateScheduleStatus(
+      scheduleToAssign.value.id,
+      'Em_Doca',
+      selectedDockId.value,
+      'Direcionado para a doca na Torre de Controle'
+    )
+    isAssignDockModalOpen.value = false
+  } catch (err) {
+    // Erro exibido na store via toast
+  }
+}
+
+async function submitNewSchedule() {
+  scheduleError.value = ''
+  isSubmitting.value = true
+  try {
+    const payload = {
+      ...newScheduleForm.value,
+      dock_id: newScheduleForm.value.dock_id ? newScheduleForm.value.dock_id : null,
+      scheduled_window_start: new Date(newScheduleForm.value.scheduled_window_start).toISOString(),
+      scheduled_window_end: new Date(newScheduleForm.value.scheduled_window_end).toISOString()
+    }
+    await yardStore.createSchedule(payload)
+    isNewScheduleModalOpen.value = false
+  } catch (err) {
+    scheduleError.value = err.message
+  } finally {
+    isSubmitting.value = false
+  }
+}
+</script>
+
+<template>
+  <div class="space-y-6">
+    
+    <!-- KPI Summary Bar -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex items-center justify-between shadow-sm">
+        <div>
+          <p class="text-xs text-slate-400 font-medium">Veículos no Pátio</p>
+          <p class="text-2xl font-bold font-mono text-white mt-1">{{ yardStore.totalInYard }}</p>
+        </div>
+        <div class="w-10 h-10 rounded-lg bg-sky-500/10 text-sky-400 border border-sky-500/20 flex items-center justify-center">
+          <Truck class="w-5 h-5" />
+        </div>
+      </div>
+
+      <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex items-center justify-between shadow-sm">
+        <div>
+          <p class="text-xs text-slate-400 font-medium">Docas em Operação</p>
+          <div class="flex items-baseline space-x-1 mt-1">
+            <span class="text-2xl font-bold font-mono text-white">{{ yardStore.occupiedDocksCount }}</span>
+            <span class="text-xs text-slate-500 font-mono">/ {{ yardStore.docks.length }}</span>
+          </div>
+        </div>
+        <div class="w-10 h-10 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center justify-center">
+          <DoorClosed class="w-5 h-5" />
+        </div>
+      </div>
+
+      <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex items-center justify-between shadow-sm">
+        <div>
+          <p class="text-xs text-slate-400 font-medium">Alertas de Estadia (SLA)</p>
+          <p class="text-2xl font-bold font-mono text-rose-400 mt-1">{{ overdueCount }}</p>
+        </div>
+        <div class="w-10 h-10 rounded-lg bg-rose-500/10 text-rose-400 border border-rose-500/20 flex items-center justify-center">
+          <AlertCircle class="w-5 h-5" />
+        </div>
+      </div>
+
+      <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex items-center justify-between shadow-sm">
+        <div>
+          <p class="text-xs text-slate-400 font-medium">Liberados Hoje</p>
+          <p class="text-2xl font-bold font-mono text-emerald-400 mt-1">{{ yardStore.releasedList.length }}</p>
+        </div>
+        <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center">
+          <CheckCircle class="w-5 h-5" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters & Search Toolbar -->
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+      <div class="relative w-full sm:w-80">
+        <Search class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+        <input
+          v-model="searchQuery"
+          type="text"
+          placeholder="Buscar por placa, transportadora ou motorista..."
+          class="w-full bg-slate-950 border border-slate-700/80 rounded-lg pl-9 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-sky-500"
+        />
+      </div>
+
+      <div class="flex items-center space-x-2 w-full sm:w-auto">
+        <Filter class="w-4 h-4 text-slate-400" />
+        <select
+          v-model="selectedCargoFilter"
+          class="bg-slate-950 border border-slate-700/80 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-sky-500"
+        >
+          <option value="">Todas as Cargas</option>
+          <option value="Carga Geral">Carga Geral</option>
+          <option value="Alimentos Congelados">Alimentos Congelados</option>
+          <option value="Eletrônicos e Peças">Eletrônicos e Peças</option>
+          <option value="Insumos Químicos">Insumos Químicos</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Kanban Columns Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      
+      <!-- 1. Agendados -->
+      <div class="bg-slate-900/40 border border-slate-800/90 rounded-2xl p-3 flex flex-col min-h-[500px]">
+        <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800/80">
+          <div class="flex items-center space-x-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-sm shadow-amber-400/50"></span>
+            <h3 class="font-bold text-sm text-slate-200">1. Agendados</h3>
+          </div>
+          <span class="text-xs font-mono font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300">
+            {{ filteredScheduled.length }}
+          </span>
+        </div>
+
+        <div class="space-y-3 flex-1 overflow-y-auto max-h-[70vh] pr-1">
+          <KanbanCard 
+            v-for="item in filteredScheduled" 
+            :key="item.id" 
+            :schedule="item"
+            @assign-dock="handleAssignDock"
+          />
+          <div v-if="filteredScheduled.length === 0" class="text-center py-12 text-slate-500 text-xs">
+            Nenhum caminhão agendado para o período.
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Aguardando no Pátio -->
+      <div class="bg-slate-900/40 border border-slate-800/90 rounded-2xl p-3 flex flex-col min-h-[500px]">
+        <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800/80">
+          <div class="flex items-center space-x-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-sky-400 shadow-sm shadow-sky-400/50"></span>
+            <h3 class="font-bold text-sm text-slate-200">2. No Pátio (Cancela)</h3>
+          </div>
+          <span class="text-xs font-mono font-semibold px-2 py-0.5 rounded-full bg-sky-950 text-sky-400 border border-sky-800/60">
+            {{ filteredWaiting.length }}
+          </span>
+        </div>
+
+        <div class="space-y-3 flex-1 overflow-y-auto max-h-[70vh] pr-1">
+          <KanbanCard 
+            v-for="item in filteredWaiting" 
+            :key="item.id" 
+            :schedule="item"
+            @assign-dock="handleAssignDock"
+          />
+          <div v-if="filteredWaiting.length === 0" class="text-center py-12 text-slate-500 text-xs">
+            Nenhum caminhão aguardando no pátio.
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Em Doca -->
+      <div class="bg-slate-900/40 border border-slate-800/90 rounded-2xl p-3 flex flex-col min-h-[500px]">
+        <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800/80">
+          <div class="flex items-center space-x-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-indigo-400 shadow-sm shadow-indigo-400/50"></span>
+            <h3 class="font-bold text-sm text-slate-200">3. Em Doca (Operação)</h3>
+          </div>
+          <span class="text-xs font-mono font-semibold px-2 py-0.5 rounded-full bg-indigo-950 text-indigo-400 border border-indigo-800/60">
+            {{ filteredDocked.length }}
+          </span>
+        </div>
+
+        <div class="space-y-3 flex-1 overflow-y-auto max-h-[70vh] pr-1">
+          <KanbanCard 
+            v-for="item in filteredDocked" 
+            :key="item.id" 
+            :schedule="item"
+            @assign-dock="handleAssignDock"
+          />
+          <div v-if="filteredDocked.length === 0" class="text-center py-12 text-slate-500 text-xs">
+            Nenhuma doca operando no momento.
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Liberados -->
+      <div class="bg-slate-900/40 border border-slate-800/90 rounded-2xl p-3 flex flex-col min-h-[500px]">
+        <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800/80">
+          <div class="flex items-center space-x-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400/50"></span>
+            <h3 class="font-bold text-sm text-slate-200">4. Liberados / Saída</h3>
+          </div>
+          <span class="text-xs font-mono font-semibold px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800/60">
+            {{ filteredReleased.length }}
+          </span>
+        </div>
+
+        <div class="space-y-3 flex-1 overflow-y-auto max-h-[70vh] pr-1">
+          <KanbanCard 
+            v-for="item in filteredReleased" 
+            :key="item.id" 
+            :schedule="item"
+            @assign-dock="handleAssignDock"
+          />
+          <div v-if="filteredReleased.length === 0" class="text-center py-12 text-slate-500 text-xs">
+            Nenhum caminhão finalizado ainda hoje.
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Modal: Alocação de Doca -->
+    <div 
+      v-if="isAssignDockModalOpen" 
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+    >
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl">
+        <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
+          <div class="flex items-center space-x-2">
+            <DoorClosed class="w-5 h-5 text-sky-400" />
+            <h3 class="font-bold text-base text-white">Alocar Doca de Operação</h3>
+          </div>
+          <button @click="isAssignDockModalOpen = false" class="text-slate-400 hover:text-white">
+            <X class="w-5 h-5" />
+          </button>
+        </div>
+
+        <div v-if="scheduleToAssign" class="mb-4 bg-slate-950 p-3 rounded-xl border border-slate-800/80 text-xs">
+          <p class="text-slate-400">Veículo:</p>
+          <p class="font-mono font-bold text-sm text-white">{{ scheduleToAssign.vehicle_plate }} - {{ scheduleToAssign.carrier_name }}</p>
+          <p class="text-slate-400 mt-1">Carga: <span class="text-slate-200">{{ scheduleToAssign.cargo_type }}</span></p>
+        </div>
+
+        <div class="space-y-2 mb-6">
+          <label class="block text-xs font-semibold text-slate-300">Selecione a Doca:</label>
+          <select 
+            v-model="selectedDockId"
+            class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-sm text-slate-200 focus:outline-none focus:border-sky-500"
+          >
+            <option value="" disabled>Escolha uma doca física...</option>
+            <option 
+              v-for="dock in yardStore.docks" 
+              :key="dock.id" 
+              :value="dock.id"
+              :disabled="dock.status === 'Manutenção'"
+            >
+              {{ dock.code }} - {{ dock.name }} (Status: {{ dock.status }})
+            </option>
+          </select>
+        </div>
+
+        <div class="flex justify-end space-x-3">
+          <button 
+            @click="isAssignDockModalOpen = false"
+            class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+          >
+            Cancelar
+          </button>
+          <button 
+            @click="confirmAssignDock"
+            :disabled="!selectedDockId"
+            class="bg-sky-600 hover:bg-sky-500 disabled:opacity-50 text-white px-5 py-2 rounded-xl text-xs font-semibold shadow-lg shadow-sky-600/30 transition-all cursor-pointer"
+          >
+            Confirmar e Encostar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Novo Agendamento (Time Slot) -->
+    <div 
+      v-if="isNewScheduleModalOpen" 
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 overflow-y-auto"
+    >
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-xl w-full p-6 shadow-2xl my-8">
+        <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
+          <div class="flex items-center space-x-2">
+            <Calendar class="w-5 h-5 text-indigo-400" />
+            <h3 class="font-bold text-base text-white">Agendar Janela de Horário (Time Slot)</h3>
+          </div>
+          <button @click="isNewScheduleModalOpen = false" class="text-slate-400 hover:text-white">
+            <X class="w-5 h-5" />
+          </button>
+        </div>
+
+        <form @submit.prevent="submitNewSchedule" class="space-y-4">
+          <div v-if="scheduleError" class="p-3 bg-rose-950/60 border border-rose-800 rounded-xl text-rose-300 text-xs">
+            {{ scheduleError }}
+          </div>
+
+          <!-- Transportadora e Tipo de Carga -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1">Transportadora *</label>
+              <input
+                v-model="newScheduleForm.carrier_name"
+                type="text"
+                required
+                placeholder="Ex: Braspress, Jamef, Autônomo"
+                class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1">Tipo de Carga *</label>
+              <select
+                v-model="newScheduleForm.cargo_type"
+                class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500"
+              >
+                <option value="Carga Geral">Carga Geral</option>
+                <option value="Alimentos Congelados">Alimentos Congelados</option>
+                <option value="Eletrônicos e Peças">Eletrônicos e Peças</option>
+                <option value="Insumos Químicos">Insumos Químicos</option>
+                <option value="Granel">Granel</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Placas -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1">Placa do Cavalo *</label>
+              <input
+                v-model="newScheduleForm.vehicle_plate"
+                type="text"
+                required
+                placeholder="Ex: BRA2E19"
+                class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white font-mono uppercase focus:outline-none focus:border-sky-500"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1">Placa da Carreta (Opcional)</label>
+              <input
+                v-model="newScheduleForm.trailer_plate"
+                type="text"
+                placeholder="Ex: ABC1234"
+                class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white font-mono uppercase focus:outline-none focus:border-sky-500"
+              />
+            </div>
+          </div>
+
+          <!-- Motorista -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1">Nome do Motorista *</label>
+              <input
+                v-model="newScheduleForm.driver_name"
+                type="text"
+                required
+                placeholder="Nome completo"
+                class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1">CPF do Motorista *</label>
+              <input
+                v-model="newScheduleForm.driver_cpf"
+                type="text"
+                required
+                placeholder="Apenas números"
+                class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-sky-500"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1">WhatsApp / Telefone</label>
+              <input
+                v-model="newScheduleForm.driver_phone"
+                type="text"
+                placeholder="(11) 99999-9999"
+                class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-sky-500"
+              />
+            </div>
+          </div>
+
+          <!-- Janela de Horário e Doca Pré-alocada -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1">Início da Janela *</label>
+              <input
+                v-model="newScheduleForm.scheduled_window_start"
+                type="datetime-local"
+                required
+                class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1">Fim da Janela *</label>
+              <input
+                v-model="newScheduleForm.scheduled_window_end"
+                type="datetime-local"
+                required
+                class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1">Doca Designada</label>
+              <select
+                v-model="newScheduleForm.dock_id"
+                class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500"
+              >
+                <option value="">A definir na chegada</option>
+                <option v-for="d in yardStore.docks" :key="d.id" :value="d.id">
+                  {{ d.code }} - {{ d.name }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Observações -->
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Observações / NF-e</label>
+            <input
+              v-model="newScheduleForm.notes"
+              type="text"
+              placeholder="Ex: NF 10429, descarregar pallets prioritários"
+              class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500"
+            />
+          </div>
+
+          <div class="flex justify-end space-x-3 pt-3 border-t border-slate-800">
+            <button
+              type="button"
+              @click="isNewScheduleModalOpen = false"
+              class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              :disabled="isSubmitting"
+              class="bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white px-5 py-2 rounded-xl text-xs font-semibold shadow-lg shadow-sky-600/30 transition-all cursor-pointer"
+            >
+              {{ isSubmitting ? 'Validando Horário...' : 'Gerar Agendamento & Link WhatsApp' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</template>

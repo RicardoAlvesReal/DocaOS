@@ -26,7 +26,8 @@ class ApiKey(Base):
     tenant_id = Column(UUID(as_uuid=True), ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False, index=True)
     name = Column(String(100), nullable=False)  # Ex: "SAP Middleware", "TOTVS Protheus"
     key_hash = Column(String(128), unique=True, nullable=False, index=True)
-    key_prefix = Column(String(16), nullable=False)  # Ex: "rf_live_abc12..."
+    key_prefix = Column(String(32), nullable=False)  # Ex: "rf_live_abc12..."
     is_active = Column(Boolean, default=True, nullable=False)
+
     last_used_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)

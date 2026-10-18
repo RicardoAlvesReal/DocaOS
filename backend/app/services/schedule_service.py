@@ -14,6 +14,8 @@ from app.models.yard_event import YardEvent
 from app.schemas.schedule import ScheduleCreate, ScheduleStatusUpdate
 from app.core.config import settings
 from app.services.websocket_manager import manager
+from app.services.webhook_service import dispatch_tenant_webhook
+from app.services.whatsapp_service import dispatch_whatsapp_notification
 
 
 def generate_qr_code_base64(data: str) -> str:
@@ -194,4 +196,49 @@ async def update_schedule_status(
         }
     )
 
+    # Disparar Webhook para ERP/WMS externo
+    status_event_map = {
+        "Aguardando_Patio": "vehicle.checked_in",
+        "Em_Doca": "vehicle.docked",
+        "Carregado_Descarregado": "vehicle.completed",
+        "Liberado": "vehicle.released"
+    }
+    event_name = status_event_map.get(new_status, "schedule.status_updated")
+    await dispatch_tenant_webhook(
+        db=db,
+        tenant_id=schedule.tenant_id,
+        event_type=event_name,
+        payload={
+            "event": event_name,
+            "schedule_id": str(schedule.id),
+            "tenant_id": str(schedule.tenant_id),
+            "vehicle_plate": schedule.vehicle_plate,
+            "trailer_plate": schedule.trailer_plate,
+            "carrier_name": schedule.carrier_name,
+            "driver_name": schedule.driver_name,
+            "driver_cpf": schedule.driver_cpf,
+            "invoice_number": schedule.invoice_number,
+            "dock_code": schedule.dock.code if schedule.dock else None,
+            "dock_name": schedule.dock.name if schedule.dock else None,
+            "previous_status": old_status,
+            "current_status": new_status,
+            "checkin_at": schedule.checkin_at.isoformat() if schedule.checkin_at else None,
+            "docked_at": schedule.docked_at.isoformat() if schedule.docked_at else None,
+            "completed_at": schedule.completed_at.isoformat() if schedule.completed_at else None,
+            "departed_at": schedule.departed_at.isoformat() if schedule.departed_at else None,
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+    )
+
+    # Disparar notificação automatizada no WhatsApp do motorista (se habilitado pelo Super Admin)
+    tenant = db.query(Tenant).filter(Tenant.id == schedule.tenant_id).first()
+    if tenant and tenant.has_whatsapp_automation:
+        await dispatch_whatsapp_notification(
+            tenant=tenant,
+            schedule=schedule,
+            event_type=new_status,
+            extra_notes=status_update.notes
+        )
+
     return schedule
+

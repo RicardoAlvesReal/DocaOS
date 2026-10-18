@@ -24,3 +24,14 @@ class UserCreate(BaseModel):
     password: str
     role: str = "tenant_operator"
     tenant_id: Optional[UUID] = None
+
+
+class UserResponse(BaseModel):
+    id: UUID
+    name: str
+    email: EmailStr
+    role: str
+    tenant_id: Optional[UUID] = None
+    tenant_name: Optional[str] = None
+    is_active: bool
+

@@ -1,4 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+import csv
+import io
+from dateutil import parser as date_parser
+from fastapi import APIRouter, Depends, HTTPException, status, Query, UploadFile, File, Form
+from fastapi.responses import Response
 from sqlalchemy.orm import Session
 from uuid import UUID
 from typing import List, Optional
@@ -108,3 +112,158 @@ async def update_status(
 
     updated_schedule = await update_schedule_status(db=db, schedule=schedule, status_update=status_in)
     return enrich_schedule_response(updated_schedule)
+
+
+@router.get("/batch/template-csv")
+def download_batch_template():
+    """Retorna planilha modelo (.csv) com colunas e linhas de exemplo para preenchimento em lote."""
+    content = "\ufeffplaca_veiculo;placa_carreta;transportadora;tipo_carga;numero_nfe;nome_motorista;cpf_motorista;telefone_motorista;codigo_doca;inicio_janela;fim_janela;observacoes\n"
+    content += "ABC1D23;XYZ9876;Transportadora Exemplo;Carga Seca;NF-12345;José da Silva;123.456.789-00;11987654321;DOCA-01;2026-10-18 08:00;2026-10-18 10:00;Prioridade no descarregamento\n"
+    content += "BRA2E19;;Logística Brasil;Congelados;NF-99887;Antônio Silveira;987.654.321-99;11976543210;DOCA-02;2026-10-18 10:30;2026-10-18 12:30;Carga refrigerada a -18C\n"
+    return Response(
+        content=content.encode("utf-8-sig"),
+        media_type="text/csv; charset=utf-8",
+        headers={"Content-Disposition": 'attachment; filename="modelo_importacao_agendamentos_rotaflow.csv"'}
+    )
+
+
+@router.post("/batch/import")
+async def batch_import_schedules(
+    tenant_id: UUID = Form(...),
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db)
+):
+    """
+    Importa múltiplos agendamentos a partir de uma planilha CSV.
+    Valida placas, horários e conflitos de doca.
+    Retorna resumo de sucessos e linhas com inconsistências.
+    """
+    raw_content = await file.read()
+    try:
+        text = raw_content.decode("utf-8-sig")
+    except UnicodeDecodeError:
+        text = raw_content.decode("latin-1", errors="replace")
+
+    # Detectar delimitador (';' ou ',')
+    sample = text[:1024]
+    delimiter = ";" if ";" in sample else ","
+
+    reader = csv.DictReader(io.StringIO(text), delimiter=delimiter)
+    
+    # Mapear docas existentes do tenant para busca rápida por código ou nome
+    tenant_docks = db.query(Dock).filter(Dock.tenant_id == tenant_id).all()
+    dock_map = {}
+    for d in tenant_docks:
+        dock_map[d.code.upper().strip()] = d.id
+        dock_map[d.name.upper().strip()] = d.id
+
+    created_list = []
+    errors = []
+    line_number = 1
+
+    for row in reader:
+        line_number += 1
+        # Trata chaves minúsculas e sem espaços
+        normalized_row = {k.strip().lower(): (v.strip() if v else "") for k, v in row.items() if k}
+        
+        plate = normalized_row.get("placa_veiculo") or normalized_row.get("placa")
+        driver_name = normalized_row.get("nome_motorista") or normalized_row.get("motorista")
+        driver_cpf = normalized_row.get("cpf_motorista") or normalized_row.get("cpf")
+        carrier_name = normalized_row.get("transportadora")
+        cargo_type = normalized_row.get("tipo_carga") or "Carga Geral"
+        invoice_number = normalized_row.get("numero_nfe") or normalized_row.get("nf") or normalized_row.get("nfe")
+        trailer_plate = normalized_row.get("placa_carreta") or normalized_row.get("carreta")
+        driver_phone = normalized_row.get("telefone_motorista") or normalized_row.get("telefone")
+        notes = normalized_row.get("observacoes") or normalized_row.get("obs")
+        dock_code = normalized_row.get("codigo_doca") or normalized_row.get("doca")
+        start_str = normalized_row.get("inicio_janela") or normalized_row.get("inicio")
+        end_str = normalized_row.get("fim_janela") or normalized_row.get("fim")
+
+        if not plate or not driver_name or not driver_cpf or not carrier_name or not start_str or not end_str:
+            errors.append({
+                "linha": line_number,
+                "placa": plate or "-",
+                "erro": "Campos obrigatórios ausentes (placa, motorista, cpf, transportadora, início ou fim)."
+            })
+            continue
+
+        # Parsing de datas
+        try:
+            start_dt = date_parser.parse(start_str, dayfirst=True)
+            end_dt = date_parser.parse(end_str, dayfirst=True)
+        except Exception as e:
+            errors.append({
+                "linha": line_number,
+                "placa": plate,
+                "erro": f"Formato de data/hora inválido ({start_str} / {end_str}). Use YYYY-MM-DD HH:MM ou DD/MM/YYYY HH:MM."
+            })
+            continue
+
+        if start_dt >= end_dt:
+            errors.append({
+                "linha": line_number,
+                "placa": plate,
+                "erro": "Horário de início da janela deve ser anterior ao horário de término."
+            })
+            continue
+
+        # Identificar doca se informada
+        dock_id = None
+        if dock_code:
+            dock_id = dock_map.get(dock_code.upper().strip())
+            if not dock_id:
+                errors.append({
+                    "linha": line_number,
+                    "placa": plate,
+                    "erro": f"Doca '{dock_code}' não encontrada para este Armazém."
+                })
+                continue
+
+            # Checar colisão de horário na doca
+            has_collision = check_dock_concurrency(
+                db=db,
+                dock_id=dock_id,
+                start_time=start_dt,
+                end_time=end_dt
+            )
+            if has_collision:
+                errors.append({
+                    "linha": line_number,
+                    "placa": plate,
+                    "erro": f"Conflito de agenda: Doca '{dock_code}' já está ocupada nessa janela."
+                })
+                continue
+
+        try:
+            sch_in = ScheduleCreate(
+                tenant_id=tenant_id,
+                carrier_name=carrier_name,
+                cargo_type=cargo_type,
+                invoice_number=invoice_number,
+                driver_name=driver_name,
+                driver_cpf=driver_cpf,
+                driver_phone=driver_phone,
+                vehicle_plate=plate,
+                trailer_plate=trailer_plate,
+                dock_id=dock_id,
+                scheduled_window_start=start_dt,
+                scheduled_window_end=end_dt,
+                notes=notes
+            )
+            created = create_schedule(db=db, schedule_in=sch_in)
+            created_list.append(enrich_schedule_response(created))
+        except Exception as err:
+            errors.append({
+                "linha": line_number,
+                "placa": plate,
+                "erro": str(err)
+            })
+
+    return {
+        "success": True,
+        "total_lines_read": line_number - 1,
+        "created_count": len(created_list),
+        "failed_count": len(errors),
+        "errors": errors,
+        "created_schedules": created_list
+    }

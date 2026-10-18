@@ -33,12 +33,15 @@ async function handleSubmit() {
       <!-- Top Glow Accent -->
       <div class="absolute -top-10 -right-10 w-32 h-32 bg-indigo-500/20 rounded-full blur-2xl pointer-events-none"></div>
 
-      <div class="text-center space-y-2">
-        <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center mx-auto text-indigo-400">
-          <ShieldAlert class="w-6 h-6" />
+      <div class="text-center space-y-3">
+        <div class="w-14 h-14 rounded-2xl bg-white p-2.5 flex items-center justify-center mx-auto shadow-xl shadow-sky-500/20 border border-sky-500/30">
+          <img src="/raos-icon.png" alt="RAOS Tecnologia" class="w-full h-full object-contain" />
         </div>
-        <h1 class="text-xl font-extrabold text-white">Portal Restrito RAOS</h1>
-        <p class="text-xs text-slate-400">Autenticação necessária para acesso ao painel de Super Admin</p>
+        <div>
+          <h1 class="text-xl font-extrabold text-white">Portal Restrito RAOS</h1>
+          <p class="text-xs text-slate-400">RAOS Tecnologia &bull; CNPJ 66.914.167/0001-76</p>
+          <p class="text-[11px] text-slate-500 mt-0.5">Autenticação necessária para acesso ao painel Master</p>
+        </div>
       </div>
 
       <form @submit.prevent="handleSubmit" class="space-y-4">
@@ -85,7 +88,7 @@ async function handleSubmit() {
       </form>
 
       <div class="pt-4 border-t border-slate-800/80 text-center">
-        <router-link to="/" class="text-xs text-slate-500 hover:text-slate-300 transition-colors">
+        <router-link to="/app" class="text-xs text-slate-500 hover:text-slate-300 transition-colors">
           &larr; Voltar para a Torre de Controle
         </router-link>
       </div>

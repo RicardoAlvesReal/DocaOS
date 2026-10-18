@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { 
   Truck, 
@@ -10,7 +10,9 @@ import {
   Calendar, 
   MapPin, 
   Clock,
-  ArrowRight
+  ArrowRight,
+  DoorOpen,
+  Volume2
 } from 'lucide-vue-next'
 
 const route = useRoute()
@@ -20,11 +22,35 @@ const isLoading = ref(true)
 const errorMessage = ref('')
 const appointmentData = ref(null)
 
-const step = ref(1) // 1: Conferência, 2: QR Code Tela Cheia
+const step = ref(1) // 1: Conferência, 2: QR Code / Painel de Status
 const inputPlate = ref('')
 const inputCpf = ref('')
 const isConfirming = ref(false)
 const confirmError = ref('')
+let statusPollInterval = null
+
+async function fetchStatus() {
+  try {
+    const res = await fetch(`/api/v1/driver/${token}`)
+    if (res.ok) {
+      const data = await res.json()
+      // Se status mudou para Em_Doca, vibrar celular se disponível
+      if (appointmentData.value && appointmentData.value.status !== 'Em_Doca' && data.status === 'Em_Doca') {
+        if ('vibrate' in navigator) {
+          navigator.vibrate([300, 150, 300, 150, 500])
+        }
+      }
+      appointmentData.value = data
+      inputPlate.value = data.vehicle_plate
+      // Se já passou de Agendado, pula direto para o painel de status
+      if (data.status !== 'Agendado' && step.value === 1) {
+        step.value = 2
+      }
+    }
+  } catch (err) {
+    console.error('Erro no polling do motorista:', err)
+  }
+}
 
 onMounted(async () => {
   try {
@@ -35,12 +61,22 @@ onMounted(async () => {
     const data = await res.json()
     appointmentData.value = data
     inputPlate.value = data.vehicle_plate
+    if (data.status !== 'Agendado') {
+      step.value = 2
+    }
+    // Inicia polling leve a cada 4 segundos
+    statusPollInterval = setInterval(fetchStatus, 4000)
   } catch (err) {
     errorMessage.value = err.message
   } finally {
     isLoading.value = false
   }
 })
+
+onUnmounted(() => {
+  if (statusPollInterval) clearInterval(statusPollInterval)
+})
+
 
 async function handleConfirm() {
   confirmError.value = ''
@@ -177,9 +213,57 @@ function formatDate(isoStr) {
         </div>
       </div>
 
-      <!-- STEP 2: QR Code Tela Cheia -->
+      <!-- STEP 2: QR Code e Acompanhamento em Tempo Real -->
       <div v-else-if="step === 2" class="space-y-4 text-center">
-        <div class="bg-white rounded-3xl p-6 shadow-2xl border-4 border-sky-500/30">
+
+        <!-- ALERTA URGENTE: VEÍCULO CHAMADO PARA A DOCA -->
+        <div 
+          v-if="appointmentData.status === 'Em_Doca'" 
+          class="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 rounded-3xl p-6 text-white shadow-2xl border-2 border-emerald-400 animate-pulse text-left space-y-2"
+        >
+          <div class="flex items-center space-x-2 text-xs font-black uppercase tracking-wider bg-emerald-950/40 px-3 py-1 rounded-full w-max text-emerald-200">
+            <DoorOpen class="w-4 h-4 text-emerald-300" />
+            <span>VAGA LIBERADA &bull; DIRIJA-SE À DOCA</span>
+          </div>
+          <h2 class="text-2xl font-black">{{ appointmentData.dock_name }}</h2>
+          <p class="text-xs text-emerald-100">
+            Estacione seu veículo na doca indicada e apresente-se ao conferente para início da operação.
+          </p>
+        </div>
+
+        <!-- STATUS: AGUARDANDO NO PÁTIO -->
+        <div 
+          v-else-if="appointmentData.status === 'Aguardando_Patio'" 
+          class="bg-sky-950/70 border border-sky-800/80 rounded-2xl p-4 text-left flex items-start space-x-3"
+        >
+          <Clock class="w-5 h-5 text-sky-400 shrink-0 mt-0.5 animate-spin" style="animation-duration: 8s" />
+          <div>
+            <h3 class="text-xs font-bold text-white">Check-in Efetuado na Portaria</h3>
+            <p class="text-[11px] text-slate-300 mt-0.5">
+              Aguarde na área de espera do pátio. Quando sua doca for liberada, esta tela atualizará e vibrará automaticamente.
+            </p>
+          </div>
+        </div>
+
+        <!-- STATUS: LIBERADO -->
+        <div 
+          v-else-if="appointmentData.status === 'Liberado'" 
+          class="bg-emerald-950/70 border border-emerald-800 rounded-2xl p-4 text-left flex items-start space-x-3"
+        >
+          <CheckCircle class="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+          <div>
+            <h3 class="text-xs font-bold text-white">Operação Concluída com Sucesso!</h3>
+            <p class="text-[11px] text-slate-300 mt-0.5">
+              Carga/descarga finalizada e saída registrada na portaria. Tenha uma excelente viagem!
+            </p>
+          </div>
+        </div>
+
+        <!-- Cartão do QR Code (Exibido para check-in na portaria) -->
+        <div 
+          v-if="appointmentData.status === 'Agendado' || !appointmentData.status" 
+          class="bg-white rounded-3xl p-6 shadow-2xl border-4 border-sky-500/30"
+        >
           <div class="text-slate-900 mb-3">
             <span class="text-xs uppercase font-extrabold tracking-wider bg-slate-100 text-slate-800 px-3 py-1 rounded-full border border-slate-300">
               Passaporte de Portaria
@@ -202,24 +286,31 @@ function formatDate(isoStr) {
           </div>
         </div>
 
-        <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-left space-y-1">
+        <!-- Dados do Agendamento -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-left space-y-1.5">
           <div class="flex justify-between">
-            <span class="text-slate-400">Destino:</span>
+            <span class="text-slate-400">Doca Designada:</span>
             <span class="text-white font-medium">{{ appointmentData.dock_name }}</span>
           </div>
           <div class="flex justify-between">
             <span class="text-slate-400">Status atual:</span>
             <span class="text-emerald-400 font-semibold">{{ appointmentData.status }}</span>
           </div>
+          <div class="flex justify-between">
+            <span class="text-slate-400">Transportadora:</span>
+            <span class="text-slate-300 font-medium truncate max-w-[200px]">{{ appointmentData.carrier_name }}</span>
+          </div>
         </div>
 
         <button
+          v-if="appointmentData.status === 'Agendado'"
           @click="step = 1"
           class="text-xs text-slate-400 hover:text-white underline cursor-pointer"
         >
           Corrigir placa ou CPF
         </button>
       </div>
+
 
     </main>
 

@@ -112,8 +112,8 @@ async function toggleDockMaintenance(dock) {
       </div>
     </div>
 
-    <!-- Docks Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- Docks Grid (Adapta ao monitor do cliente) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
       <div
         v-for="dock in yardStore.docks"
         :key="dock.id"

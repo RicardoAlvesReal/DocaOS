@@ -42,4 +42,5 @@ class GateScanResponse(BaseModel):
     dock_name: Optional[str] = None
     previous_status: str
     new_status: str
-    checkin_at: datetime
+    checkin_at: Optional[datetime] = None
+

@@ -15,12 +15,66 @@ import {
   Truck,
   Building2,
   Phone,
-  CreditCard
+  CreditCard,
+  FileSpreadsheet,
+  UploadCloud,
+  Download,
+  CheckCircle2
 } from 'lucide-vue-next'
 
 const yardStore = useYardStore()
 const searchQuery = ref('')
 const selectedCargoFilter = ref('')
+
+// Modal de Importação em Lote (CSV)
+const isBatchModalOpen = ref(false)
+const batchFile = ref(null)
+const isUploadingBatch = ref(false)
+const batchResult = ref(null)
+const batchError = ref('')
+
+function onBatchFileSelected(e) {
+  const file = e.target.files[0]
+  if (file) {
+    batchFile.value = file
+    batchError.value = ''
+    batchResult.value = null
+  }
+}
+
+async function uploadBatchSchedules() {
+  if (!batchFile.value || !yardStore.currentTenant) return
+  isUploadingBatch.value = true
+  batchError.value = ''
+  batchResult.value = null
+
+  try {
+    const formData = new FormData()
+    formData.append('tenant_id', yardStore.currentTenant.id)
+    formData.append('file', batchFile.value)
+
+    const res = await fetch('/api/v1/schedules/batch/import', {
+      method: 'POST',
+      body: formData
+    })
+
+    if (!res.ok) {
+      const err = await res.json()
+      throw new Error(err.detail || 'Falha ao processar arquivo.')
+    }
+
+    const data = await res.json()
+    batchResult.value = data
+    await yardStore.fetchSchedules()
+    await yardStore.fetchDocks()
+    yardStore.showNotification(`${data.created_count} agendamentos importados com sucesso!`, 'success')
+  } catch (err) {
+    batchError.value = err.message
+  } finally {
+    isUploadingBatch.value = false
+  }
+}
+
 
 // Modal de Alocação de Doca
 const isAssignDockModalOpen = ref(false)
@@ -227,7 +281,17 @@ async function submitNewSchedule() {
           <option value="Eletrônicos e Peças">Eletrônicos e Peças</option>
           <option value="Insumos Químicos">Insumos Químicos</option>
         </select>
+
+        <button
+          @click="isBatchModalOpen = true"
+          class="flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all shrink-0 ml-1"
+          title="Importar agendamentos em lote via arquivo CSV"
+        >
+          <FileSpreadsheet class="w-3.5 h-3.5 text-emerald-400" />
+          <span>Importar Planilha</span>
+        </button>
       </div>
+
     </div>
 
     <!-- Kanban Columns Grid -->
@@ -562,5 +626,112 @@ async function submitNewSchedule() {
       </div>
     </div>
 
+    <!-- Modal Importação em Lote (CSV) -->
+    <div
+      v-if="isBatchModalOpen"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+    >
+      <div class="bg-slate-900 border border-slate-700/80 rounded-3xl max-w-xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+        <button
+          @click="isBatchModalOpen = false"
+          class="absolute top-5 right-5 text-slate-400 hover:text-white cursor-pointer"
+        >
+          <X class="w-5 h-5" />
+        </button>
+
+        <div class="flex items-center space-x-2.5 text-emerald-400 mb-1">
+          <FileSpreadsheet class="w-5 h-5" />
+          <h3 class="text-base font-black text-white">Importação em Lote de Agendamentos</h3>
+        </div>
+        <p class="text-xs text-slate-400 mb-4">
+          Suba a grade diária de caminhões do seu armazém via arquivo CSV formatado.
+        </p>
+
+        <!-- Download do Modelo CSV -->
+        <div class="bg-slate-950/80 border border-slate-800 p-4 rounded-2xl flex items-center justify-between mb-4">
+          <div>
+            <h4 class="text-xs font-bold text-white">Modelo Padrão RotaFlow (.csv)</h4>
+            <p class="text-[11px] text-slate-400">Contém colunas oficiais de placa, motorista, transportadora e horários.</p>
+          </div>
+          <a
+            href="/api/v1/schedules/batch/template-csv"
+            download
+            class="flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-700 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer"
+          >
+            <Download class="w-3.5 h-3.5" />
+            <span>Baixar Modelo</span>
+          </a>
+        </div>
+
+        <!-- Área de Upload -->
+        <div class="border-2 border-dashed border-slate-700 hover:border-sky-500/60 rounded-2xl p-6 text-center transition-all bg-slate-950/40 mb-4">
+          <UploadCloud class="w-8 h-8 text-slate-400 mx-auto mb-2" />
+          <p class="text-xs font-semibold text-slate-200 mb-1">
+            {{ batchFile ? batchFile.name : 'Selecione ou arraste sua planilha CSV aqui' }}
+          </p>
+          <p class="text-[10px] text-slate-500 mb-3">Formatos aceitos: .csv (delimitador ponto e vírgula ou vírgula)</p>
+          <input
+            type="file"
+            accept=".csv"
+            @change="onBatchFileSelected"
+            class="hidden"
+            id="batch-file-input"
+          />
+          <label
+            for="batch-file-input"
+            class="inline-flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-4 py-2 rounded-xl text-xs font-semibold cursor-pointer transition-all"
+          >
+            <span>Escolher Arquivo</span>
+          </label>
+        </div>
+
+        <!-- Erro Geral -->
+        <div v-if="batchError" class="bg-rose-950/60 border border-rose-800 text-rose-300 p-3 rounded-xl text-xs mb-4 flex items-center space-x-2">
+          <AlertCircle class="w-4 h-4 shrink-0 text-rose-400" />
+          <span>{{ batchError }}</span>
+        </div>
+
+        <!-- Relatório de Resultado -->
+        <div v-if="batchResult" class="space-y-3 mb-4">
+          <div class="bg-emerald-950/50 border border-emerald-850 p-3.5 rounded-xl text-xs text-emerald-200 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+              <CheckCircle2 class="w-4 h-4 text-emerald-400" />
+              <span><strong>{{ batchResult.created_count }}</strong> agendamentos criados com sucesso!</span>
+            </div>
+            <span class="text-[11px] text-slate-400">{{ batchResult.total_lines_read }} linhas processadas</span>
+          </div>
+
+          <div v-if="batchResult.failed_count > 0" class="bg-slate-950 border border-rose-900/50 rounded-xl p-3 text-xs">
+            <p class="font-bold text-rose-400 mb-2">{{ batchResult.failed_count }} inconsistências encontradas:</p>
+            <div class="max-h-32 overflow-y-auto space-y-1 pr-1 font-mono text-[11px]">
+              <div v-for="err in batchResult.errors" :key="err.linha" class="text-slate-300 border-b border-slate-800/60 pb-1">
+                <span class="text-rose-400 font-bold">Linha {{ err.linha }} (Placa {{ err.placa }}):</span> {{ err.erro }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-end space-x-2 pt-2 border-t border-slate-800">
+          <button
+            type="button"
+            @click="isBatchModalOpen = false"
+            class="px-4 py-2 rounded-xl text-xs text-slate-300 hover:bg-slate-800 cursor-pointer"
+          >
+            Fechar
+          </button>
+          <button
+            type="button"
+            @click="uploadBatchSchedules"
+            :disabled="!batchFile || isUploadingBatch"
+            class="flex items-center space-x-1.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white px-5 py-2 rounded-xl text-xs font-bold shadow-lg shadow-emerald-600/20 cursor-pointer transition-all"
+          >
+            <UploadCloud class="w-4 h-4" />
+            <span>{{ isUploadingBatch ? 'Processando Grade...' : 'Processar Importação' }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
+

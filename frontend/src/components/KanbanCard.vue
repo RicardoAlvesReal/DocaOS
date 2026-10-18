@@ -97,9 +97,15 @@ function copyWhatsAppLink() {
   const text = `Olá ${props.schedule.driver_name}, seu agendamento no terminal ${yardStore.currentTenant?.name || 'RotaFlow'} está confirmado para o veículo ${props.schedule.vehicle_plate}. Acesse seu link de check-in e QR Code da portaria aqui: ${url}`
   
   navigator.clipboard.writeText(url)
-  const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`
+  const rawPhone = (props.schedule.driver_phone || '').replace(/\D/g, '')
+  let whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`
+  if (rawPhone.length >= 10) {
+    const formattedPhone = rawPhone.startsWith('55') ? rawPhone : `55${rawPhone}`
+    whatsappUrl = `https://api.whatsapp.com/send?phone=${formattedPhone}&text=${encodeURIComponent(text)}`
+  }
   window.open(whatsappUrl, '_blank')
 }
+
 
 async function advanceStatus() {
   const current = props.schedule.status

@@ -1,11 +1,12 @@
 <script setup>
 import { onMounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useYardStore } from './stores/yard'
-import Navbar from './components/Navbar.vue'
+import Sidebar from './components/Sidebar.vue'
 import { CheckCircle2, AlertCircle, Info, X } from 'lucide-vue-next'
 
 const route = useRoute()
+const router = useRouter()
 const yardStore = useYardStore()
 const controlTowerRef = ref(null)
 
@@ -17,23 +18,40 @@ function openNewScheduleModal() {
   if (controlTowerRef.value?.openNewScheduleModal) {
     controlTowerRef.value.openNewScheduleModal()
   } else {
-    // Se não estiver na Torre de Controle, navega para ela e abre o modal
-    window.location.href = '/'
+    router.push('/app')
+  }
+}
+
+function openNewTenantModal() {
+  if (controlTowerRef.value?.openNewTenantModal) {
+    controlTowerRef.value.openNewTenantModal()
+  } else {
+    router.push('/admin?action=new-tenant')
+  }
+}
+
+function openNewUserModal() {
+  if (controlTowerRef.value?.openNewUserModal) {
+    controlTowerRef.value.openNewUserModal()
+  } else {
+    router.push('/admin?action=new-user')
   }
 }
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#070b14] text-slate-100 flex flex-col font-sans selection:bg-sky-500 selection:text-white relative overflow-x-hidden">
+  <div class="min-h-screen bg-[#050b14] text-slate-100 flex flex-col font-sans selection:bg-[#086cfe] selection:text-white relative overflow-x-hidden">
     
     <!-- Background subtle ambient glow -->
-    <div class="fixed top-0 left-1/4 w-[600px] h-[400px] bg-sky-600/10 rounded-full blur-[140px] pointer-events-none"></div>
-    <div class="fixed bottom-0 right-1/4 w-[500px] h-[350px] bg-indigo-600/10 rounded-full blur-[140px] pointer-events-none"></div>
+    <div class="fixed top-0 left-1/4 w-[600px] h-[400px] bg-[#086cfe]/10 rounded-full blur-[140px] pointer-events-none"></div>
+    <div class="fixed bottom-0 right-1/4 w-[500px] h-[350px] bg-blue-600/10 rounded-full blur-[140px] pointer-events-none"></div>
 
-    <!-- Navigation Header (Hidden on driver mobile portal) -->
-    <Navbar 
+    <!-- Navigation Sidebar (Lateral no Desktop & Gaveta no Mobile) -->
+    <Sidebar 
       v-if="route.meta.layout !== 'blank'" 
       @open-new-schedule-modal="openNewScheduleModal" 
+      @open-new-tenant-modal="openNewTenantModal"
+      @open-new-user-modal="openNewUserModal"
     />
 
     <!-- Toast Notifications -->
@@ -63,10 +81,14 @@ function openNewScheduleModal() {
       </div>
     </transition>
 
-    <!-- Main Router View -->
+    <!-- Main Router View (Largura 100% fluida adaptável ao monitor do cliente) -->
     <main 
       class="flex-1 w-full"
-      :class="[route.meta.layout === 'blank' ? 'p-0' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6']"
+      :class="[
+        route.meta.layout === 'blank' 
+          ? 'p-0' 
+          : 'lg:pl-64 xl:pl-72 flex flex-col min-h-screen p-4 sm:p-6 lg:p-8 transition-all'
+      ]"
     >
       <router-view v-slot="{ Component }">
         <component :is="Component" ref="controlTowerRef" />

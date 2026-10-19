@@ -1,7 +1,7 @@
 import uuid
 import secrets
 from datetime import datetime, timezone
-from sqlalchemy import Column, String, DateTime, ForeignKey, Text, Index
+from sqlalchemy import Column, String, DateTime, ForeignKey, Text, Index, Float, Boolean
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from app.core.database import Base
@@ -43,6 +43,13 @@ class Schedule(Base):
     completed_at = Column(DateTime(timezone=True), nullable=True)     # Fim do carregamento/descarregamento
     departed_at = Column(DateTime(timezone=True), nullable=True)      # Saída da cancela / liberação final
     
+    # Auditoria de Geolocalização (Lei 11.442 / Antifraude)
+    checkin_latitude = Column(Float, nullable=True)
+    checkin_longitude = Column(Float, nullable=True)
+    checkin_accuracy_meters = Column(Float, nullable=True)
+    checkin_distance_meters = Column(Float, nullable=True)
+    geofence_validated = Column(Boolean, default=False, nullable=False)
+
     notes = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)

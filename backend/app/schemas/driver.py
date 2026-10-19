@@ -17,12 +17,21 @@ class DriverCheckinView(BaseModel):
     dock_name: Optional[str] = None
     status: str
     qr_code_data: str
+    warehouse_lat: Optional[float] = None
+    warehouse_lon: Optional[float] = None
+    geofence_radius_meters: Optional[int] = 1000
+    require_geofence: Optional[bool] = False
+    geofence_validated: Optional[bool] = False
+    checkin_distance_meters: Optional[float] = None
 
 
 class DriverConfirmation(BaseModel):
     vehicle_plate: str
     driver_cpf: str
     driver_phone: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    accuracy_meters: Optional[float] = None
 
 
 class GateScanRequest(BaseModel):

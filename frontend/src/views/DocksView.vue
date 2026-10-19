@@ -87,15 +87,15 @@ async function toggleDockMaintenance(dock) {
   <div class="space-y-6">
     
     <!-- Header with Capacity Banner -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-sm">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#0e1422] border border-slate-800 p-5 rounded-xl">
       <div>
-        <h1 class="text-xl font-extrabold text-white">Mapeamento Físico de Docas</h1>
-        <p class="text-xs text-slate-400 mt-1">Configuração das portas de carga/descarga e controle de ocupação</p>
+        <h1 class="text-xl font-bold text-white">Mapeamento Físico de Docas</h1>
+        <p class="text-xs text-slate-400 mt-0.5">Configuração das portas de carga/descarga e controle de ocupação</p>
       </div>
 
       <div class="flex items-center space-x-4">
         <!-- License quota pill -->
-        <div class="bg-slate-950 border border-slate-800 px-4 py-2 rounded-2xl text-xs font-mono">
+        <div class="bg-[#070a12] border border-slate-800 px-3.5 py-1.5 rounded-lg text-xs font-mono">
           <span class="text-slate-400">Docas Licenciadas: </span>
           <span class="font-bold text-sky-400">{{ yardStore.docks.length }}</span>
           <span class="text-slate-500"> / {{ maxDocks }}</span>
@@ -104,7 +104,7 @@ async function toggleDockMaintenance(dock) {
         <button
           @click="openModal"
           :disabled="isLimitReached"
-          class="flex items-center space-x-1.5 bg-sky-600 hover:bg-sky-500 disabled:opacity-50 text-white px-4 py-2 rounded-xl text-xs font-semibold shadow-md shadow-sky-600/30 transition-all cursor-pointer"
+          class="flex items-center space-x-1.5 bg-sky-600 hover:bg-sky-500 disabled:opacity-50 text-white px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer"
         >
           <PlusCircle class="w-4 h-4" />
           <span>Cadastrar Doca</span>
@@ -112,17 +112,17 @@ async function toggleDockMaintenance(dock) {
       </div>
     </div>
 
-    <!-- Docks Grid (Adapta ao monitor do cliente) -->
+    <!-- Docks Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
       <div
         v-for="dock in yardStore.docks"
         :key="dock.id"
-        class="bg-slate-900 border rounded-2xl p-5 shadow-sm transition-all relative overflow-hidden"
+        class="bg-[#0e1422] border rounded-xl p-4 transition-all relative overflow-hidden"
         :class="[
           dock.status === 'Ocupada'
-            ? 'border-indigo-600/50 bg-indigo-950/10'
+            ? 'border-sky-500/40 bg-[#0c1322]'
             : dock.status === 'Manutenção'
-            ? 'border-amber-600/50 bg-amber-950/10'
+            ? 'border-amber-600/40 bg-[#16120b]'
             : 'border-slate-800 hover:border-slate-700'
         ]"
       >
@@ -135,12 +135,12 @@ async function toggleDockMaintenance(dock) {
           </div>
 
           <span 
-            class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full border"
+            class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded border font-mono"
             :class="[
               dock.status === 'Livre' 
                 ? 'bg-emerald-950/60 text-emerald-400 border-emerald-800' 
                 : dock.status === 'Ocupada' 
-                ? 'bg-indigo-950/60 text-indigo-400 border-indigo-800' 
+                ? 'bg-sky-950/60 text-sky-400 border-sky-800' 
                 : 'bg-amber-950/60 text-amber-400 border-amber-800'
             ]"
           >
@@ -155,7 +155,7 @@ async function toggleDockMaintenance(dock) {
           </div>
         </div>
 
-        <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
+        <div class="pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
           <button
             @click="toggleDockMaintenance(dock)"
             class="text-slate-400 hover:text-amber-400 flex items-center space-x-1 text-[11px] cursor-pointer"
@@ -168,77 +168,79 @@ async function toggleDockMaintenance(dock) {
     </div>
 
     <!-- Modal: Nova Doca -->
-    <div 
-      v-if="isNewDockModalOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
-    >
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl">
-        <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
-          <h3 class="font-bold text-base text-white">Cadastrar Nova Doca Física</h3>
-          <button @click="isNewDockModalOpen = false" class="text-slate-400 hover:text-white">
-            <X class="w-5 h-5" />
-          </button>
+    <transition name="modal">
+      <div 
+        v-if="isNewDockModalOpen"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4"
+      >
+        <div class="modal-panel bg-[#0e1422] border border-slate-800 rounded-xl max-w-md w-full p-6 shadow-2xl">
+          <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
+            <h3 class="font-bold text-base text-white">Cadastrar Nova Doca Física</h3>
+            <button @click="isNewDockModalOpen = false" class="text-slate-400 hover:text-white cursor-pointer">
+              <X class="w-5 h-5" />
+            </button>
+          </div>
+
+          <form @submit.prevent="createDock" class="space-y-4">
+            <div v-if="dockError" class="p-3 bg-rose-950/60 border border-rose-800 rounded-xl text-rose-300 text-xs">
+              {{ dockError }}
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Código da Doca *</label>
+              <input
+                v-model="newDockForm.code"
+                type="text"
+                required
+                placeholder="Ex: DOCA-05"
+                class="w-full bg-[#070a12] border border-slate-800 rounded-lg px-3 py-2 text-xs font-mono uppercase text-white focus:outline-none focus:border-sky-500"
+              />
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Nome de Identificação *</label>
+              <input
+                v-model="newDockForm.name"
+                type="text"
+                required
+                placeholder="Ex: Doca 05 - Carga Seca"
+                class="w-full bg-[#070a12] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500"
+              />
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Tipo de Doca</label>
+              <select
+                v-model="newDockForm.dock_type"
+                class="w-full bg-[#070a12] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500 cursor-pointer"
+              >
+                <option value="Geral">Carga Geral</option>
+                <option value="Seca">Carga Seca</option>
+                <option value="Frigorífica">Frigorífica (Reefer)</option>
+                <option value="Granel">Granel</option>
+              </select>
+            </div>
+
+            <div class="flex justify-end space-x-3 pt-3 border-t border-slate-800">
+              <button
+                type="button"
+                @click="isNewDockModalOpen = false"
+                class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                :disabled="isSubmitting"
+                class="bg-sky-600 hover:bg-sky-500 text-white px-5 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer"
+              >
+                {{ isSubmitting ? 'Salvando...' : 'Salvar Doca' }}
+              </button>
+            </div>
+          </form>
         </div>
-
-        <form @submit.prevent="createDock" class="space-y-4">
-          <div v-if="dockError" class="p-3 bg-rose-950/60 border border-rose-800 rounded-xl text-rose-300 text-xs">
-            {{ dockError }}
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Código da Doca *</label>
-            <input
-              v-model="newDockForm.code"
-              type="text"
-              required
-              placeholder="Ex: DOCA-05"
-              class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono uppercase text-white focus:outline-none focus:border-sky-500"
-            />
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Nome de Identificação *</label>
-            <input
-              v-model="newDockForm.name"
-              type="text"
-              required
-              placeholder="Ex: Doca 05 - Carga Seca"
-              class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500"
-            />
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Tipo de Doca</label>
-            <select
-              v-model="newDockForm.dock_type"
-              class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500"
-            >
-              <option value="Geral">Carga Geral</option>
-              <option value="Seca">Carga Seca</option>
-              <option value="Frigorífica">Frigorífica (Reefer)</option>
-              <option value="Granel">Granel</option>
-            </select>
-          </div>
-
-          <div class="flex justify-end space-x-3 pt-3 border-t border-slate-800">
-            <button
-              type="button"
-              @click="isNewDockModalOpen = false"
-              class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              :disabled="isSubmitting"
-              class="bg-sky-600 hover:bg-sky-500 text-white px-5 py-2 rounded-xl text-xs font-semibold shadow-lg shadow-sky-600/30 transition-all cursor-pointer"
-            >
-              {{ isSubmitting ? 'Salvando...' : 'Salvar Doca' }}
-            </button>
-          </div>
-        </form>
       </div>
-    </div>
+    </transition>
 
   </div>
 </template>

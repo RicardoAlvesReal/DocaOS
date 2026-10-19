@@ -10,8 +10,11 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.models.tenant import Tenant
+from app.models.schedule import Schedule
 from app.models.integration import WebhookSubscription, ApiKey
 from app.services.webhook_service import dispatch_tenant_webhook
+from app.services.geo_service import calculate_haversine_distance, format_distance
+from app.services.websocket_manager import manager
 
 router = APIRouter(prefix="/integrations", tags=["Integrações Enterprise & Webhooks"])
 
@@ -154,3 +157,135 @@ def delete_api_key(key_id: UUID, db: Session = Depends(get_db)):
     db.delete(key)
     db.commit()
     return None
+
+
+# =========================================================================
+# TELEMETRIA DE FROTAS & RASTREADORES VEICULARES (GPS DE CARRETAS)
+# =========================================================================
+class TelemetryConfigUpdate(BaseModel):
+    tenant_id: UUID
+    has_telemetry_integration: bool
+    telemetry_provider: str = "Generic_Webhook"  # Autotrac, Sascar, OnixSat, Omnilink, Cobli, Generic_Webhook
+    telemetry_api_key: Optional[str] = None
+    telemetry_client_id: Optional[str] = None
+    telemetry_endpoint: Optional[str] = None
+
+
+class TelemetryPingRequest(BaseModel):
+    tenant_id: UUID
+    vehicle_plate: str
+    latitude: float
+    longitude: float
+    accuracy_meters: Optional[float] = None
+    speed_kmh: Optional[float] = None
+
+
+@router.get("/telemetry")
+def get_telemetry_config(tenant_id: UUID = Query(...), db: Session = Depends(get_db)):
+    """Retorna as configurações do conector de telemetria veicular do Armazém"""
+    tenant = db.query(Tenant).filter(Tenant.id == tenant_id).first()
+    if not tenant:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tenant não encontrado.")
+
+    return {
+        "tenant_id": tenant.id,
+        "has_telemetry_integration": tenant.has_telemetry_integration,
+        "telemetry_provider": tenant.telemetry_provider or "Generic_Webhook",
+        "telemetry_api_key": tenant.telemetry_api_key or "",
+        "telemetry_client_id": tenant.telemetry_client_id or "",
+        "telemetry_endpoint": tenant.telemetry_endpoint or "",
+        "ingestion_webhook_url": f"/api/v1/integrations/telemetry/ping?tenant_id={tenant.id}"
+    }
+
+
+@router.post("/telemetry")
+def update_telemetry_config(telemetry_in: TelemetryConfigUpdate, db: Session = Depends(get_db)):
+    """Atualiza as credenciais e o provedor de telemetria (Autotrac, Sascar, OnixSat, Omnilink, Cobli)"""
+    tenant = db.query(Tenant).filter(Tenant.id == telemetry_in.tenant_id).first()
+    if not tenant:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tenant não encontrado.")
+
+    tenant.has_telemetry_integration = telemetry_in.has_telemetry_integration
+    tenant.telemetry_provider = telemetry_in.telemetry_provider
+    tenant.telemetry_api_key = telemetry_in.telemetry_api_key
+    tenant.telemetry_client_id = telemetry_in.telemetry_client_id
+    tenant.telemetry_endpoint = telemetry_in.telemetry_endpoint
+
+    db.commit()
+    db.refresh(tenant)
+
+    return {
+        "success": True,
+        "message": f"Conector de telemetria ({tenant.telemetry_provider}) atualizado com sucesso!",
+        "has_telemetry_integration": tenant.has_telemetry_integration,
+        "telemetry_provider": tenant.telemetry_provider
+    }
+
+
+@router.post("/telemetry/ping")
+async def receive_telemetry_ping(ping: TelemetryPingRequest, db: Session = Depends(get_db)):
+    """
+    Endpoint de Ingestão de Telemetria (Rastreadores Veiculares):
+    Recebe coordenadas GPS em tempo real de provedores como Autotrac, Sascar, OnixSat, Omnilink, Cobli ou Webhook Genérico.
+    Calcula automaticamente a distância até o pátio e atualiza o agendamento ativo do caminhão.
+    """
+    tenant = db.query(Tenant).filter(Tenant.id == ping.tenant_id).first()
+    if not tenant:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tenant não encontrado.")
+
+    cleaned_plate = ping.vehicle_plate.replace("-", "").replace(" ", "").upper()
+    schedule = (
+        db.query(Schedule)
+        .filter(
+            Schedule.tenant_id == ping.tenant_id,
+            Schedule.vehicle_plate == cleaned_plate,
+            Schedule.status.in_(["Agendado", "Aguardando_Patio"])
+        )
+        .order_by(Schedule.scheduled_window_start.asc())
+        .first()
+    )
+
+    if not schedule:
+        return {
+            "success": False,
+            "message": f"Nenhum agendamento ativo encontrado para a placa {cleaned_plate}.",
+            "vehicle_plate": cleaned_plate
+        }
+
+    warehouse_lat = tenant.latitude if tenant.latitude else -20.3155
+    warehouse_lon = tenant.longitude if tenant.longitude else -40.3128
+    radius = tenant.geofence_radius_meters if tenant.geofence_radius_meters else 1000
+
+    distance = calculate_haversine_distance(ping.latitude, ping.longitude, warehouse_lat, warehouse_lon)
+    is_inside = distance <= radius
+
+    schedule.checkin_latitude = ping.latitude
+    schedule.checkin_longitude = ping.longitude
+    schedule.checkin_accuracy_meters = ping.accuracy_meters
+    schedule.checkin_distance_meters = round(distance, 1)
+    if is_inside and not schedule.geofence_validated:
+        schedule.geofence_validated = True
+
+    db.commit()
+
+    # Notifica a Torre de Controle via WebSocket em tempo real
+    await manager.broadcast_to_tenant(
+        tenant_id=str(tenant.id),
+        message={
+            "type": "TELEMETRY_UPDATED",
+            "schedule_id": str(schedule.id),
+            "vehicle_plate": schedule.vehicle_plate,
+            "distance_meters": round(distance, 1),
+            "distance_formatted": format_distance(distance),
+            "is_inside_geofence": is_inside,
+            "speed_kmh": ping.speed_kmh
+        }
+    )
+
+    return {
+        "success": True,
+        "message": f"Telemetria recebida! Veículo a {format_distance(distance)} do pátio.",
+        "vehicle_plate": cleaned_plate,
+        "distance_meters": round(distance, 1),
+        "is_inside_geofence": is_inside
+    }

@@ -28,7 +28,8 @@ import {
   Sliders,
   ChevronRight,
   ArrowLeft,
-  Crown
+  Crown,
+  MapPin
 } from 'lucide-vue-next'
 
 const yardStore = useYardStore()
@@ -93,10 +94,11 @@ const adminNavItems = [
 const navItems = [
   { name: 'Torre de Controle', path: '/app', icon: LayoutDashboard, badge: () => yardStore.totalInYard ? `${yardStore.totalInYard} no pátio` : null },
   { name: 'Docas', path: '/docas', icon: DoorClosed, badge: () => yardStore.occupiedDocksCount ? `${yardStore.occupiedDocksCount} ocupada(s)` : null },
+  { name: 'Mapa do Pátio (GPS)', path: '/mapa', icon: MapPin },
   { name: 'Portaria & Cancela', path: '/portaria', icon: ScanLine },
   { name: 'Equipe & Fiscais', path: '/equipe', icon: Users },
   { name: 'Relatórios & ROI', path: '/relatorios', icon: BarChart3 },
-  { name: 'Integrações ERP', path: '/integracoes', icon: Network }
+  { name: 'Integrações & APIs', path: '/integracoes', icon: Network }
 ]
 
 function onTenantChange(event) {
@@ -237,12 +239,12 @@ function handleExitDemo() {
     <!-- SIDEBAR VERTICAL (Fixa no Desktop & Drawer no Mobile)             -->
     <!-- ================================================================= -->
     <aside 
-      class="fixed top-0 bottom-0 left-0 z-50 w-64 xl:w-72 border-r flex flex-col justify-between transition-transform duration-300 ease-in-out shadow-2xl overflow-y-auto"
+      class="fixed top-0 bottom-0 left-0 z-50 w-64 xl:w-72 border-r flex flex-col justify-between transition-transform duration-300 ease-in-out overflow-y-auto"
       :class="[
         isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
         isSuperAdminRoute 
           ? 'bg-[#070914] border-indigo-900/60 selection:bg-amber-500 selection:text-black' 
-          : 'bg-[#070e1c] border-slate-800/90'
+          : 'bg-[#070a12] border-slate-800'
       ]"
     >
 
@@ -432,19 +434,19 @@ function handleExitDemo() {
         <!-- Logo & Brand Header Operacional -->
         <div class="flex items-center justify-between">
           <div class="flex items-center space-x-3 cursor-pointer" @click="handleNavClick('/app')">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500/20 to-blue-600/20 border border-sky-400/30 p-1.5 flex items-center justify-center shadow-lg shadow-sky-500/15 shrink-0">
+            <div class="w-9 h-9 rounded-lg bg-sky-500/10 border border-sky-500/20 p-1 flex items-center justify-center shrink-0">
               <img src="/rotaflow-icon.png" alt="RotaFlow YMS" class="w-full h-full object-contain" />
             </div>
             <div>
               <div class="flex items-center space-x-2">
-                <span class="text-xl font-black tracking-tight text-white">
+                <span class="text-lg font-bold tracking-tight text-white">
                   Rota<span class="text-sky-400">Flow</span>
                 </span>
-                <span class="text-[10px] font-mono uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-sky-950 text-sky-400 border border-sky-800">
+                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
                   YMS
                 </span>
               </div>
-              <p class="text-[10px] text-slate-400 font-medium">Orquestração de Pátios</p>
+              <p class="text-[11px] text-slate-400">Gestão de Pátios</p>
             </div>
           </div>
 
@@ -457,25 +459,25 @@ function handleExitDemo() {
         </div>
 
         <!-- Sandbox Alert Badge -->
-        <div v-if="authStore.isDemoMode" class="bg-gradient-to-b from-sky-950/80 to-blue-950/60 border border-sky-500/40 rounded-2xl p-3 space-y-2">
-          <div class="flex items-center space-x-1.5 text-[11px] font-mono font-bold text-amber-300">
+        <div v-if="authStore.isDemoMode" class="bg-[#0e1422] border border-amber-500/30 rounded-xl p-3 space-y-2">
+          <div class="flex items-center space-x-1.5 text-xs font-bold text-amber-400">
             <Sparkles class="w-3.5 h-3.5 text-amber-400" />
             <span>MODO SANDBOX</span>
           </div>
-          <p class="text-[10px] text-sky-200 leading-tight">
+          <p class="text-xs text-slate-300 leading-tight">
             Ambiente de demonstração. Seus testes não afetam clientes reais.
           </p>
           <div class="flex items-center space-x-2 pt-1">
             <a 
               href="https://api.whatsapp.com/send?phone=5527996174965&text=Ol%C3%A1!%20Gostei%20do%20piloto%20do%20RotaFlow%20e%20gostaria%20de%20implantar%20no%20meu%20armaz%C3%A9m." 
               target="_blank"
-              class="flex-1 bg-[#086cfe] hover:bg-blue-600 text-white text-center font-bold py-1.5 px-2 rounded-lg text-[10px] uppercase tracking-wider font-mono shadow-sm transition-all"
+              class="flex-1 bg-sky-600 hover:bg-sky-500 text-white text-center font-bold py-1.5 px-2 rounded-lg text-xs uppercase tracking-wider transition-all"
             >
               Implantar &rarr;
             </a>
             <button 
               @click="handleExitDemo" 
-              class="text-[10px] text-slate-400 hover:text-white underline cursor-pointer"
+              class="text-xs text-slate-400 hover:text-white underline cursor-pointer"
             >
               Sair
             </button>
@@ -483,16 +485,16 @@ function handleExitDemo() {
         </div>
 
         <!-- Armazém Ativo & Conexão Realtime -->
-        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3 space-y-2.5">
+        <div class="bg-[#0e1422] border border-slate-800 rounded-xl p-3 space-y-2">
           <div class="flex items-center justify-between text-xs">
-            <span class="text-[10px] font-mono uppercase font-bold text-slate-500 tracking-wider">Armazém Ativo</span>
+            <span class="text-xs font-medium text-slate-400">Armazém Ativo</span>
             <div 
-              class="flex items-center space-x-1 text-[10px] font-mono font-semibold"
+              class="flex items-center space-x-1 text-xs font-semibold"
               :class="(yardStore.isWsConnected || authStore.isDemoMode) ? 'text-emerald-400' : 'text-amber-400'"
               :title="yardStore.isWsConnected ? 'WebSocket conectado' : 'Conectando WebSocket...'"
             >
-              <span class="w-1.5 h-1.5 rounded-full animate-pulse" :class="(yardStore.isWsConnected || authStore.isDemoMode) ? 'bg-emerald-400' : 'bg-amber-400'"></span>
-              <span>{{ (yardStore.isWsConnected || authStore.isDemoMode) ? 'REALTIME' : 'CONECTANDO' }}</span>
+              <span class="w-1.5 h-1.5 rounded-full" :class="(yardStore.isWsConnected || authStore.isDemoMode) ? 'bg-emerald-400' : 'bg-amber-400'"></span>
+              <span>{{ (yardStore.isWsConnected || authStore.isDemoMode) ? 'ONLINE' : 'CONECTANDO' }}</span>
             </div>
           </div>
 
@@ -506,7 +508,7 @@ function handleExitDemo() {
               v-if="authStore.isSuperAdmin && yardStore.tenants.length > 0"
               :value="yardStore.currentTenant?.id"
               @change="onTenantChange"
-              class="w-full bg-slate-950 text-slate-200 text-xs font-semibold rounded-lg px-2 py-1.5 border border-slate-800 focus:outline-none focus:border-[#086cfe] cursor-pointer"
+              class="w-full bg-[#070a12] text-slate-200 text-xs font-medium rounded-lg px-2 py-1.5 border border-slate-800 focus:outline-none focus:border-sky-500 cursor-pointer"
             >
               <option 
                 v-for="t in yardStore.tenants" 
@@ -523,7 +525,7 @@ function handleExitDemo() {
               <p class="text-xs font-bold text-white truncate" :title="yardStore.currentTenant?.name || authStore.user?.tenant_name">
                 {{ yardStore.currentTenant?.name || authStore.user?.tenant_name || 'Terminal Demonstrativo' }}
               </p>
-              <span class="text-[10px] font-mono text-slate-500">Unidade Operacional</span>
+              <span class="text-[11px] text-slate-400">Unidade Operacional</span>
             </div>
           </div>
         </div>
@@ -531,25 +533,25 @@ function handleExitDemo() {
         <!-- Botão Novo Agendamento (CTA Operacional) -->
         <button
           @click="handleNewSchedule"
-          class="w-full bg-[#086cfe] hover:bg-blue-600 active:scale-95 text-white py-3 px-4 rounded-xl font-bold text-xs uppercase tracking-wider font-mono flex items-center justify-center space-x-2 shadow-lg shadow-blue-600/25 transition-all cursor-pointer"
+          class="w-full bg-sky-600 hover:bg-sky-500 active:scale-95 text-white py-2.5 px-4 rounded-lg font-bold text-xs uppercase tracking-wider flex items-center justify-center space-x-2 transition-all cursor-pointer"
         >
           <PlusCircle class="w-4 h-4" />
           <span>Novo Agendamento</span>
         </button>
 
         <!-- Navegação Operacional -->
-        <nav class="space-y-1.5 font-sans">
-          <p class="text-[10px] font-mono uppercase tracking-wider text-slate-500 px-3 pb-1 font-bold">Menu Operacional</p>
+        <nav class="space-y-1 font-sans">
+          <p class="text-[11px] text-slate-400 px-3 pb-1 font-semibold uppercase tracking-wider">Menu Operacional</p>
           
           <button
             v-for="item in navItems"
             :key="item.path"
             @click="handleNavClick(item.path)"
-            class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer text-left"
+            class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg text-xs font-medium transition-all cursor-pointer text-left"
             :class="[
               route.path === item.path
-                ? 'bg-[#086cfe]/15 text-sky-400 border border-[#086cfe]/40 shadow-md shadow-[#086cfe]/10'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 border border-transparent'
+                ? 'bg-[#0e1422] text-white border-l-2 border-l-sky-500 font-semibold'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-[#0e1422]/60'
             ]"
           >
             <div class="flex items-center space-x-3">
@@ -563,7 +565,7 @@ function handleExitDemo() {
 
             <span 
               v-if="item.badge && item.badge()" 
-              class="text-[10px] font-mono px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 font-medium"
+              class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-medium"
             >
               {{ item.badge() }}
             </span>

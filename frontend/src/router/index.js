@@ -66,6 +66,15 @@ const routes = [
     }
   },
   {
+    path: '/mapa',
+    name: 'YardMap',
+    component: () => import('../views/YardMapView.vue'),
+    meta: { 
+      title: 'Mapa do Pátio & Cerca GPS',
+      requiresAuth: true
+    }
+  },
+  {
     path: '/relatorios',
     name: 'Reports',
     component: ReportsView,

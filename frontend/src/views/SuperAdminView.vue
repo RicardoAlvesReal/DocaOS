@@ -32,7 +32,9 @@ import {
   AlertTriangle,
   UserPlus,
   Search,
-  Filter
+  Filter,
+  MapPin,
+  Radio
 } from 'lucide-vue-next'
 
 const route = useRoute()
@@ -88,7 +90,16 @@ const editTenantForm = ref({
   has_whatsapp_automation: false,
   has_carrier_portal: false,
   whatsapp_api_url: '',
-  whatsapp_api_token: ''
+  whatsapp_api_token: '',
+  latitude: null,
+  longitude: null,
+  geofence_radius_meters: 1000,
+  require_geofence: false,
+  has_telemetry_integration: false,
+  telemetry_provider: 'Generic_Webhook',
+  telemetry_api_key: '',
+  telemetry_client_id: '',
+  telemetry_endpoint: ''
 })
 
 // Formulário de Novo Armazém
@@ -107,7 +118,16 @@ const newTenantForm = ref({
   grace_period_minutes: 30,
   detention_fee_per_hour: 150.0,
   has_whatsapp_automation: true,
-  has_carrier_portal: true
+  has_carrier_portal: true,
+  latitude: null,
+  longitude: null,
+  geofence_radius_meters: 1000,
+  require_geofence: false,
+  has_telemetry_integration: false,
+  telemetry_provider: 'Generic_Webhook',
+  telemetry_api_key: '',
+  telemetry_client_id: '',
+  telemetry_endpoint: ''
 })
 
 // Formulário de Novo Usuário para Cliente
@@ -257,7 +277,16 @@ function openEditTenantModal(tenant) {
     has_whatsapp_automation: Boolean(tenant.has_whatsapp_automation),
     has_carrier_portal: Boolean(tenant.has_carrier_portal),
     whatsapp_api_url: tenant.whatsapp_api_url || '',
-    whatsapp_api_token: tenant.whatsapp_api_token || ''
+    whatsapp_api_token: tenant.whatsapp_api_token || '',
+    latitude: tenant.latitude ?? null,
+    longitude: tenant.longitude ?? null,
+    geofence_radius_meters: tenant.geofence_radius_meters || 1000,
+    require_geofence: Boolean(tenant.require_geofence),
+    has_telemetry_integration: Boolean(tenant.has_telemetry_integration),
+    telemetry_provider: tenant.telemetry_provider || 'Generic_Webhook',
+    telemetry_api_key: tenant.telemetry_api_key || '',
+    telemetry_client_id: tenant.telemetry_client_id || '',
+    telemetry_endpoint: tenant.telemetry_endpoint || ''
   }
   isEditTenantModalOpen.value = true
 }
@@ -635,7 +664,8 @@ onMounted(() => {
     <!-- =================================================================== -->
     <!-- ABA 1: CLIENTES, CONTRATOS & FATURAMENTO MENSAL                    -->
     <!-- =================================================================== -->
-    <div v-if="activeTab === 'tenants'" class="space-y-4">
+    <transition name="tab-fade" mode="out-in">
+      <div v-if="activeTab === 'tenants'" key="tenants" class="space-y-4">
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         <div
           v-for="tenant in yardStore.tenants"
@@ -757,7 +787,7 @@ onMounted(() => {
     <!-- =================================================================== -->
     <!-- ABA 2: ADMINISTRAÇÃO CENTRAL DE USUÁRIOS                           -->
     <!-- =================================================================== -->
-    <div v-if="activeTab === 'users'" class="space-y-4">
+    <div v-else-if="activeTab === 'users'" key="users" class="space-y-4">
       
       <!-- Barra de Filtros & Busca de Usuários -->
       <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 shadow-lg">
@@ -888,7 +918,7 @@ onMounted(() => {
     <!-- =================================================================== -->
     <!-- ABA 3: MÓDULOS & LICENCIAMENTO GLOBAL                              -->
     <!-- =================================================================== -->
-    <div v-if="activeTab === 'modules'" class="space-y-6">
+    <div v-else-if="activeTab === 'modules'" key="modules" class="space-y-6">
       <div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl space-y-2">
         <h3 class="text-sm font-bold text-white flex items-center space-x-2">
           <Zap class="w-4 h-4 text-amber-400" />
@@ -978,15 +1008,17 @@ onMounted(() => {
         </div>
       </div>
     </div>
+    </transition>
 
     <!-- =================================================================== -->
     <!-- MODAL 1: EDITAR CONTRATO & MENSALIDADE DO CLIENTE                  -->
     <!-- =================================================================== -->
-    <div
-      v-if="isEditTenantModalOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto"
-    >
-      <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl my-8 space-y-6">
+    <transition name="modal">
+      <div
+        v-if="isEditTenantModalOpen"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto"
+      >
+        <div class="modal-panel bg-slate-900 border border-slate-800 rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl my-8 space-y-6">
         <div class="flex items-center justify-between pb-3 border-b border-slate-800">
           <div>
             <h3 class="font-bold text-base text-white">Administração de Contrato & Cobrança</h3>
@@ -1087,6 +1119,90 @@ onMounted(() => {
             </label>
           </div>
 
+          <!-- CERCA ELETRÔNICA & GEOFENCING (LEI 11.442 / ANTIFRAUDE) -->
+          <div class="p-4 bg-slate-950 rounded-2xl border border-slate-800 space-y-3">
+            <div class="flex items-center space-x-2">
+              <MapPin class="w-4 h-4 text-sky-400" />
+              <span class="text-xs font-mono font-bold text-sky-400 uppercase tracking-wider">Cerca Eletrônica & GPS (Lei 11.442)</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">Latitude Pátio</label>
+                <input v-model.number="editTenantForm.latitude" type="number" step="0.000001" placeholder="Ex: -20.3155" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-mono" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">Longitude Pátio</label>
+                <input v-model.number="editTenantForm.longitude" type="number" step="0.000001" placeholder="Ex: -40.3128" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-mono" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">Raio (metros)</label>
+                <input v-model.number="editTenantForm.geofence_radius_meters" type="number" step="100" min="100" placeholder="1000" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-mono" />
+              </div>
+            </div>
+
+            <label class="flex items-center justify-between pt-2 border-t border-slate-900 cursor-pointer">
+              <div>
+                <span class="text-xs font-semibold text-white block">Exigir Presença Física via GPS</span>
+                <span class="text-[11px] text-slate-400">Bloqueia o check-in no celular se o motorista estiver fora do raio</span>
+              </div>
+              <input type="checkbox" v-model="editTenantForm.require_geofence" class="w-5 h-5 accent-sky-500" />
+            </label>
+          </div>
+
+          <!-- TELEMETRIA & RASTREADORES VEICULARES (AUTOTRAC, SASCAR, ONIXSAT, ETC.) -->
+          <div class="p-4 bg-slate-950 rounded-2xl border border-slate-800 space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <Radio class="w-4 h-4 text-emerald-400" />
+                <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-wider">Telemetria de Frotas & Rastreadores</span>
+              </div>
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" v-model="editTenantForm.has_telemetry_integration" class="w-4 h-4 accent-emerald-500" />
+                <span class="text-[11px] font-bold text-slate-300">{{ editTenantForm.has_telemetry_integration ? 'Habilitado' : 'Inativo' }}</span>
+              </label>
+            </div>
+
+            <div v-if="editTenantForm.has_telemetry_integration" class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">Provedor Homologado</label>
+                <select
+                  v-model="editTenantForm.telemetry_provider"
+                  class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
+                >
+                  <option value="Autotrac">Autotrac (API WebServices)</option>
+                  <option value="Sascar">Sascar / Michelin Fleet</option>
+                  <option value="OnixSat">OnixSat / Buonny</option>
+                  <option value="Omnilink">Omnilink / Zatix</option>
+                  <option value="Cobli">Cobli Gestão de Frotas</option>
+                  <option value="Generic_Webhook">Webhook Genérico Open GPS</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">ID da Conta / Código Contrato</label>
+                <input
+                  v-model="editTenantForm.telemetry_client_id"
+                  type="text"
+                  placeholder="Ex: CLI-8849-BR"
+                  class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-mono"
+                />
+              </div>
+
+              <div class="sm:col-span-2">
+                <label class="block text-xs font-semibold text-slate-300 mb-1">
+                  Token do Rastreador Veicular <span class="text-slate-500 font-normal">(Opcional - mapa não requer chave)</span>
+                </label>
+                <input
+                  v-model="editTenantForm.telemetry_api_key"
+                  type="password"
+                  placeholder="Token seguro do provedor Sascar/Autotrac"
+                  class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-mono"
+                />
+              </div>
+            </div>
+          </div>
+
           <!-- Limite de Docas e Multas -->
           <div class="grid grid-cols-3 gap-3">
             <div>
@@ -1122,15 +1238,17 @@ onMounted(() => {
         </form>
       </div>
     </div>
+    </transition>
 
     <!-- =================================================================== -->
     <!-- MODAL 2: RESETAR SENHA DO USUÁRIO                                   -->
     <!-- =================================================================== -->
-    <div
-      v-if="isResetPasswordModalOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
-    >
-      <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
+    <transition name="modal">
+      <div
+        v-if="isResetPasswordModalOpen"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+      >
+        <div class="modal-panel bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
         <div class="flex items-center justify-between pb-3 border-b border-slate-800">
           <div class="flex items-center space-x-2 text-amber-400">
             <KeyRound class="w-5 h-5" />
@@ -1178,15 +1296,17 @@ onMounted(() => {
         </div>
       </div>
     </div>
+    </transition>
 
     <!-- =================================================================== -->
     <!-- MODAL 3: EXCLUIR USUÁRIO                                            -->
     <!-- =================================================================== -->
-    <div
-      v-if="isDeleteUserModalOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
-    >
-      <div class="bg-slate-900 border border-rose-800/80 rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 text-center">
+    <transition name="modal">
+      <div
+        v-if="isDeleteUserModalOpen"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+      >
+        <div class="modal-panel bg-slate-900 border border-rose-800/80 rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 text-center">
         <div class="w-12 h-12 rounded-2xl bg-rose-950/80 border border-rose-700 flex items-center justify-center mx-auto text-rose-400">
           <Trash2 class="w-6 h-6" />
         </div>
@@ -1213,15 +1333,17 @@ onMounted(() => {
         </div>
       </div>
     </div>
+    </transition>
 
     <!-- =================================================================== -->
     <!-- MODAL 4: CADASTRAR NOVO USUÁRIO                                     -->
     <!-- =================================================================== -->
-    <div
-      v-if="isNewUserModalOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto"
-    >
-      <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl my-8 space-y-4">
+    <transition name="modal">
+      <div
+        v-if="isNewUserModalOpen"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto"
+      >
+        <div class="modal-panel bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl my-8 space-y-4">
         <div class="flex items-center justify-between pb-3 border-b border-slate-800">
           <h3 class="font-bold text-base text-white">Cadastrar Usuário para Cliente</h3>
           <button @click="isNewUserModalOpen = false" class="text-slate-400 hover:text-white">
@@ -1312,15 +1434,17 @@ onMounted(() => {
         </form>
       </div>
     </div>
+    </transition>
 
     <!-- =================================================================== -->
     <!-- MODAL 5: PROVISIONAR NOVO ARMAZÉM COM MENSALIDADE LIVRE             -->
     <!-- =================================================================== -->
-    <div
-      v-if="isNewTenantModalOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto"
-    >
-      <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl my-8 space-y-4">
+    <transition name="modal">
+      <div
+        v-if="isNewTenantModalOpen"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto"
+      >
+        <div class="modal-panel bg-slate-900 border border-slate-800 rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl my-8 space-y-4">
         <div class="flex items-center justify-between pb-3 border-b border-slate-800">
           <h3 class="font-bold text-base text-white">Provisionar Cliente (Armazém Logístico)</h3>
           <button @click="isNewTenantModalOpen = false" class="text-slate-400 hover:text-white">
@@ -1420,6 +1544,7 @@ onMounted(() => {
         </form>
       </div>
     </div>
+    </transition>
 
   </div>
 </template>

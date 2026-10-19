@@ -12,7 +12,8 @@ import {
   Clock,
   ArrowRight,
   DoorOpen,
-  Volume2
+  Volume2,
+  Navigation
 } from 'lucide-vue-next'
 
 const route = useRoute()
@@ -28,6 +29,47 @@ const inputCpf = ref('')
 const isConfirming = ref(false)
 const confirmError = ref('')
 let statusPollInterval = null
+
+// Estado de Geolocalização (GPS & Cerca Eletrônica / Lei 11.442)
+const gpsState = ref({
+  loading: false,
+  lat: null,
+  lon: null,
+  accuracy: null,
+  distance: null,
+  validated: false,
+  error: ''
+})
+
+function getDriverCoordinates() {
+  return new Promise((resolve) => {
+    if (!navigator.geolocation) {
+      resolve({ latitude: null, longitude: null, accuracy: null })
+      return
+    }
+    gpsState.value.loading = true
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        gpsState.value.loading = false
+        gpsState.value.lat = pos.coords.latitude
+        gpsState.value.lon = pos.coords.longitude
+        gpsState.value.accuracy = pos.coords.accuracy
+        resolve({
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude,
+          accuracy: pos.coords.accuracy
+        })
+      },
+      (err) => {
+        gpsState.value.loading = false
+        gpsState.value.error = err.message
+        console.warn('Geolocalização não concedida pelo usuário:', err)
+        resolve({ latitude: null, longitude: null, accuracy: null })
+      },
+      { enableHighAccuracy: true, timeout: 6000, maximumAge: 0 }
+    )
+  })
+}
 
 async function fetchStatus() {
   try {
@@ -82,12 +124,18 @@ async function handleConfirm() {
   confirmError.value = ''
   isConfirming.value = true
   try {
+    // Captura coordenadas instantâneas de GPS no momento do check-in
+    const coords = await getDriverCoordinates()
+
     const res = await fetch(`/api/v1/driver/${token}/confirm`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         vehicle_plate: inputPlate.value,
-        driver_cpf: inputCpf.value
+        driver_cpf: inputCpf.value,
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+        accuracy_meters: coords.accuracy
       })
     })
 
@@ -99,6 +147,12 @@ async function handleConfirm() {
     const result = await res.json()
     if (result.qr_code_data) {
       appointmentData.value.qr_code_data = result.qr_code_data
+    }
+    if (result.geofence_validated !== undefined) {
+      appointmentData.value.geofence_validated = result.geofence_validated
+      appointmentData.value.checkin_distance_meters = result.distance_meters
+      gpsState.value.validated = result.geofence_validated
+      gpsState.value.distance = result.distance_formatted
     }
     step.value = 2
   } catch (err) {
@@ -201,12 +255,18 @@ function formatDate(isoStr) {
               </span>
             </div>
 
+            <!-- Cerca Eletrônica / GPS Info -->
+            <div class="p-3 rounded-xl bg-slate-950/80 border border-slate-800 flex items-center space-x-2.5 text-xs text-slate-300">
+              <MapPin class="w-4 h-4 text-sky-400 shrink-0" />
+              <span>Sua presença física no pátio será auditada via GPS para atendimento à Lei 11.442/2007.</span>
+            </div>
+
             <button
               type="submit"
               :disabled="isConfirming"
-              class="w-full bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-sky-500/25 flex items-center justify-center space-x-2 text-sm transition-all active:scale-95 cursor-pointer"
+              class="w-full bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-sky-500/25 flex items-center justify-center space-x-2 text-sm transition-all active:scale-95 cursor-pointer disabled:opacity-50"
             >
-              <span>{{ isConfirming ? 'Validando...' : 'Confirmar e Ver QR Code' }}</span>
+              <span>{{ isConfirming ? (gpsState.loading ? 'Obtendo GPS...' : 'Validando Presença...') : 'Confirmar Presença & Ver QR Code' }}</span>
               <ArrowRight class="w-4 h-4" />
             </button>
           </form>
@@ -215,6 +275,12 @@ function formatDate(isoStr) {
 
       <!-- STEP 2: QR Code e Acompanhamento em Tempo Real -->
       <div v-else-if="step === 2" class="space-y-4 text-center">
+
+        <!-- Badge de Presença Física / GPS (Lei 11.442/2007) -->
+        <div v-if="appointmentData.geofence_validated || gpsState.validated" class="inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-full bg-emerald-950/80 border border-emerald-700/80 text-[11px] font-mono text-emerald-300">
+          <ShieldCheck class="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+          <span>Presença Física Auditada ({{ gpsState.distance || (appointmentData.checkin_distance_meters ? appointmentData.checkin_distance_meters + 'm' : 'No pátio') }}) &bull; Lei 11.442</span>
+        </div>
 
         <!-- ALERTA URGENTE: VEÍCULO CHAMADO PARA A DOCA -->
         <div 

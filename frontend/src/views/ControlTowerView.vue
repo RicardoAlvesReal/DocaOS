@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import { useYardStore } from '../stores/yard'
 import KanbanCard from '../components/KanbanCard.vue'
+import YardMap from '../components/YardMap.vue'
 import { 
   Calendar, 
   Clock, 
@@ -19,10 +20,13 @@ import {
   FileSpreadsheet,
   UploadCloud,
   Download,
-  CheckCircle2
+  CheckCircle2,
+  LayoutGrid,
+  MapPin
 } from 'lucide-vue-next'
 
 const yardStore = useYardStore()
+const activeView = ref('kanban') // 'kanban' | 'map'
 const searchQuery = ref('')
 const selectedCargoFilter = ref('')
 
@@ -213,7 +217,7 @@ async function submitNewSchedule() {
     
     <!-- KPI Summary Bar -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex items-center justify-between shadow-sm">
+      <div class="bg-[#0e1422] border border-slate-800 rounded-xl p-4 flex items-center justify-between">
         <div>
           <p class="text-xs text-slate-400 font-medium">Veículos no Pátio</p>
           <p class="text-2xl font-bold font-mono text-white mt-1">{{ yardStore.totalInYard }}</p>
@@ -223,7 +227,7 @@ async function submitNewSchedule() {
         </div>
       </div>
 
-      <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex items-center justify-between shadow-sm">
+      <div class="bg-[#0e1422] border border-slate-800 rounded-xl p-4 flex items-center justify-between">
         <div>
           <p class="text-xs text-slate-400 font-medium">Docas em Operação</p>
           <div class="flex items-baseline space-x-1 mt-1">
@@ -231,12 +235,12 @@ async function submitNewSchedule() {
             <span class="text-xs text-slate-500 font-mono">/ {{ yardStore.docks.length }}</span>
           </div>
         </div>
-        <div class="w-10 h-10 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center justify-center">
+        <div class="w-10 h-10 rounded-lg bg-sky-500/10 text-sky-400 border border-sky-500/20 flex items-center justify-center">
           <DoorClosed class="w-5 h-5" />
         </div>
       </div>
 
-      <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex items-center justify-between shadow-sm">
+      <div class="bg-[#0e1422] border border-slate-800 rounded-xl p-4 flex items-center justify-between">
         <div>
           <p class="text-xs text-slate-400 font-medium">Alertas de Estadia (SLA)</p>
           <p class="text-2xl font-bold font-mono text-rose-400 mt-1">{{ overdueCount }}</p>
@@ -246,7 +250,7 @@ async function submitNewSchedule() {
         </div>
       </div>
 
-      <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex items-center justify-between shadow-sm">
+      <div class="bg-[#0e1422] border border-slate-800 rounded-xl p-4 flex items-center justify-between">
         <div>
           <p class="text-xs text-slate-400 font-medium">Liberados Hoje</p>
           <p class="text-2xl font-bold font-mono text-emerald-400 mt-1">{{ yardStore.releasedList.length }}</p>
@@ -258,22 +262,42 @@ async function submitNewSchedule() {
     </div>
 
     <!-- Filters & Search Toolbar -->
-    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 bg-[#0e1422] p-3 rounded-xl border border-slate-800">
       <div class="relative w-full sm:w-80">
         <Search class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
         <input
           v-model="searchQuery"
           type="text"
           placeholder="Buscar por placa, transportadora ou motorista..."
-          class="w-full bg-slate-950 border border-slate-700/80 rounded-lg pl-9 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-sky-500"
+          class="w-full bg-[#070a12] border border-slate-800 rounded-lg pl-9 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-sky-500"
         />
       </div>
 
       <div class="flex items-center space-x-2 w-full sm:w-auto">
+        <!-- Alternador de Visão: Kanban vs Mapa GPS -->
+        <div class="flex items-center bg-[#070a12] border border-slate-800 rounded-lg p-0.5 text-xs">
+          <button
+            @click="activeView = 'kanban'"
+            class="flex items-center space-x-1 px-3 py-1.5 rounded text-xs font-semibold transition-all cursor-pointer"
+            :class="activeView === 'kanban' ? 'bg-sky-600 text-white font-bold shadow-md' : 'text-slate-400 hover:text-white'"
+          >
+            <LayoutGrid class="w-3.5 h-3.5" />
+            <span>Kanban</span>
+          </button>
+          <button
+            @click="activeView = 'map'"
+            class="flex items-center space-x-1 px-3 py-1.5 rounded text-xs font-semibold transition-all cursor-pointer"
+            :class="activeView === 'map' ? 'bg-sky-600 text-white font-bold shadow-md' : 'text-slate-400 hover:text-white'"
+          >
+            <MapPin class="w-3.5 h-3.5 text-emerald-400" />
+            <span>Mapa GPS</span>
+          </button>
+        </div>
+
         <Filter class="w-4 h-4 text-slate-400" />
         <select
           v-model="selectedCargoFilter"
-          class="bg-slate-950 border border-slate-700/80 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-sky-500"
+          class="bg-[#070a12] border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-sky-500"
         >
           <option value="">Todas as Cargas</option>
           <option value="Carga Geral">Carga Geral</option>
@@ -284,7 +308,7 @@ async function submitNewSchedule() {
 
         <button
           @click="isBatchModalOpen = true"
-          class="flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all shrink-0 ml-1"
+          class="flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all shrink-0 ml-1"
           title="Importar agendamentos em lote via arquivo CSV"
         >
           <FileSpreadsheet class="w-3.5 h-3.5 text-emerald-400" />
@@ -294,17 +318,22 @@ async function submitNewSchedule() {
 
     </div>
 
+    <!-- Visão Mapa GPS & Cerca Eletrônica -->
+    <div v-if="activeView === 'map'" class="space-y-4">
+      <YardMap height="650px" />
+    </div>
+
     <!-- Kanban Columns Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       
       <!-- 1. Agendados -->
-      <div class="bg-slate-900/40 border border-slate-800/90 rounded-2xl p-3 flex flex-col min-h-[500px]">
-        <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800/80">
+      <div class="bg-[#0b0f19] border border-slate-800 rounded-xl p-3 flex flex-col min-h-[500px]">
+        <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
           <div class="flex items-center space-x-2">
-            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-sm shadow-amber-400/50"></span>
+            <span class="w-2 h-2 rounded-full bg-amber-400"></span>
             <h3 class="font-bold text-sm text-slate-200">1. Agendados</h3>
           </div>
-          <span class="text-xs font-mono font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300">
+          <span class="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-slate-800 text-slate-300">
             {{ filteredScheduled.length }}
           </span>
         </div>
@@ -323,13 +352,13 @@ async function submitNewSchedule() {
       </div>
 
       <!-- 2. Aguardando no Pátio -->
-      <div class="bg-slate-900/40 border border-slate-800/90 rounded-2xl p-3 flex flex-col min-h-[500px]">
-        <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800/80">
+      <div class="bg-[#0b0f19] border border-slate-800 rounded-xl p-3 flex flex-col min-h-[500px]">
+        <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
           <div class="flex items-center space-x-2">
-            <span class="w-2.5 h-2.5 rounded-full bg-sky-400 shadow-sm shadow-sky-400/50"></span>
+            <span class="w-2 h-2 rounded-full bg-sky-400"></span>
             <h3 class="font-bold text-sm text-slate-200">2. No Pátio (Cancela)</h3>
           </div>
-          <span class="text-xs font-mono font-semibold px-2 py-0.5 rounded-full bg-sky-950 text-sky-400 border border-sky-800/60">
+          <span class="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-sky-950 text-sky-400 border border-sky-800">
             {{ filteredWaiting.length }}
           </span>
         </div>
@@ -348,13 +377,13 @@ async function submitNewSchedule() {
       </div>
 
       <!-- 3. Em Doca -->
-      <div class="bg-slate-900/40 border border-slate-800/90 rounded-2xl p-3 flex flex-col min-h-[500px]">
-        <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800/80">
+      <div class="bg-[#0b0f19] border border-slate-800 rounded-xl p-3 flex flex-col min-h-[500px]">
+        <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
           <div class="flex items-center space-x-2">
-            <span class="w-2.5 h-2.5 rounded-full bg-indigo-400 shadow-sm shadow-indigo-400/50"></span>
+            <span class="w-2 h-2 rounded-full bg-sky-400"></span>
             <h3 class="font-bold text-sm text-slate-200">3. Em Doca (Operação)</h3>
           </div>
-          <span class="text-xs font-mono font-semibold px-2 py-0.5 rounded-full bg-indigo-950 text-indigo-400 border border-indigo-800/60">
+          <span class="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-sky-950 text-sky-400 border border-sky-800">
             {{ filteredDocked.length }}
           </span>
         </div>
@@ -373,13 +402,13 @@ async function submitNewSchedule() {
       </div>
 
       <!-- 4. Liberados -->
-      <div class="bg-slate-900/40 border border-slate-800/90 rounded-2xl p-3 flex flex-col min-h-[500px]">
-        <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800/80">
+      <div class="bg-[#0b0f19] border border-slate-800 rounded-xl p-3 flex flex-col min-h-[500px]">
+        <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
           <div class="flex items-center space-x-2">
-            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400/50"></span>
+            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
             <h3 class="font-bold text-sm text-slate-200">4. Liberados / Saída</h3>
           </div>
-          <span class="text-xs font-mono font-semibold px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800/60">
+          <span class="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800">
             {{ filteredReleased.length }}
           </span>
         </div>
@@ -400,12 +429,13 @@ async function submitNewSchedule() {
     </div>
 
     <!-- Modal: Alocação de Doca -->
-    <div 
-      v-if="isAssignDockModalOpen" 
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
-    >
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl">
-        <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
+    <transition name="modal">
+      <div 
+        v-if="isAssignDockModalOpen" 
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4"
+      >
+        <div class="modal-panel bg-[#0e1422] border border-slate-800 rounded-xl max-w-md w-full p-6 shadow-2xl">
+          <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
           <div class="flex items-center space-x-2">
             <DoorClosed class="w-5 h-5 text-sky-400" />
             <h3 class="font-bold text-base text-white">Alocar Doca de Operação</h3>
@@ -456,14 +486,16 @@ async function submitNewSchedule() {
         </div>
       </div>
     </div>
+    </transition>
 
     <!-- Modal: Novo Agendamento (Time Slot) -->
-    <div 
-      v-if="isNewScheduleModalOpen" 
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 overflow-y-auto"
-    >
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-xl w-full p-6 shadow-2xl my-8">
-        <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
+    <transition name="modal">
+      <div 
+        v-if="isNewScheduleModalOpen" 
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 overflow-y-auto"
+      >
+        <div class="modal-panel bg-[#0e1422] border border-slate-800 rounded-xl max-w-xl w-full p-6 shadow-2xl my-8">
+          <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
           <div class="flex items-center space-x-2">
             <Calendar class="w-5 h-5 text-indigo-400" />
             <h3 class="font-bold text-base text-white">Agendar Janela de Horário (Time Slot)</h3>
@@ -625,13 +657,16 @@ async function submitNewSchedule() {
         </form>
       </div>
     </div>
+    </transition>
 
     <!-- Modal Importação em Lote (CSV) -->
-    <div
-      v-if="isBatchModalOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
-    >
-      <div class="bg-slate-900 border border-slate-700/80 rounded-3xl max-w-xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+    <!-- Modal: Importação em Lote (CSV) -->
+    <transition name="modal">
+      <div
+        v-if="isBatchModalOpen"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+      >
+        <div class="modal-panel bg-[#0e1422] border border-slate-800 rounded-xl max-w-xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
         <button
           @click="isBatchModalOpen = false"
           class="absolute top-5 right-5 text-slate-400 hover:text-white cursor-pointer"
@@ -731,6 +766,7 @@ async function submitNewSchedule() {
         </div>
       </div>
     </div>
+    </transition>
 
   </div>
 </template>

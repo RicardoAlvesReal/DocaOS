@@ -12,26 +12,21 @@ import {
   Zap, 
   QrCode, 
   Network, 
-  TrendingUp, 
-  DollarSign, 
   PhoneCall, 
   Mail,
   Building2, 
   ExternalLink,
   ChevronRight,
   X,
-  Play,
   Copy,
   Check,
-  Cpu,
-  Layers,
-  ArrowUpRight,
-  ShieldAlert,
-  Radio,
   FileCheck2,
   Sliders,
-  Send,
-  Sparkles
+  Sparkles,
+  GraduationCap,
+  Cpu,
+  Users,
+  MapPin
 } from 'lucide-vue-next'
 import { useAuthStore } from '../stores/auth'
 
@@ -85,7 +80,7 @@ function handleDemoSubmit() {
   }, 900)
 }
 
-// Calculadora de ROI Interativa Realista
+// Calculadora de ROI Interativa Realista (Lei 11.442/2007)
 const dailyTrucks = ref(45)
 const avgDwellHours = ref(6.5) // horas médias de permanência
 const hourlyFee = ref(160) // R$ por hora excedente além de 5h
@@ -153,112 +148,106 @@ const webhookPayloads = {
       detention_fee_due: 0.00,
       currency: 'BRL'
     }
+  },
+  'telemetry.ping': {
+    event: 'telemetry.gps_received',
+    timestamp: '2026-10-18T14:15:00.000Z',
+    hub_id: 'hub_vitoria_es',
+    data: {
+      provider: 'Autotrac / Sascar / OnixSat / Cobli',
+      vehicle_plate: 'BRA2E19',
+      latitude: -20.3150,
+      longitude: -40.3120,
+      distance_to_yard_meters: 1450,
+      estimated_arrival_minutes: 6,
+      geofence_status: 'APPROACHING'
+    }
   }
 }
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#070b14] text-slate-100 font-sans selection:bg-[#086cfe] selection:text-white relative overflow-x-hidden">
+  <div class="min-h-screen bg-[#070a12] text-slate-100 font-sans selection:bg-sky-500 selection:text-white relative overflow-x-hidden">
 
-    <!-- Grid Técnico Sutil de Fundo (Engineering Dot Matrix) -->
-    <div 
-      class="fixed inset-0 pointer-events-none opacity-20"
-      style="background-image: radial-gradient(circle at 1px 1px, rgba(147, 197, 253, 0.25) 1px, transparent 0); background-size: 32px 32px;"
-    ></div>
-
-    <!-- Iluminação Ambiente de Alta Precisão (Dark Glow) -->
-    <div class="fixed top-0 left-1/2 -translate-x-1/2 w-[900px] h-[450px] bg-gradient-to-b from-[#086cfe]/20 via-blue-700/15 to-transparent rounded-full blur-[140px] pointer-events-none"></div>
-
-    <!-- ================================================================= -->
-    <!-- HEADER / TOPBAR CORPORATIVA                                       -->
-    <!-- ================================================================= -->
-    <header class="border-b border-white/[0.08] bg-[#070b14]/85 backdrop-blur-xl sticky top-0 z-50">
+    <!-- HEADER / TOPBAR CORPORATIVA -->
+    <header class="border-b border-slate-800/80 bg-[#070a12]/95 sticky top-0 z-50">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
         
         <!-- Marca Principal RotaFlow -->
-        <div class="flex items-center space-x-3.5 cursor-pointer" @click="router.push('/')">
-          <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-sky-500/20 to-blue-600/20 border border-sky-400/30 p-1.5 flex items-center justify-center shadow-lg shadow-sky-500/15">
+        <div class="flex items-center space-x-3 cursor-pointer" @click="router.push('/')">
+          <div class="w-10 h-10 rounded-lg bg-sky-500/10 border border-sky-500/20 p-1 flex items-center justify-center">
             <img src="/rotaflow-icon.png" alt="RotaFlow" class="w-full h-full object-contain" />
           </div>
           <div>
             <div class="flex items-center space-x-2">
-              <span class="text-xl font-black tracking-tight text-white">
-                Rota<span class="text-sky-400">Flow</span> <span class="text-sky-400 font-mono text-sm uppercase">YMS</span>
+              <span class="text-xl font-bold tracking-tight text-white">
+                Rota<span class="text-sky-400">Flow</span>
               </span>
-              <span class="text-[9px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-md bg-sky-950/80 text-sky-300 border border-sky-800/80 font-mono">
-                ENTERPRISE
+              <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                YMS
               </span>
             </div>
-            <p class="text-[11px] text-slate-400 font-mono">Gestão de Frotas Privadas &bull; Orquestração de Pátios</p>
+            <p class="text-xs text-slate-400">Gestão de Pátios & Agendamento de Docas</p>
           </div>
         </div>
 
-        <!-- Links de Navegação Técnica -->
-        <nav class="hidden lg:flex items-center space-x-8 text-xs font-semibold uppercase tracking-wider text-slate-400">
+        <!-- Links de Navegação -->
+        <nav class="hidden lg:flex items-center space-x-7 text-xs font-medium text-slate-300">
           <a href="#solucao" class="hover:text-white transition-colors">Visão Operacional</a>
-          <a href="#arquitetura" class="hover:text-white transition-colors">Bento Grid</a>
+          <a href="#arquitetura" class="hover:text-white transition-colors">Engenharia</a>
           <a href="#roi" class="hover:text-white transition-colors">Calculadora Lei 11.442</a>
           <a href="#webhooks" class="hover:text-white transition-colors">Webhooks & ERP</a>
-          <a href="#contato" class="text-sky-400 hover:text-sky-300 transition-colors">Fale com a Engenharia</a>
+          <a href="#servicos" class="hover:text-white transition-colors">Integrações & Treinamento</a>
         </nav>
 
         <!-- CTAs Diretos -->
         <div class="flex items-center space-x-3">
           <button
             @click="handleEnterDemo"
-            class="hidden sm:inline-flex items-center space-x-2 text-xs font-semibold px-4 py-2.5 rounded-xl text-sky-300 hover:text-white bg-sky-950/40 border border-sky-500/30 hover:border-sky-400 transition-all cursor-pointer font-mono shadow-sm"
+            class="hidden sm:inline-flex items-center space-x-2 text-xs font-semibold px-4 py-2.5 rounded-lg text-slate-200 hover:text-white bg-slate-800/80 hover:bg-slate-800 border border-slate-700 transition-all cursor-pointer"
           >
             <Sparkles class="w-3.5 h-3.5 text-sky-400" />
-            <span>Demonstração (Sandbox)</span>
+            <span>Testar Sandbox</span>
           </button>
 
           <router-link
             to="/login"
-            class="hidden sm:inline-flex items-center space-x-2 text-xs font-semibold px-4 py-2.5 rounded-xl text-slate-300 hover:text-white bg-white/[0.04] border border-white/[0.08] hover:border-white/[0.2] transition-all cursor-pointer font-mono"
+            class="hidden sm:inline-flex items-center space-x-2 text-xs font-semibold px-4 py-2.5 rounded-lg text-slate-300 hover:text-white bg-slate-900 border border-slate-800 hover:border-slate-700 transition-all"
           >
             <span>Área do Cliente</span>
           </router-link>
 
           <button
             @click="openWhatsAppDirect()"
-            class="inline-flex items-center space-x-2 text-xs font-bold px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#086cfe] to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white shadow-lg shadow-blue-600/30 active:scale-95 transition-all cursor-pointer uppercase tracking-wider font-mono"
+            class="inline-flex items-center space-x-2 text-xs font-bold px-4 py-2.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white transition-all cursor-pointer"
           >
             <PhoneCall class="w-3.5 h-3.5" />
-            <span>WhatsApp (27) 99617-4965</span>
+            <span>Falar com Engenharia</span>
           </button>
         </div>
 
       </div>
     </header>
 
-    <!-- ================================================================= -->
-    <!-- HERO SECTION DE ENGENHARIA LOGÍSTICA                              -->
-    <!-- ================================================================= -->
-    <section class="relative pt-16 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-12">
+    <!-- HERO SECTION -->
+    <section class="pt-20 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-12">
       
       <div class="text-center space-y-6 max-w-4xl mx-auto">
-        <!-- Badge de Engenharia -->
-        <div class="inline-flex items-center space-x-2.5 bg-white/[0.03] border border-white/[0.1] px-4 py-1.5 rounded-full text-xs font-mono text-slate-300 shadow-xl backdrop-blur-md">
-          <span class="w-2 h-2 rounded-full bg-sky-400 animate-ping"></span>
-          <span class="text-slate-400">Arquitetura de Alta Disponibilidade:</span>
-          <span class="text-sky-300 font-bold">FastAPI + WebSockets + PostgreSQL</span>
-        </div>
-
-        <!-- Headline Cirúrgica -->
-        <h1 class="text-4xl sm:text-6xl font-black text-white tracking-tight leading-[1.12]">
-          Orquestração de pátios logísticos, portaria em 2s e <span class="bg-gradient-to-r from-sky-400 via-blue-300 to-[#086cfe] bg-clip-text text-transparent">blindagem contra sobreestadias</span>.
+        <!-- Headline Direta (duas linhas no máximo, sem gradiente) -->
+        <h1 class="text-4xl sm:text-6xl font-extrabold text-white tracking-tight leading-[1.08] max-w-4xl mx-auto">
+          Orquestração de pátios e blindagem contra sobreestadias.
         </h1>
 
-        <!-- Subheadline Especializada -->
-        <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-normal max-w-3xl mx-auto">
-          O <strong>RotaFlow YMS</strong> elimina gargalos na cancela com check-in sem atrito via WhatsApp, convoca motoristas para docas por telemetria e produz laudos irrefutáveis de <em>Dwell Time</em> sob a <strong>Lei Federal 11.442/2007</strong>.
+        <!-- Statement Parágrafo -->
+        <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-normal max-w-2xl mx-auto">
+          O <strong>RotaFlow YMS</strong> elimina filas na portaria com check-in em segundos, direciona caminhões para docas livres e audita o <em>Dwell Time</em> sob a <strong>Lei Federal 11.442/2007</strong>.
         </p>
 
-        <!-- Botões de Ação Imediata -->
-        <div class="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-2">
+        <!-- Botões de Ação Imediata (Sólidos, sem gradientes) -->
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
           <button
             @click="openWhatsAppDirect('Olá! Gostaria de agendar uma apresentação de 20 minutos do RotaFlow YMS para o nosso terminal logístico.')"
-            class="w-full sm:w-auto flex items-center justify-center space-x-2 bg-[#086cfe] hover:bg-blue-600 text-white text-xs uppercase tracking-wider font-extrabold px-7 py-4 rounded-xl shadow-2xl shadow-blue-600/30 active:scale-95 transition-all cursor-pointer font-mono"
+            class="w-full sm:w-auto flex items-center justify-center space-x-2 bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold px-6 py-3.5 rounded-lg transition-all cursor-pointer"
           >
             <span>Falar com o Time de Engenharia</span>
             <ArrowRight class="w-4 h-4" />
@@ -266,260 +255,210 @@ const webhookPayloads = {
 
           <button
             @click="handleEnterDemo"
-            class="w-full sm:w-auto flex items-center justify-center space-x-2 bg-white/[0.04] hover:bg-white/[0.08] text-slate-200 border border-white/[0.12] hover:border-sky-500/40 text-xs uppercase tracking-wider font-semibold px-6 py-4 rounded-xl shadow-xl transition-all cursor-pointer font-mono"
+            class="w-full sm:w-auto flex items-center justify-center space-x-2 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700/80 text-xs font-semibold px-6 py-3.5 rounded-lg transition-all cursor-pointer"
           >
             <Sparkles class="w-4 h-4 text-sky-400" />
-            <span>Testar Piloto Interativo (Sandbox)</span>
+            <span>Explorar Demonstração Interativa</span>
           </button>
         </div>
 
         <!-- Telemetria Rápida / Prova de Performance -->
-        <div class="pt-6 grid grid-cols-2 md:grid-cols-4 gap-3 text-left max-w-4xl mx-auto font-mono">
-          <div class="bg-white/[0.02] border border-white/[0.08] p-3.5 rounded-xl">
-            <span class="text-[11px] text-slate-500 block uppercase">Tempo de Portaria</span>
-            <span class="text-xl font-bold text-emerald-400">&lt; 40 segundos</span>
-            <span class="text-[10px] text-slate-400 block mt-0.5">com QR Code óptico</span>
+        <div class="pt-8 grid grid-cols-2 md:grid-cols-4 gap-3.5 text-left max-w-4xl mx-auto">
+          <div class="bg-[#0e1422] border border-slate-800 p-4 rounded-xl">
+            <span class="text-xs text-slate-400 block font-medium">Tempo de Portaria</span>
+            <span class="text-2xl font-bold font-mono text-emerald-400 mt-1 block">&lt; 40 segundos</span>
+            <span class="text-xs text-slate-400 block mt-1">com QR Code óptico</span>
           </div>
-          <div class="bg-white/[0.02] border border-white/[0.08] p-3.5 rounded-xl">
-            <span class="text-[11px] text-slate-500 block uppercase">Lei 11.442 / Art 5º-A</span>
-            <span class="text-xl font-bold text-sky-400">Tolerância 5h</span>
-            <span class="text-[10px] text-slate-400 block mt-0.5">auditoria de sobreestadia</span>
+          <div class="bg-[#0e1422] border border-slate-800 p-4 rounded-xl">
+            <span class="text-xs text-slate-400 block font-medium">Lei 11.442 / Art 5º-A</span>
+            <span class="text-2xl font-bold font-mono text-sky-400 mt-1 block">Tolerância 5h</span>
+            <span class="text-xs text-slate-400 block mt-1">relatório auditável</span>
           </div>
-          <div class="bg-white/[0.02] border border-white/[0.08] p-3.5 rounded-xl">
-            <span class="text-[11px] text-slate-500 block uppercase">Taxa de Concorrência</span>
-            <span class="text-xl font-bold text-sky-400">Zero Conflito</span>
-            <span class="text-[10px] text-slate-400 block mt-0.5">trava atômica em docas</span>
+          <div class="bg-[#0e1422] border border-slate-800 p-4 rounded-xl">
+            <span class="text-xs text-slate-400 block font-medium">Ocupação de Docas</span>
+            <span class="text-2xl font-bold font-mono text-white mt-1 block">Zero Conflito</span>
+            <span class="text-xs text-slate-400 block mt-1">reserva atômica de janela</span>
           </div>
-          <div class="bg-white/[0.02] border border-white/[0.08] p-3.5 rounded-xl">
-            <span class="text-[11px] text-slate-500 block uppercase">Disponibilidade</span>
-            <span class="text-xl font-bold text-amber-400">99.9% SLA</span>
-            <span class="text-[10px] text-slate-400 block mt-0.5">infraestrutura dedicada</span>
+          <div class="bg-[#0e1422] border border-slate-800 p-4 rounded-xl">
+            <span class="text-xs text-slate-400 block font-medium">Disponibilidade</span>
+            <span class="text-2xl font-bold font-mono text-white mt-1 block">99.9% SLA</span>
+            <span class="text-xs text-slate-400 block mt-1">telemetria em tempo real</span>
           </div>
         </div>
       </div>
 
-      <!-- =============================================================== -->
-      <!-- PRODUCT SHOWCASE REAL: MOCKUP OPERACIONAL KANBAN + APP MOTORISTA -->
-      <!-- =============================================================== -->
-      <div id="solucao" class="relative pt-6">
-        <div class="relative bg-slate-950/90 border border-white/[0.12] rounded-3xl p-4 sm:p-7 shadow-2xl shadow-sky-950/30 overflow-hidden">
+      <!-- SHOWCASE OPERACIONAL REAL -->
+      <div id="solucao" class="pt-6">
+        <div class="bg-[#0e1422] border border-slate-800 rounded-2xl p-5 sm:p-7">
           
-          <!-- Window Header (Mac / Linux Style) -->
-          <div class="flex items-center justify-between pb-5 border-b border-white/[0.08] mb-6">
-            <div class="flex items-center space-x-3">
-              <div class="flex items-center space-x-1.5">
-                <span class="w-3 h-3 rounded-full bg-rose-500/80 inline-block"></span>
-                <span class="w-3 h-3 rounded-full bg-amber-500/80 inline-block"></span>
-                <span class="w-3 h-3 rounded-full bg-emerald-500/80 inline-block"></span>
-              </div>
-              <span class="text-xs font-mono text-slate-400 pl-2 border-l border-white/[0.1]">
-                RotaFlow YMS Enterprise &bull; Terminal Vitória Hub 01 &bull; Realtime WebSockets
-              </span>
+          <!-- Terminal Header Autêntico (sem fake mac dots) -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-800 mb-6 gap-2">
+            <div class="flex items-center space-x-2 text-xs text-slate-300">
+              <span class="font-bold text-white">ROTAFLOW YMS</span>
+              <span class="text-slate-600">&bull;</span>
+              <span>TERMINAL VITÓRIA HUB 01</span>
+              <span class="text-slate-600">&bull;</span>
+              <span class="text-slate-400">TELEMETRIA EM TEMPO REAL</span>
             </div>
 
-            <div class="flex items-center space-x-2 text-xs font-mono text-emerald-400 bg-emerald-950/60 border border-emerald-800/80 px-2.5 py-1 rounded-lg">
+            <div class="flex items-center space-x-2 text-xs text-emerald-400 bg-emerald-950/60 border border-emerald-800/80 px-2.5 py-1 rounded">
               <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
               <span>CANAL AO VIVO ATIVO</span>
             </div>
           </div>
 
-          <!-- Grid Interno da Interface: 3 Colunas Kanban + Telemetria Lateral -->
+          <!-- Grid Interno: 3 Colunas Kanban + Telemetria Lateral -->
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
             
-            <!-- Colunas Kanban (9 Colunas) -->
+            <!-- Colunas Kanban -->
             <div class="lg:col-span-8 grid grid-cols-1 sm:grid-cols-3 gap-3.5">
               
-              <!-- Coluna 1: Aguardando no Pátio -->
-              <div class="bg-slate-900/60 border border-white/[0.06] rounded-2xl p-3.5 space-y-3">
-                <div class="flex items-center justify-between text-xs font-mono">
+              <!-- Coluna 1: No Pátio -->
+              <div class="bg-[#070a12] border border-slate-800 rounded-xl p-3.5 space-y-3">
+                <div class="flex items-center justify-between text-xs">
                   <span class="font-bold text-amber-400 flex items-center space-x-1.5">
                     <span class="w-2 h-2 rounded-full bg-amber-400"></span>
                     <span>NO PÁTIO (12)</span>
                   </span>
-                  <span class="text-slate-500 text-[10px]">Fila de Espera</span>
+                  <span class="text-slate-400 text-xs">Fila de Espera</span>
                 </div>
 
                 <!-- Card 1 -->
-                <div class="bg-slate-950 border border-amber-500/30 rounded-xl p-3 space-y-2 shadow-sm">
+                <div class="bg-[#0e1422] border border-amber-500/30 rounded-lg p-3 space-y-2">
                   <div class="flex items-start justify-between">
                     <div>
-                      <span class="text-[10px] font-mono text-slate-400 uppercase">Cavalo Mecânico</span>
+                      <span class="text-xs text-slate-400">Cavalo Mecânico</span>
                       <p class="font-mono font-bold text-xs text-white">BRA2E19 &bull; Scania 450</p>
                     </div>
-                    <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-amber-950/80 text-amber-300 border border-amber-800">
+                    <span class="text-xs font-mono px-1.5 py-0.5 rounded bg-amber-950/80 text-amber-300 border border-amber-800">
                       02h 45m
                     </span>
                   </div>
-                  <p class="text-[11px] text-slate-300">Braspress &bull; Carga Fracionada</p>
-                  <div class="flex items-center justify-between pt-1 border-t border-white/[0.06] text-[10px] font-mono text-slate-400">
-                    <span>Doca Prevista: #04</span>
-                    <span class="text-emerald-400 font-semibold">Tolerância OK</span>
+                  <div class="text-xs text-slate-400">
+                    <p>Braspress &bull; Carga Geral</p>
+                    <p class="text-amber-400 text-xs mt-0.5">Janela SLA: 02h 15m restantes</p>
                   </div>
                 </div>
 
                 <!-- Card 2 -->
-                <div class="bg-slate-950 border border-white/[0.08] rounded-xl p-3 space-y-2">
+                <div class="bg-[#0e1422] border border-slate-800 rounded-lg p-3 space-y-2">
                   <div class="flex items-start justify-between">
                     <div>
-                      <span class="text-[10px] font-mono text-slate-400 uppercase">Bitrem Granel</span>
-                      <p class="font-mono font-bold text-xs text-white">RDO8X11 &bull; Volvo FH</p>
+                      <span class="text-xs text-slate-400">Carreta Baú</span>
+                      <p class="font-mono font-bold text-xs text-white">RTE8H22 &bull; Volvo FH</p>
                     </div>
-                    <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-300">
-                      01h 12m
+                    <span class="text-xs font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                      01h 10m
                     </span>
                   </div>
-                  <p class="text-[11px] text-slate-300">Jamef Encomendas</p>
-                  <div class="flex items-center justify-between pt-1 border-t border-white/[0.06] text-[10px] font-mono text-slate-400">
-                    <span>Doca Prevista: #02</span>
-                    <span class="text-emerald-400 font-semibold">Tolerância OK</span>
+                  <div class="text-xs text-slate-400">
+                    <p>Jamef Encomendas</p>
                   </div>
                 </div>
-
               </div>
 
-              <!-- Coluna 2: Em Doca / Operação -->
-              <div class="bg-slate-900/60 border border-white/[0.06] rounded-2xl p-3.5 space-y-3">
-                <div class="flex items-center justify-between text-xs font-mono">
+              <!-- Coluna 2: Em Operação de Doca -->
+              <div class="bg-[#070a12] border border-slate-800 rounded-xl p-3.5 space-y-3">
+                <div class="flex items-center justify-between text-xs">
                   <span class="font-bold text-sky-400 flex items-center space-x-1.5">
                     <span class="w-2 h-2 rounded-full bg-sky-400"></span>
                     <span>EM DOCA (8)</span>
                   </span>
-                  <span class="text-slate-500 text-[10px]">Carga/Descarga</span>
+                  <span class="text-slate-400 text-xs">Carga/Descarga</span>
                 </div>
 
-                <!-- Card Doca 03 -->
-                <div class="bg-slate-950 border border-sky-500/30 rounded-xl p-3 space-y-2 shadow-sm">
+                <!-- Card Ativo Doca 04 -->
+                <div class="bg-[#0e1422] border border-sky-500/30 rounded-lg p-3 space-y-2">
                   <div class="flex items-start justify-between">
                     <div>
-                      <span class="text-[10px] font-mono text-sky-400 font-bold uppercase">Doca #03 - Descarga</span>
-                      <p class="font-mono font-bold text-xs text-white">MEC9K82 &bull; Carreta Baú</p>
+                      <span class="text-xs font-bold text-sky-400">DOCA 04</span>
+                      <p class="font-mono font-bold text-xs text-white">FLW9A31 &bull; DAF XF</p>
                     </div>
-                    <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-sky-950/80 text-sky-300 border border-sky-800 animate-pulse">
-                      OPERANDO
+                    <span class="text-xs font-mono px-1.5 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-800">
+                      00h 42m
                     </span>
                   </div>
-                  <p class="text-[11px] text-slate-300">DirectLog &bull; 850 Volumes</p>
-                  <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                    <div class="bg-gradient-to-r from-sky-400 to-indigo-500 h-full w-[65%]"></div>
-                  </div>
-                  <div class="flex items-center justify-between text-[10px] font-mono text-slate-400 pt-0.5">
-                    <span>SLA: 45 min restantes</span>
-                    <span class="text-sky-300 font-bold">65% concluído</span>
+                  <div class="text-xs text-slate-400">
+                    <p>Patrus Transportes</p>
+                    <p class="text-emerald-400 text-xs mt-0.5">Descarga: 65% concluída</p>
                   </div>
                 </div>
 
-                <!-- Card Doca 05 -->
-                <div class="bg-slate-950 border border-white/[0.08] rounded-xl p-3 space-y-2">
+                <!-- Card Ativo Doca 07 -->
+                <div class="bg-[#0e1422] border border-slate-800 rounded-lg p-3 space-y-2">
                   <div class="flex items-start justify-between">
                     <div>
-                      <span class="text-[10px] font-mono text-slate-400 uppercase">Doca #05 - Carga</span>
-                      <p class="font-mono font-bold text-xs text-white">SPK4L77 &bull; Sider 28 Paletes</p>
+                      <span class="text-xs font-bold text-sky-400">DOCA 07</span>
+                      <p class="font-mono font-bold text-xs text-white">LOG4C55 &bull; MB Actros</p>
                     </div>
-                    <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-300">
-                      Iniciando
+                    <span class="text-xs font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                      01h 15m
                     </span>
                   </div>
-                  <p class="text-[11px] text-slate-300">Translog Brasil Express</p>
-                  <div class="flex items-center justify-between pt-1 border-t border-white/[0.06] text-[10px] font-mono text-slate-400">
-                    <span>Conferência cega iniciada</span>
+                  <div class="text-xs text-slate-400">
+                    <p>Reiterlog &bull; Congelados</p>
                   </div>
                 </div>
-
               </div>
 
-              <!-- Coluna 3: Liberados / Concluídos -->
-              <div class="bg-slate-900/60 border border-white/[0.06] rounded-2xl p-3.5 space-y-3">
-                <div class="flex items-center justify-between text-xs font-mono">
+              <!-- Coluna 3: Concluídos Hoje -->
+              <div class="bg-[#070a12] border border-slate-800 rounded-xl p-3.5 space-y-3">
+                <div class="flex items-center justify-between text-xs">
                   <span class="font-bold text-emerald-400 flex items-center space-x-1.5">
                     <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                    <span>LIBERADOS (34)</span>
+                    <span>LIBERADOS (38)</span>
                   </span>
-                  <span class="text-slate-500 text-[10px]">Cancela Exit</span>
+                  <span class="text-slate-400 text-xs">Hoje</span>
                 </div>
 
-                <!-- Card Liberado Sem Taxa -->
-                <div class="bg-slate-950 border border-emerald-500/20 rounded-xl p-3 space-y-2">
-                  <div class="flex items-start justify-between">
-                    <div>
-                      <span class="text-[10px] font-mono text-emerald-400 uppercase">Check-out OK</span>
-                      <p class="font-mono font-bold text-xs text-white">VIX1J99 &bull; Truck 14T</p>
-                    </div>
-                    <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800">
-                      R$ 0,00 Taxa
-                    </span>
+                <div class="bg-[#0e1422] border border-emerald-500/20 rounded-lg p-3 space-y-1.5">
+                  <div class="flex items-center justify-between">
+                    <span class="font-mono font-bold text-xs text-white">KMT7B12</span>
+                    <span class="text-xs text-emerald-400 font-mono">1h 55m total</span>
                   </div>
-                  <p class="text-[11px] text-slate-300">Permanência Total: 01h 48m</p>
-                  <div class="text-[10px] font-mono text-slate-500">
-                    Laudo digital gerado e auditado
-                  </div>
+                  <p class="text-xs text-slate-400">FedEx Brasil &bull; Saída 14:10</p>
+                  <p class="text-xs text-emerald-400">Laudo Conforme Lei 11.442</p>
                 </div>
-
-                <!-- Card com Alerta de SLA Evitado -->
-                <div class="bg-slate-950 border border-sky-500/20 rounded-xl p-3 space-y-2">
-                  <div class="flex items-start justify-between">
-                    <div>
-                      <span class="text-[10px] font-mono text-sky-400 uppercase">Auditoria Fechada</span>
-                      <p class="font-mono font-bold text-xs text-white">BHZ3M44 &bull; Carreta</p>
-                    </div>
-                    <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-sky-950 text-sky-300">
-                      04h 15m
-                    </span>
-                  </div>
-                  <p class="text-[11px] text-slate-300">Evitou multa de R$ 320,00</p>
-                  <div class="text-[10px] font-mono text-emerald-400 font-bold">
-                    Liberado 45m antes do limite legal
-                  </div>
-                </div>
-
               </div>
 
             </div>
 
-            <!-- Coluna Lateral: Mockup do Smartphone do Motorista (4 Colunas) -->
-            <div class="lg:col-span-4 bg-slate-900 border border-white/[0.08] rounded-2xl p-4 flex flex-col justify-between space-y-4">
-              
-              <div class="space-y-2">
-                <div class="flex items-center space-x-2 text-xs font-mono text-sky-400 font-bold uppercase">
-                  <QrCode class="w-4 h-4" />
-                  <span>PWA do Motorista (Zero Login)</span>
-                </div>
-                <p class="text-xs text-slate-300">
-                  O motorista recebe um link no WhatsApp. Sem cadastrar senhas, abre o passe digital no celular:
-                </p>
-              </div>
-
-              <!-- Bezel do Celular -->
-              <div class="mx-auto w-full max-w-[260px] bg-slate-950 border-2 border-slate-700/80 rounded-[28px] p-3 shadow-2xl space-y-3 font-mono text-center">
-                <!-- Notch -->
-                <div class="w-16 h-3 bg-slate-800 rounded-full mx-auto"></div>
-
-                <div class="space-y-1">
-                  <p class="text-[10px] text-slate-400 uppercase">RotaFlow Digital Pass</p>
-                  <p class="text-xs font-bold text-white">Placa: BRA2E19</p>
+            <!-- Telemetria Lateral: Dispositivo do Motorista -->
+            <div class="lg:col-span-4 bg-[#070a12] border border-slate-800 rounded-xl p-4 flex flex-col justify-between space-y-4">
+              <div>
+                <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
+                  <span class="text-xs font-bold text-white">VISÃO DO MOTORISTA (PWA)</span>
+                  <span class="text-xs text-slate-400">WhatsApp Direct</span>
                 </div>
 
-                <!-- Status de Chamada Ativa -->
-                <div class="bg-[#001c3d]/90 border border-[#086cfe]/50 p-2.5 rounded-xl text-left space-y-1">
-                  <div class="flex items-center space-x-1.5 text-[10px] font-bold text-sky-300 uppercase">
-                    <Radio class="w-3 h-3 text-sky-400 animate-pulse" />
-                    <span>DIRIJA-SE À DOCA AGORA</span>
+                <div class="bg-[#0e1422] border border-slate-800 rounded-lg p-3 space-y-2 text-xs">
+                  <div class="flex items-center justify-between">
+                    <span class="text-slate-400">Motorista:</span>
+                    <span class="text-white font-medium">Marcos V. Silva</span>
                   </div>
-                  <p class="text-xs font-black text-white">DOCA #04 &bull; SETOR SECOS</p>
-                  <p class="text-[9px] text-slate-300">Tolerância de apresentação: 10 min</p>
+                  <div class="flex items-center justify-between">
+                    <span class="text-slate-400">Placa:</span>
+                    <span class="font-mono font-bold text-white">BRA2E19</span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-slate-400">Doca Designada:</span>
+                    <span class="font-bold text-sky-400">Doca 04</span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-slate-400">Notificação:</span>
+                    <span class="text-emerald-400 font-semibold">Enviada via WhatsApp</span>
+                  </div>
                 </div>
-
-                <!-- QR Code Simulado de Alta Precisão -->
-                <div class="bg-white p-3 rounded-xl mx-auto w-28 h-28 flex items-center justify-center shadow-md">
-                  <QrCode class="w-24 h-24 text-slate-900" />
-                </div>
-                <p class="text-[9px] text-slate-400">Aproxime na cancela para liberação automática</p>
               </div>
 
-              <div class="pt-2 border-t border-white/[0.08] flex items-center justify-between text-xs font-mono text-slate-400">
-                <span>Notificação WhatsApp:</span>
-                <span class="text-emerald-400 font-bold">Entregue (2 seg)</span>
+              <div class="pt-2">
+                <button
+                  @click="handleEnterDemo"
+                  class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold py-2.5 rounded-lg border border-slate-700 transition-colors cursor-pointer text-center"
+                >
+                  Abrir Simulador Completo
+                </button>
               </div>
-
             </div>
 
           </div>
@@ -529,17 +468,14 @@ const webhookPayloads = {
 
     </section>
 
-    <!-- ================================================================= -->
-    <!-- BENTO GRID: ARQUITETURA TÉCNICA E DIFERENCIAIS CORPORATIVOS       -->
-    <!-- ================================================================= -->
+    <!-- ARQUITETURA & SUBSTÂNCIA -->
     <section id="arquitetura" class="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-12">
       
       <div class="text-center space-y-3 max-w-3xl mx-auto">
-        <span class="text-xs font-mono font-bold uppercase tracking-widest text-sky-400">Arquitetura Corporativa de Ponta a Ponta</span>
         <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-          Por que grandes frotas e operadores logísticos adotam o RotaFlow?
+          Arquitetura projetada para a realidade da operação logística.
         </h2>
-        <p class="text-sm text-slate-400">
+        <p class="text-base text-slate-300">
           Substitua planilhas paralelas e conflitos de rádio por uma esteira de dados auditável e automatizada.
         </p>
       </div>
@@ -547,59 +483,56 @@ const webhookPayloads = {
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         
         <!-- Bento 1: Lei 11.442/2007 (Destaque Grande 2 Colunas) -->
-        <div class="md:col-span-2 bg-gradient-to-br from-slate-900/90 via-slate-950 to-sky-950/20 border border-white/[0.08] hover:border-sky-500/40 rounded-3xl p-8 space-y-5 transition-all">
-          <div class="w-12 h-12 rounded-2xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400">
-            <FileCheck2 class="w-6 h-6" />
+        <div class="md:col-span-2 bg-[#0e1422] border border-slate-800 rounded-2xl p-8 space-y-5">
+          <div class="w-10 h-10 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
+            <FileCheck2 class="w-5 h-5" />
           </div>
           <div class="space-y-2">
-            <div class="inline-flex items-center space-x-2 text-[10px] font-mono uppercase tracking-wider text-sky-300 font-bold px-2.5 py-0.5 rounded-full bg-sky-950/80 border border-sky-800">
-              Blindagem Jurídica & Tributária
-            </div>
             <h3 class="text-2xl font-bold text-white">
-              Cálculo Irrefutável de Estadia (Lei Federal 11.442/2007, Art. 5º-A)
+              Cálculo de Estadia sob a Lei Federal 11.442/2007 (Art. 5º-A)
             </h3>
             <p class="text-sm text-slate-300 leading-relaxed">
-              Evite cobranças arbitrárias de demurrage e horas paradas por transportadoras. O RotaFlow calcula exatamente a tolerância legal de 5 horas a partir do carimbo de tempo da portaria e emite relatórios com valor por tonelada/hora formatados para contestação ou pagamento transparente.
+              Evite cobranças arbitrárias de horas paradas por transportadoras. O RotaFlow calcula exatamente a tolerância legal de 5 horas a partir do carimbo de tempo da portaria e emite relatórios com valor por tonelada/hora formatados para contestação ou pagamento transparente.
             </p>
           </div>
 
           <!-- Memorial de Auditoria Simulado -->
-          <div class="bg-black/50 border border-white/[0.08] p-4 rounded-2xl font-mono text-xs space-y-2">
-            <div class="flex items-center justify-between text-slate-400 border-b border-white/[0.08] pb-2 text-[11px]">
-              <span>RELATÓRIO DE PERMANÊNCIA AUDITADO</span>
-              <span class="text-emerald-400">STATUS: CONFORME</span>
+          <div class="bg-[#070a12] border border-slate-800 p-4 rounded-xl text-xs space-y-2">
+            <div class="flex items-center justify-between text-slate-400 border-b border-slate-800 pb-2">
+              <span class="font-medium text-slate-300">RELATÓRIO DE PERMANÊNCIA AUDITADO</span>
+              <span class="text-emerald-400 font-semibold">CONFORME LEI</span>
             </div>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1 text-[11px]">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1 text-xs">
               <div>
-                <span class="text-slate-500 block">Check-in Portaria</span>
-                <span class="text-white font-bold">14:15:22</span>
+                <span class="text-slate-400 block">Check-in Portaria</span>
+                <span class="text-white font-mono font-bold">14:15:22</span>
               </div>
               <div>
-                <span class="text-slate-500 block">Início Doca</span>
-                <span class="text-white font-bold">15:02:10</span>
+                <span class="text-slate-400 block">Início Doca</span>
+                <span class="text-white font-mono font-bold">15:02:10</span>
               </div>
               <div>
-                <span class="text-slate-500 block">Check-out Saída</span>
-                <span class="text-white font-bold">18:10:05</span>
+                <span class="text-slate-400 block">Check-out Saída</span>
+                <span class="text-white font-mono font-bold">18:10:05</span>
               </div>
               <div>
-                <span class="text-slate-500 block">Dwell Time Total</span>
-                <span class="text-sky-300 font-bold">03h 54m (&lt; 5h)</span>
+                <span class="text-slate-400 block">Dwell Time Total</span>
+                <span class="text-sky-300 font-mono font-bold">03h 54m (&lt; 5h)</span>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Bento 2: Concorrência Atômica de Docas -->
-        <div class="bg-slate-900/90 border border-white/[0.08] hover:border-sky-500/40 rounded-3xl p-8 space-y-4 transition-all">
-          <div class="w-12 h-12 rounded-2xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400">
-            <Warehouse class="w-6 h-6" />
+        <div class="bg-[#0e1422] border border-slate-800 rounded-2xl p-8 space-y-4">
+          <div class="w-10 h-10 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
+            <Warehouse class="w-5 h-5" />
           </div>
           <h3 class="text-xl font-bold text-white">Trava Atômica de Docas</h3>
           <p class="text-xs text-slate-300 leading-relaxed">
             Impedimento via banco de dados relacional de agendamento duplicado. Duas carretas nunca disputam a mesma janela, eliminando atritos no pátio.
           </p>
-          <ul class="space-y-2 text-xs font-mono text-slate-400 pt-2">
+          <ul class="space-y-2 text-xs text-slate-400 pt-2">
             <li class="flex items-center space-x-2">
               <Check class="w-3.5 h-3.5 text-emerald-400" />
               <span>Separação por tipo de carga (Frio/Seco)</span>
@@ -616,43 +549,43 @@ const webhookPayloads = {
         </div>
 
         <!-- Bento 3: Importação em Lote CSV -->
-        <div class="bg-slate-900/90 border border-white/[0.08] hover:border-emerald-500/40 rounded-3xl p-8 space-y-4 transition-all">
-          <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-            <FileSpreadsheet class="w-6 h-6" />
+        <div class="bg-[#0e1422] border border-slate-800 rounded-2xl p-8 space-y-4">
+          <div class="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+            <FileSpreadsheet class="w-5 h-5" />
           </div>
           <h3 class="text-xl font-bold text-white">Importação Massiva CSV</h3>
           <p class="text-xs text-slate-300 leading-relaxed">
-            Agende 200 caminhões em segundos. Faça upload direto da planilha da sua transportadora com validação imediata de placas Mercosul e telefones.
+            Agende dezenas de carretas com um clique. Faça upload direto da planilha da sua transportadora com validação imediata de placas Mercosul e telefones.
           </p>
-          <div class="bg-black/40 border border-white/[0.06] p-3 rounded-xl font-mono text-[11px] text-slate-400">
-            <span class="text-emerald-400 font-bold">200 agendamentos</span> processados em 1.2 segundos com sanitização de CPF e telefone.
+          <div class="bg-[#070a12] border border-slate-800 p-3 rounded-lg text-xs text-slate-400">
+            <span class="text-emerald-400 font-bold">200 agendamentos</span> processados em 1.2 segundos com sanitização imediata.
           </div>
         </div>
 
-        <!-- Bento 4: Portaria Inteligente OCR/QR (Destaque 2 Colunas) -->
-        <div class="md:col-span-2 bg-gradient-to-tr from-slate-900/90 via-slate-950 to-sky-950/20 border border-white/[0.08] hover:border-sky-500/40 rounded-3xl p-8 space-y-4 transition-all">
+        <!-- Bento 4: Portaria Inteligente OCR/QR -->
+        <div class="md:col-span-2 bg-[#0e1422] border border-slate-800 rounded-2xl p-8 space-y-4">
           <div class="flex items-center justify-between">
-            <div class="w-12 h-12 rounded-2xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400">
-              <Zap class="w-6 h-6" />
+            <div class="w-10 h-10 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
+              <Zap class="w-5 h-5" />
             </div>
-            <span class="text-xs font-mono text-slate-400">Cancela de Entrada e Saída</span>
+            <span class="text-xs text-slate-400 font-medium">Cancela de Entrada e Saída</span>
           </div>
           <h3 class="text-2xl font-bold text-white">Portaria & Cancela em 2 Segundos</h3>
           <p class="text-sm text-slate-300 leading-relaxed">
-            Elimine as pranchetas e filas na rodovia. O operador da portaria apenas aponta o leitor para o QR Code no celular do motorista ou digita os 3 dígitos da placa. O sistema valida os documentos, registra o horário legal e abre a cancela imediatamente.
+            Elimine as pranchetas e filas na rodovia. O operador da portaria aponta o leitor para o QR Code no celular do motorista ou digita a placa. O sistema valida os documentos, registra o horário legal e autoriza a entrada.
           </p>
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 text-xs font-mono">
-            <div class="bg-black/40 border border-white/[0.06] p-3 rounded-xl">
-              <span class="text-slate-500 block">Check-in</span>
-              <span class="text-white font-bold">Entrada registrada</span>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 text-xs">
+            <div class="bg-[#070a12] border border-slate-800 p-3 rounded-lg">
+              <span class="text-slate-400 block text-xs">Check-in</span>
+              <span class="text-white font-semibold">Entrada registrada</span>
             </div>
-            <div class="bg-black/40 border border-white/[0.06] p-3 rounded-xl">
-              <span class="text-slate-500 block">Convocação</span>
-              <span class="text-sky-400 font-bold">Doca sinalizada</span>
+            <div class="bg-[#070a12] border border-slate-800 p-3 rounded-lg">
+              <span class="text-slate-400 block text-xs">Convocação</span>
+              <span class="text-sky-400 font-semibold">Doca sinalizada</span>
             </div>
-            <div class="bg-black/40 border border-white/[0.06] p-3 rounded-xl">
-              <span class="text-slate-500 block">Check-out</span>
-              <span class="text-emerald-400 font-bold">Cancela liberada</span>
+            <div class="bg-[#070a12] border border-slate-800 p-3 rounded-lg">
+              <span class="text-slate-400 block text-xs">Check-out</span>
+              <span class="text-emerald-400 font-semibold">Cancela liberada</span>
             </div>
           </div>
         </div>
@@ -661,29 +594,26 @@ const webhookPayloads = {
 
     </section>
 
-    <!-- ================================================================= -->
-    <!-- CALCULADORA DE ROI: SIMULAÇÃO FINANCEIRA INTERATIVA               -->
-    <!-- ================================================================= -->
+    <!-- CALCULADORA DE ROI (A Coisa Viva / Substance) -->
     <section id="roi" class="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-      <div class="bg-gradient-to-br from-[#001c3d]/80 via-slate-900 to-sky-950/40 border border-[#086cfe]/40 rounded-3xl p-8 sm:p-12 shadow-2xl">
+      <div class="bg-[#0e1422] border border-slate-800 rounded-2xl p-8 sm:p-12">
         
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
           
-          <!-- Controles / Sliders (6 Colunas) -->
+          <!-- Controles / Sliders -->
           <div class="lg:col-span-6 space-y-6">
             <div class="space-y-2">
-              <span class="text-xs font-mono font-bold uppercase tracking-wider text-sky-400">Simulador de Economia Operacional</span>
               <h2 class="text-3xl font-extrabold text-white">Quanto o seu pátio perde por mês em sobreestadias?</h2>
-              <p class="text-xs text-slate-300 leading-relaxed">
+              <p class="text-sm text-slate-300 leading-relaxed">
                 Ajuste os parâmetros da sua operação e calcule a redução de custos proporcionada pelo RotaFlow sob a Lei 11.442/2007.
               </p>
             </div>
 
             <!-- Slider 1: Carretas por dia -->
-            <div class="space-y-2 bg-slate-950/60 p-4 rounded-2xl border border-white/[0.06]">
-              <div class="flex items-center justify-between text-xs font-mono">
-                <span class="text-slate-300 font-semibold">Volume de Carretas / Dia</span>
-                <span class="text-sky-400 font-bold text-sm">{{ dailyTrucks }} carretas</span>
+            <div class="space-y-2 bg-[#070a12] p-4 rounded-xl border border-slate-800">
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-slate-300 font-medium">Volume de Carretas / Dia</span>
+                <span class="text-sky-400 font-bold font-mono text-sm">{{ dailyTrucks }} carretas</span>
               </div>
               <input 
                 v-model.number="dailyTrucks" 
@@ -691,19 +621,19 @@ const webhookPayloads = {
                 min="10" 
                 max="250" 
                 step="5"
-                class="w-full accent-[#086cfe] cursor-pointer"
+                class="w-full accent-sky-500 cursor-pointer"
               />
-              <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+              <div class="flex justify-between text-xs text-slate-400">
                 <span>10 carretas</span>
                 <span>250 carretas/dia</span>
               </div>
             </div>
 
             <!-- Slider 2: Tempo Médio de Permanência -->
-            <div class="space-y-2 bg-slate-950/60 p-4 rounded-2xl border border-white/[0.06]">
-              <div class="flex items-center justify-between text-xs font-mono">
-                <span class="text-slate-300 font-semibold">Permanência Média no Pátio (Dwell Time)</span>
-                <span class="text-amber-400 font-bold text-sm">{{ avgDwellHours }} horas</span>
+            <div class="space-y-2 bg-[#070a12] p-4 rounded-xl border border-slate-800">
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-slate-300 font-medium">Permanência Média no Pátio (Dwell Time)</span>
+                <span class="text-amber-400 font-bold font-mono text-sm">{{ avgDwellHours }} horas</span>
               </div>
               <input 
                 v-model.number="avgDwellHours" 
@@ -713,18 +643,18 @@ const webhookPayloads = {
                 step="0.5"
                 class="w-full accent-amber-500 cursor-pointer"
               />
-              <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+              <div class="flex justify-between text-xs text-slate-400">
                 <span>3h (Sem multa)</span>
                 <span>Tolerância Legal: 5h</span>
                 <span>12h de pátio</span>
               </div>
             </div>
 
-            <!-- Slider 3: Valor da Hora Parada (Demurrage) -->
-            <div class="space-y-2 bg-slate-950/60 p-4 rounded-2xl border border-white/[0.06]">
-              <div class="flex items-center justify-between text-xs font-mono">
-                <span class="text-slate-300 font-semibold">Custo da Hora Excedente / Carreta</span>
-                <span class="text-emerald-400 font-bold text-sm">R$ {{ hourlyFee }}/hora</span>
+            <!-- Slider 3: Custo Hora Parada -->
+            <div class="space-y-2 bg-[#070a12] p-4 rounded-xl border border-slate-800">
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-slate-300 font-medium">Custo da Hora Excedente / Carreta</span>
+                <span class="text-emerald-400 font-bold font-mono text-sm">R$ {{ hourlyFee }}/hora</span>
               </div>
               <input 
                 v-model.number="hourlyFee" 
@@ -734,7 +664,7 @@ const webhookPayloads = {
                 step="10"
                 class="w-full accent-emerald-500 cursor-pointer"
               />
-              <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+              <div class="flex justify-between text-xs text-slate-400">
                 <span>R$ 80</span>
                 <span>Média Brasil: R$ 160</span>
                 <span>R$ 300</span>
@@ -743,44 +673,44 @@ const webhookPayloads = {
 
           </div>
 
-          <!-- Resultado Financeiro (6 Colunas) -->
-          <div class="lg:col-span-6 bg-slate-950/90 border border-white/[0.12] rounded-3xl p-7 sm:p-8 space-y-6 shadow-2xl">
-            <div class="flex items-center justify-between border-b border-white/[0.08] pb-4">
-              <span class="text-xs font-mono uppercase tracking-wider text-slate-400">Impacto Financeiro Estimado</span>
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800">
-                PROJEÇÃO BASE 22 DIAS ÚTEIS
+          <!-- Resultado Financeiro -->
+          <div class="lg:col-span-6 bg-[#070a12] border border-slate-800 rounded-xl p-7 sm:p-8 space-y-6">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+              <span class="text-xs uppercase font-medium text-slate-400">Impacto Financeiro Estimado</span>
+              <span class="text-xs px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 font-medium">
+                BASE 22 DIAS ÚTEIS
               </span>
             </div>
 
             <div class="space-y-1">
-              <span class="text-xs font-mono text-slate-400 block uppercase">Economia Mensal Direta Estimada</span>
-              <p class="text-4xl sm:text-5xl font-black text-emerald-400 font-mono tracking-tight">
+              <span class="text-xs text-slate-400 block">Economia Mensal Direta Estimada</span>
+              <p class="text-4xl sm:text-5xl font-extrabold text-emerald-400 font-mono tracking-tight">
                 {{ formatBRL(calculatedRoi.monthlySavings) }}
               </p>
-              <p class="text-[11px] text-slate-400 font-mono">
-                Economia em estadias indevidas evitadas e ganho de capacidade de giro de doca.
+              <p class="text-xs text-slate-400">
+                Economia em estadias indevidas evitadas e ganho de giro de doca.
               </p>
             </div>
 
-            <div class="grid grid-cols-2 gap-3 pt-4 border-t border-white/[0.08] font-mono text-xs">
-              <div class="bg-white/[0.02] p-3 rounded-xl border border-white/[0.06]">
-                <span class="text-slate-500 block text-[10px]">Custo Atual sem YMS</span>
-                <span class="text-rose-400 font-bold text-base">{{ formatBRL(calculatedRoi.monthlyCost) }}</span>
-                <span class="text-[9px] text-slate-500 block">exposição a disputas</span>
+            <div class="grid grid-cols-2 gap-3 pt-4 border-t border-slate-800 text-xs">
+              <div class="bg-[#0e1422] p-3 rounded-lg border border-slate-800">
+                <span class="text-slate-400 block text-xs">Custo Atual sem YMS</span>
+                <span class="text-rose-400 font-bold font-mono text-base">{{ formatBRL(calculatedRoi.monthlyCost) }}</span>
+                <span class="text-xs text-slate-400 block">exposição a disputas</span>
               </div>
-              <div class="bg-white/[0.02] p-3 rounded-xl border border-white/[0.06]">
-                <span class="text-slate-500 block text-[10px]">Horas Recuperadas / Ano</span>
-                <span class="text-sky-400 font-bold text-base">{{ calculatedRoi.hoursSavedPerYear }} horas</span>
-                <span class="text-[9px] text-slate-500 block">de tempo útil de pátio</span>
+              <div class="bg-[#0e1422] p-3 rounded-lg border border-slate-800">
+                <span class="text-slate-400 block text-xs">Horas Recuperadas / Ano</span>
+                <span class="text-sky-400 font-bold font-mono text-base">{{ calculatedRoi.hoursSavedPerYear }} horas</span>
+                <span class="text-xs text-slate-400 block">de tempo útil de pátio</span>
               </div>
             </div>
 
             <button
               @click="openWhatsAppDirect(`Olá! Simulei a economia de ${formatBRL(calculatedRoi.monthlySavings)}/mês na calculadora do RotaFlow para ${dailyTrucks} carretas/dia. Gostaria de entender a implantação.`)"
-              class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-mono font-bold text-xs uppercase tracking-wider py-4 px-6 rounded-xl shadow-xl shadow-emerald-600/25 flex items-center justify-center space-x-2 transition-all cursor-pointer"
+              class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider py-4 px-6 rounded-lg flex items-center justify-center space-x-2 transition-all cursor-pointer"
             >
               <PhoneCall class="w-4 h-4" />
-              <span>Validar Estudo de Caso com Especialista</span>
+              <span>Validar Estudo com Especialista</span>
             </button>
           </div>
 
@@ -789,42 +719,39 @@ const webhookPayloads = {
       </div>
     </section>
 
-    <!-- ================================================================= -->
-    <!-- INTEGRAÇÃO COM ERP & WEBHOOKS REALISTAS                           -->
-    <!-- ================================================================= -->
+    <!-- INTEGRAÇÃO COM ERP & WEBHOOKS -->
     <section id="webhooks" class="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-10">
       
       <div class="text-center space-y-3 max-w-3xl mx-auto">
-        <span class="text-xs font-mono font-bold uppercase tracking-widest text-indigo-400">Conectividade & API REST</span>
         <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-          Integrado com SAP, TOTVS Protheus, Senior e Oracle WMS
+          Integrado com ERPs & Rastreadores de Frota.
         </h2>
-        <p class="text-sm text-slate-400">
-          Disparos instantâneos com assinatura criptográfica HMAC-SHA256 para manter seu ERP sincronizado em cada movimentação da carreta.
+        <p class="text-base text-slate-300">
+          Disparos instantâneos com assinatura criptográfica HMAC-SHA256 para SAP, TOTVS, Senior e conectores prontos para telemetria veicular (Autotrac, Sascar, OnixSat, Omnilink, Cobli).
         </p>
       </div>
 
       <!-- Simulador de Payload JSON -->
-      <div class="bg-slate-950 border border-white/[0.1] rounded-3xl p-6 sm:p-8 max-w-4xl mx-auto shadow-2xl font-mono text-xs">
+      <div class="bg-[#070a12] border border-slate-800 rounded-xl p-6 sm:p-8 max-w-4xl mx-auto text-xs">
         
         <!-- Tabs de Eventos -->
-        <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-white/[0.08]">
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-800">
           <div class="flex items-center space-x-2">
-            <span class="text-slate-500 text-xs">Evento Webhook:</span>
+            <span class="text-slate-400 text-xs">Evento:</span>
             <button
-              v-for="evt in ['gate.checkin', 'dock.called', 'gate.checkout']"
+              v-for="evt in ['gate.checkin', 'dock.called', 'gate.checkout', 'telemetry.ping']"
               :key="evt"
               @click="activeWebhookEvent = evt"
-              class="px-3 py-1.5 rounded-lg text-xs transition-colors cursor-pointer"
-              :class="activeWebhookEvent === evt ? 'bg-[#086cfe] text-white font-bold' : 'bg-slate-900 text-slate-400 hover:text-white'"
+              class="px-3 py-1.5 rounded text-xs transition-colors cursor-pointer"
+              :class="activeWebhookEvent === evt ? 'bg-sky-600 text-white font-bold' : 'bg-[#0e1422] text-slate-400 hover:text-white'"
             >
               {{ evt }}
             </button>
           </div>
 
-          <div class="flex items-center space-x-2 text-[11px] text-emerald-400">
+          <div class="flex items-center space-x-2 text-xs text-emerald-400 font-medium">
             <CheckCircle2 class="w-3.5 h-3.5" />
-            <span>Assinatura HMAC: X-RotaFlow-Signature</span>
+            <span>Assinatura HMAC & Telemetria JSON</span>
           </div>
         </div>
 
@@ -833,8 +760,8 @@ const webhookPayloads = {
           <pre class="font-mono text-sky-300"><code>{{ JSON.stringify(webhookPayloads[activeWebhookEvent], null, 2) }}</code></pre>
         </div>
 
-        <div class="pt-4 border-t border-white/[0.08] flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-500 gap-2">
-          <span>Tempo médio de entrega do webhook: <strong>140ms</strong></span>
+        <div class="pt-4 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-2">
+          <span>Tempo médio de entrega do webhook: <strong class="text-white">140ms</strong></span>
           <span>Retentativa automática com Exponential Backoff (5 tentativas)</span>
         </div>
 
@@ -842,69 +769,180 @@ const webhookPayloads = {
 
     </section>
 
-    <!-- ================================================================= -->
-    <!-- ÁREA DE CONTATO OFICIAL & ENGENHARIA RAOS TECNOLOGIA              -->
-    <!-- ================================================================= -->
-    <section id="contato" class="py-20 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
-      <div class="bg-gradient-to-tr from-[#001c3d]/90 via-slate-900 to-sky-950/50 border border-[#086cfe]/40 rounded-3xl p-8 sm:p-14 shadow-2xl space-y-8 text-center relative overflow-hidden">
-        
-        <!-- Glow Top -->
-        <div class="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-96 bg-[#086cfe]/20 rounded-full blur-[100px] pointer-events-none"></div>
+    <!-- SERVIÇOS: INTEGRAÇÃO DE APIS & TREINAMENTO DE EQUIPES (REMOTO E LOCAL) -->
+    <section id="servicos" class="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-12">
+      
+      <div class="text-center space-y-3 max-w-3xl mx-auto">
+        <div class="inline-flex items-center space-x-2 bg-sky-950/80 border border-sky-800 px-3.5 py-1 rounded-full text-xs font-mono font-semibold text-sky-400">
+          <GraduationCap class="w-3.5 h-3.5" />
+          <span>Engenharia Direta & Capacitação</span>
+        </div>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+          Integrações de APIs e Treinamentos Feitos Pela Própria Empresa Desenvolvedora
+        </h2>
+        <p class="text-base text-slate-300">
+          A <strong>RAOS Tecnologia</strong> não entrega apenas um software. Desenvolvemos as integrações com seu ERP e capacitamos toda a sua equipe com atendimento <strong>remoto</strong> ou <strong>presencial / local no seu pátio</strong>.
+        </p>
+      </div>
 
-        <div class="space-y-3 relative z-10 max-w-2xl mx-auto">
-          <div class="inline-flex items-center space-x-2 bg-sky-950/80 border border-sky-700/80 px-3 py-1 rounded-full text-xs font-mono text-sky-300 font-bold uppercase">
-            <Building2 class="w-3.5 h-3.5" />
-            <span>Canal Direto com a Engenharia & Negócios</span>
+      <!-- Grid dos 2 grandes pilares -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+        
+        <!-- Card 1: Integração com APIs e ERPs -->
+        <div class="bg-[#0e1422] border border-slate-800 rounded-2xl p-7 sm:p-8 flex flex-col justify-between space-y-6">
+          <div class="space-y-4">
+            <div class="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-400 flex items-center justify-center">
+              <Cpu class="w-6 h-6" />
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-white mb-2">Integração de APIs & Conectores ERP</h3>
+              <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                Nossos engenheiros cuidam do ciclo completo de integração com o ecossistema do seu negócio (SAP, TOTVS Protheus, Senior, Oracle WMS, Sankhya ou banco legado).
+              </p>
+            </div>
+
+            <div class="space-y-3 pt-2 border-t border-slate-800/80">
+              <div class="flex items-start space-x-3 text-xs text-slate-300">
+                <CheckCircle2 class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                <div>
+                  <strong class="text-white block">Atendimento Remoto:</strong>
+                  <span>Acesso seguro via VPN, mapeamento de webhooks e homologação completa em ambiente Sandbox com testes de ponta a ponta.</span>
+                </div>
+              </div>
+
+              <div class="flex items-start space-x-3 text-xs text-slate-300">
+                <CheckCircle2 class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                <div>
+                  <strong class="text-white block">Atendimento Presencial / Local:</strong>
+                  <span>Engenheiros no local para integrar servidores de portaria física, balanças rodoviárias, cancelas automatizadas e leitores ópticos fixos.</span>
+                </div>
+              </div>
+            </div>
           </div>
-          <h2 class="text-3xl sm:text-4xl font-black text-white">
+
+          <div class="pt-4 border-t border-slate-800 text-[11px] font-mono text-slate-400">
+            SLA de homologação assistida por engenheiro de software sênior
+          </div>
+        </div>
+
+        <!-- Card 2: Treinamento Operacional de Equipes -->
+        <div class="bg-[#0e1422] border border-slate-800 rounded-2xl p-7 sm:p-8 flex flex-col justify-between space-y-6">
+          <div class="space-y-4">
+            <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center">
+              <Users class="w-6 h-6" />
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-white mb-2">Treinamento e Capacitação Operacional</h3>
+              <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                Capacitação sob medida para fiscais de guarita, operadores de docas, conferentes de pátio e coordenadores de logística, garantindo transição sem pausas no pátio.
+              </p>
+            </div>
+
+            <div class="space-y-3 pt-2 border-t border-slate-800/80">
+              <div class="flex items-start space-x-3 text-xs text-slate-300">
+                <CheckCircle2 class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                <div>
+                  <strong class="text-white block">Treinamento Remoto:</strong>
+                  <span>Sessões online interativas, simulações em tempo real com leitor virtual e materiais de consulta rápida em PDF para a portaria.</span>
+                </div>
+              </div>
+
+              <div class="flex items-start space-x-3 text-xs text-slate-300">
+                <CheckCircle2 class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                <div>
+                  <strong class="text-white block">Treinamento Presencial / Local:</strong>
+                  <span>Instrutores no seu armazém treinando as equipes na prática e acompanhando a operação real no dia de virada do sistema (Go-Live).</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-slate-800 text-[11px] font-mono text-slate-400">
+            Acompanhamento presencial no primeiro dia de operação real
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Banner de Ação para Contratação -->
+      <div class="bg-[#070a12] border border-slate-800 rounded-2xl p-6 sm:p-8 max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div class="flex items-start space-x-4">
+          <div class="p-3 rounded-xl bg-sky-500/10 text-sky-400 shrink-0 mt-1">
+            <MapPin class="w-6 h-6" />
+          </div>
+          <div class="space-y-1">
+            <h4 class="text-base font-bold text-white">Precisa de integração com seu ERP ou treinamento no seu pátio?</h4>
+            <p class="text-xs text-slate-300">
+              Alinhe escopo, prazos e modalidade (remota ou presencial) diretamente com quem constrói a plataforma.
+            </p>
+          </div>
+        </div>
+
+        <button
+          @click="openWhatsAppDirect('Olá! Gostaria de falar sobre a contratação de integração com nosso ERP e treinamento local/remoto da equipe com a engenharia da RAOS Tecnologia.')"
+          class="shrink-0 w-full sm:w-auto inline-flex items-center justify-center space-x-2 bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold px-6 py-3.5 rounded-xl transition-all shadow-lg shadow-sky-600/20 active:scale-95 cursor-pointer"
+        >
+          <PhoneCall class="w-4 h-4" />
+          <span>Falar com o Time de Engenharia</span>
+        </button>
+      </div>
+
+    </section>
+
+    <!-- ÁREA DE CONTATO OFICIAL RAOS TECNOLOGIA -->
+    <section id="contato" class="py-20 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+      <div class="bg-[#0e1422] border border-slate-800 rounded-2xl p-8 sm:p-14 space-y-8 text-center">
+        
+        <div class="space-y-3 max-w-2xl mx-auto">
+          <h2 class="text-3xl sm:text-4xl font-extrabold text-white">
             Pronto para transformar a eficiência do seu pátio?
           </h2>
-          <p class="text-sm text-slate-300 leading-relaxed">
+          <p class="text-base text-slate-300 leading-relaxed">
             Fale diretamente com os engenheiros responsáveis pelo desenvolvimento da plataforma RotaFlow na <strong>RAOS Tecnologia</strong>.
           </p>
         </div>
 
         <!-- Cards de Contato Oficiais (WhatsApp + E-mail) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto pt-2 relative z-10 text-left font-mono">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto pt-2 text-left">
           
           <!-- Card WhatsApp -->
           <a
             :href="`https://api.whatsapp.com/send?phone=55${contactInfo.whatsappRaw}&text=Ol%C3%A1!%20Gostaria%20de%20falar%20com%20a%20RAOS%20Tecnologia%20sobre%20o%20RotaFlow%20YMS.`"
             target="_blank"
-            class="bg-slate-950/90 border border-emerald-500/30 hover:border-emerald-500 p-5 rounded-2xl space-y-3 transition-all group block shadow-lg hover:shadow-emerald-950/30"
+            class="bg-[#070a12] border border-slate-800 hover:border-emerald-500/50 p-5 rounded-xl space-y-3 transition-all group block"
           >
             <div class="flex items-center justify-between">
-              <span class="text-xs text-slate-400 uppercase font-semibold">WhatsApp & Telefone</span>
-              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span class="text-xs text-slate-400 font-medium">WhatsApp & Telefone</span>
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
             </div>
-            <p class="text-xl font-bold text-white group-hover:text-emerald-400 transition-colors">
+            <p class="text-xl font-bold font-mono text-white group-hover:text-emerald-400 transition-colors">
               {{ contactInfo.whatsappDisplay }}
             </p>
-            <div class="flex items-center space-x-1.5 text-xs text-emerald-400 font-sans font-semibold">
+            <div class="flex items-center space-x-1.5 text-xs text-emerald-400 font-semibold">
               <PhoneCall class="w-3.5 h-3.5" />
               <span>Iniciar conversa no WhatsApp &rarr;</span>
             </div>
           </a>
 
           <!-- Card E-mail -->
-          <div class="bg-slate-950/90 border border-[#086cfe]/30 hover:border-[#086cfe] p-5 rounded-2xl space-y-3 transition-all shadow-lg">
+          <div class="bg-[#070a12] border border-slate-800 hover:border-sky-500/50 p-5 rounded-xl space-y-3 transition-all">
             <div class="flex items-center justify-between">
-              <span class="text-xs text-slate-400 uppercase font-semibold">E-mail Corporativo</span>
+              <span class="text-xs text-slate-400 font-medium">E-mail Corporativo</span>
               <button 
                 @click="copyEmail" 
-                class="text-xs text-slate-400 hover:text-white flex items-center space-x-1 cursor-pointer font-sans"
+                class="text-xs text-slate-400 hover:text-white flex items-center space-x-1 cursor-pointer"
               >
                 <Check v-if="copiedEmail" class="w-3.5 h-3.5 text-emerald-400" />
                 <Copy v-else class="w-3.5 h-3.5" />
                 <span>{{ copiedEmail ? 'Copiado!' : 'Copiar' }}</span>
               </button>
             </div>
-            <p class="text-base font-bold text-white truncate">
+            <p class="text-base font-bold text-white truncate font-mono">
               {{ contactInfo.email }}
             </p>
             <a 
               :href="`mailto:${contactInfo.email}`"
-              class="flex items-center space-x-1.5 text-xs text-sky-400 hover:text-sky-300 font-sans font-semibold"
+              class="flex items-center space-x-1.5 text-xs text-sky-400 hover:text-sky-300 font-semibold"
             >
               <Mail class="w-3.5 h-3.5" />
               <span>Enviar e-mail para a equipe &rarr;</span>
@@ -914,10 +952,10 @@ const webhookPayloads = {
         </div>
 
         <!-- CNPJ e Garantia -->
-        <div class="pt-4 text-xs font-mono text-slate-400 relative z-10 flex flex-wrap items-center justify-center gap-4">
-          <span>Empresa: <strong>RAOS Tecnologia</strong></span>
+        <div class="pt-4 text-xs text-slate-400 flex flex-wrap items-center justify-center gap-4">
+          <span>Empresa: <strong class="text-white">RAOS Tecnologia</strong></span>
           <span>&bull;</span>
-          <span>CNPJ: <strong>66.914.167/0001-76</strong></span>
+          <span>CNPJ: <strong class="text-white">66.914.167/0001-76</strong></span>
           <span>&bull;</span>
           <span class="text-emerald-400">Atendimento Técnico em Todo o Brasil</span>
         </div>
@@ -925,23 +963,21 @@ const webhookPayloads = {
       </div>
     </section>
 
-    <!-- ================================================================= -->
-    <!-- FOOTER INSTITUCIONAL RAOS TECNOLOGIA                              -->
-    <!-- ================================================================= -->
-    <footer class="border-t border-white/[0.08] bg-slate-950 py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-white/[0.06]">
+    <!-- FOOTER INSTITUCIONAL RAOS TECNOLOGIA -->
+    <footer class="border-t border-slate-800 bg-[#050811] py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-slate-800">
         
         <!-- Coluna 1 & 2: Logomarca RotaFlow + Crédito RAOS Desenvolvedora -->
         <div class="md:col-span-2 space-y-4">
           <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500/20 to-blue-600/20 border border-sky-400/30 p-1.5 flex items-center justify-center shadow-md shadow-sky-500/10">
+            <div class="w-9 h-9 rounded-lg bg-sky-500/10 border border-sky-500/20 p-1 flex items-center justify-center">
               <img src="/rotaflow-icon.png" alt="RotaFlow YMS" class="w-full h-full object-contain" />
             </div>
             <div>
-              <span class="text-xl font-black text-white">
-                Rota<span class="text-sky-400">Flow</span> <span class="text-sky-400 font-mono text-sm">YMS</span>
+              <span class="text-xl font-bold text-white">
+                Rota<span class="text-sky-400">Flow</span> <span class="text-slate-400 text-xs">YMS</span>
               </span>
-              <p class="text-[11px] text-slate-400 font-mono">Yard Management System & Orquestração de Pátios</p>
+              <p class="text-xs text-slate-400">Yard Management System & Orquestração de Pátios</p>
             </div>
           </div>
           <p class="text-xs text-slate-400 leading-relaxed max-w-md">
@@ -949,23 +985,24 @@ const webhookPayloads = {
           </p>
 
           <!-- Selo Oficial: Desenvolvido por RAOS Tecnologia -->
-          <div class="pt-3">
-            <p class="text-[10px] uppercase font-bold tracking-wider text-slate-500 font-mono mb-2">Desenvolvido e Mantido por</p>
-            <div class="inline-flex items-center space-x-4 bg-white p-2.5 rounded-2xl border border-slate-200 shadow-md">
-              <img src="/raos-logomarca.png" alt="RAOS Tecnologia" class="h-7 w-auto object-contain" />
-              <div class="border-l border-slate-200 pl-3 text-[11px] text-slate-800 leading-tight font-mono">
-                <span class="font-extrabold block text-slate-900">CNPJ: 66.914.167/0001-76</span>
-                <span class="text-[10px] text-slate-600">Engenharia de Software Corporativa</span>
+          <div class="pt-2">
+            <p class="text-xs font-semibold text-slate-400 mb-2">Desenvolvido e Mantido por</p>
+            <div class="inline-flex items-center space-x-4 bg-white p-2.5 rounded-xl border border-slate-200">
+              <img src="/raos-logomarca.png" alt="RAOS Tecnologia" class="h-6 w-auto object-contain" />
+              <div class="border-l border-slate-200 pl-3 text-xs text-slate-800 leading-tight">
+                <span class="font-bold block text-slate-900">CNPJ: 66.914.167/0001-76</span>
+                <span class="text-xs text-slate-600">Engenharia de Software Corporativa</span>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Coluna 3: Plataforma Operacional -->
-        <div class="space-y-3 font-mono text-xs">
-          <h4 class="font-bold uppercase tracking-wider text-white">Módulos da Plataforma</h4>
+        <div class="space-y-3 text-xs">
+          <h4 class="font-bold text-white">Módulos da Plataforma</h4>
           <ul class="space-y-2 text-slate-400">
             <li><router-link to="/app" class="hover:text-sky-400 transition-colors">Torre de Controle (Kanban)</router-link></li>
+            <li><router-link to="/mapa" class="hover:text-sky-400 transition-colors">Mapa do Pátio & Cerca GPS</router-link></li>
             <li><router-link to="/docas" class="hover:text-sky-400 transition-colors">Ocupação de Docas</router-link></li>
             <li><router-link to="/portaria" class="hover:text-sky-400 transition-colors">Portaria & Cancela QR</router-link></li>
             <li><router-link to="/relatorios" class="hover:text-sky-400 transition-colors">Auditoria Dwell Time & SLA</router-link></li>
@@ -974,13 +1011,13 @@ const webhookPayloads = {
         </div>
 
         <!-- Coluna 4: Contatos & Governança -->
-        <div class="space-y-3 font-mono text-xs">
-          <h4 class="font-bold uppercase tracking-wider text-white">Contato & Governança</h4>
+        <div class="space-y-3 text-xs">
+          <h4 class="font-bold text-white">Contato & Governança</h4>
           <ul class="space-y-2 text-slate-400">
             <li><span class="text-white font-bold">RAOS Tecnologia</span></li>
             <li><span>CNPJ: 66.914.167/0001-76</span></li>
             <li><span class="text-emerald-400 font-semibold">WhatsApp: (27) 99617-4965</span></li>
-            <li><span class="text-slate-300">contato@raostecnologia.com.br</span></li>
+            <li><span class="text-slate-300 font-mono">contato@raostecnologia.com.br</span></li>
             <li class="pt-1">
               <router-link to="/admin/login" class="text-sky-400 hover:text-sky-300 font-bold transition-colors">
                 Portal Super Admin RAOS &rarr;
@@ -991,7 +1028,7 @@ const webhookPayloads = {
 
       </div>
 
-      <div class="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 font-mono gap-4">
+      <div class="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-4">
         <p>&copy; {{ new Date().getFullYear() }} RotaFlow YMS. Todos os direitos reservados. Desenvolvido por <strong>RAOS Tecnologia</strong>.</p>
         <div class="flex items-center space-x-4">
           <span>CNPJ: 66.914.167/0001-76</span>

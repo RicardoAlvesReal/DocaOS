@@ -35,6 +35,19 @@ class Tenant(Base):
     whatsapp_api_token = Column(String(255), nullable=True)
     whatsapp_instance = Column(String(100), nullable=True)
 
+    # Geolocalização & Cerca Eletrônica (Geofencing / Lei 11.442)
+    latitude = Column(Float, nullable=True)  # Latitude do galpão/centro de distribuição
+    longitude = Column(Float, nullable=True)  # Longitude do galpão/centro de distribuição
+    geofence_radius_meters = Column(Integer, default=1000, nullable=False)  # Raio permitido em metros
+    require_geofence = Column(Boolean, default=False, nullable=False)  # Se True, bloqueia check-in fora do raio
+
+    # Integração com Rastreadores de Frota / Telemetria (Autotrac, Sascar, OnixSat, Omnilink, Cobli)
+    has_telemetry_integration = Column(Boolean, default=False, nullable=False)
+    telemetry_provider = Column(String(100), default="Generic_Webhook", nullable=True)
+    telemetry_api_key = Column(String(255), nullable=True)
+    telemetry_client_id = Column(String(255), nullable=True)
+    telemetry_endpoint = Column(String(255), nullable=True)
+
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
 

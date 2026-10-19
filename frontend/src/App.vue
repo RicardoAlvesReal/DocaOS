@@ -90,8 +90,10 @@ function openNewUserModal() {
           : 'lg:pl-64 xl:pl-72 flex flex-col min-h-screen p-4 sm:p-6 lg:p-8 transition-all'
       ]"
     >
-      <router-view v-slot="{ Component }">
-        <component :is="Component" ref="controlTowerRef" />
+      <router-view v-slot="{ Component, route: currentRoute }">
+        <transition name="page-fade" mode="out-in">
+          <component :is="Component" :key="currentRoute.path" ref="controlTowerRef" />
+        </transition>
       </router-view>
     </main>
 

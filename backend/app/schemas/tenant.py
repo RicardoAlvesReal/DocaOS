@@ -23,6 +23,15 @@ class TenantBase(BaseModel):
     whatsapp_api_url: Optional[str] = None
     whatsapp_api_token: Optional[str] = None
     whatsapp_instance: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    geofence_radius_meters: Optional[int] = 1000
+    require_geofence: Optional[bool] = False
+    has_telemetry_integration: Optional[bool] = False
+    telemetry_provider: Optional[str] = "Generic_Webhook"
+    telemetry_api_key: Optional[str] = None
+    telemetry_client_id: Optional[str] = None
+    telemetry_endpoint: Optional[str] = None
 
 
 class TenantCreate(TenantBase):
@@ -47,6 +56,15 @@ class TenantUpdate(BaseModel):
     whatsapp_api_url: Optional[str] = None
     whatsapp_api_token: Optional[str] = None
     whatsapp_instance: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    geofence_radius_meters: Optional[int] = None
+    require_geofence: Optional[bool] = None
+    has_telemetry_integration: Optional[bool] = None
+    telemetry_provider: Optional[str] = None
+    telemetry_api_key: Optional[str] = None
+    telemetry_client_id: Optional[str] = None
+    telemetry_endpoint: Optional[str] = None
 
 
 class TenantResponse(TenantBase):

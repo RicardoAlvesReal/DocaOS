@@ -243,6 +243,9 @@ def export_yard_csv(
         "Estouro de SLA",
         "Taxa Hora Parada (R$)",
         "Custo Estadia Estimado (R$)",
+        "Auditoria GPS Presença",
+        "Distância Pátio (m)",
+        "Coordenadas GPS",
         "Observações"
     ])
 
@@ -252,6 +255,10 @@ def export_yard_csv(
     for s in schedules:
         metrics = calculate_schedule_metrics(s, tenant, now)
         dock_name = s.dock.name if s.dock else "Não alocada"
+
+        gps_status = "PRESENÇA CONFIRMADA (GPS)" if s.geofence_validated else ("FORA DO RAIO" if s.checkin_distance_meters is not None else "SEM GPS / PORTARIA FÍSICA")
+        gps_dist = f"{s.checkin_distance_meters:.0f}" if s.checkin_distance_meters is not None else "-"
+        gps_coords = f"{s.checkin_latitude:.5f}, {s.checkin_longitude:.5f}" if s.checkin_latitude and s.checkin_longitude else "-"
 
         writer.writerow([
             str(s.id),
@@ -279,6 +286,9 @@ def export_yard_csv(
             "SIM" if metrics["is_overdue"] else "NÃO",
             f"{tenant.detention_fee_per_hour:.2f}".replace(".", ","),
             f"{metrics['detention_fee']:.2f}".replace(".", ","),
+            gps_status,
+            gps_dist,
+            gps_coords,
             (s.notes or "").replace("\n", " ")
         ])
 

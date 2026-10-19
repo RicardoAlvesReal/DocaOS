@@ -11,7 +11,9 @@ import {
   User,
   Phone,
   Truck,
-  ExternalLink
+  ExternalLink,
+  ShieldCheck,
+  MapPin
 } from 'lucide-vue-next'
 
 const props = defineProps({
@@ -124,25 +126,25 @@ async function advanceStatus() {
 
 <template>
   <div 
-    class="bg-slate-900/90 rounded-xl p-4 border transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5 group"
+    class="bg-[#0e1422] rounded-lg p-3.5 border transition-all duration-150"
     :class="[
       isOverdue 
-        ? 'border-rose-600/60 shadow-rose-950/20 bg-gradient-to-b from-slate-900 to-rose-950/20' 
-        : 'border-slate-800 hover:border-slate-700 shadow-slate-950/40'
+        ? 'border-rose-600/70 bg-[#160d14]' 
+        : 'border-slate-800 hover:border-slate-700'
     ]"
   >
     <!-- Card Header: Placa e SLA Badge -->
-    <div class="flex items-start justify-between mb-2.5">
+    <div class="flex items-start justify-between mb-2">
       <div>
-        <div class="flex items-center space-x-2">
-          <span class="font-mono text-base font-bold text-white tracking-wider bg-slate-800 px-2 py-0.5 rounded border border-slate-700">
+        <div class="flex items-center space-x-1.5">
+          <span class="font-mono text-sm font-bold text-white tracking-wider bg-slate-800 px-2 py-0.5 rounded border border-slate-700">
             {{ schedule.vehicle_plate }}
           </span>
           <span v-if="schedule.trailer_plate" class="text-xs font-mono text-slate-400">
             + {{ schedule.trailer_plate }}
           </span>
         </div>
-        <p class="text-xs font-medium text-slate-300 mt-1 truncate max-w-[180px]">
+        <p class="text-xs font-medium text-slate-300 mt-1 truncate max-w-[170px]">
           {{ schedule.carrier_name }}
         </p>
       </div>
@@ -176,6 +178,13 @@ async function advanceStatus() {
         <span class="text-slate-500">Doca:</span>
         <span class="text-sky-400 font-semibold bg-sky-950/60 px-1.5 py-0.5 rounded border border-sky-800/60">
           {{ schedule.dock_name }}
+        </span>
+      </div>
+      <div v-if="schedule.geofence_validated" class="flex items-center justify-between">
+        <span class="text-slate-500">Presença:</span>
+        <span class="text-emerald-400 font-mono text-[11px] flex items-center space-x-1" title="Presença física auditada por GPS">
+          <ShieldCheck class="w-3 h-3 text-emerald-400" />
+          <span>GPS Auditado ({{ schedule.checkin_distance_meters ? schedule.checkin_distance_meters + 'm' : 'Pátio' }})</span>
         </span>
       </div>
     </div>

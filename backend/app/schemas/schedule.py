@@ -60,6 +60,11 @@ class ScheduleResponse(ScheduleBase):
     docked_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
     departed_at: Optional[datetime] = None
+    checkin_latitude: Optional[float] = None
+    checkin_longitude: Optional[float] = None
+    checkin_accuracy_meters: Optional[float] = None
+    checkin_distance_meters: Optional[float] = None
+    geofence_validated: Optional[bool] = False
     created_at: datetime
     updated_at: datetime
     driver_access_url: Optional[str] = None

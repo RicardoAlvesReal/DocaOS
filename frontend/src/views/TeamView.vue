@@ -402,11 +402,12 @@ onMounted(() => {
     </div>
 
     <!-- Modal de Cadastro de Colaborador -->
-    <div 
-      v-if="isModalOpen" 
-      class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4"
-    >
-      <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl relative">
+    <transition name="modal">
+      <div 
+        v-if="isModalOpen" 
+        class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4"
+      >
+        <div class="modal-panel bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl relative">
         
         <div class="flex items-center justify-between border-b border-slate-800 pb-4">
           <div class="flex items-center space-x-2.5">
@@ -538,6 +539,7 @@ onMounted(() => {
 
       </div>
     </div>
+    </transition>
 
   </div>
 </template>

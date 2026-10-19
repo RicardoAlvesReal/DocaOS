@@ -21,7 +21,8 @@ import {
   QrCode as QrIcon,
   Eye,
   X,
-  Zap
+  Zap,
+  MapPin
 } from 'lucide-vue-next'
 
 const yardStore = useYardStore()
@@ -87,9 +88,10 @@ function playBeep() {
 async function startCamera() {
   cameraError.value = ''
   isCameraLoading.value = true
+  isCameraActive.value = true
 
   try {
-    // Garante que o elemento DOM do leitor existe
+    // Garante que o elemento DOM do leitor já está visível e com dimensões calculadas
     await nextTick()
 
     if (!html5QrCode) {
@@ -107,8 +109,12 @@ async function startCamera() {
     }
 
     const config = {
-      fps: 12,
-      qrbox: { width: 240, height: 240 },
+      fps: 15,
+      qrbox: (viewfinderWidth, viewfinderHeight) => {
+        const minEdge = Math.min(viewfinderWidth, viewfinderHeight)
+        const size = Math.max(160, Math.floor(minEdge * 0.75))
+        return { width: size, height: size }
+      },
       aspectRatio: 1.0
     }
 
@@ -127,12 +133,14 @@ async function startCamera() {
         // Callback de frame não lido (normal em tempo real)
       }
     )
-
-    isCameraActive.value = true
   } catch (err) {
     console.warn('Não foi possível iniciar a câmera:', err)
-    cameraError.value = 'Câmera não detectada ou permissão de vídeo negada no navegador. O leitor via pistola USB e a digitação de placa continuam funcionando normalmente!'
     isCameraActive.value = false
+    if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      cameraError.value = 'Navegadores exigem conexão segura (HTTPS ou localhost) para abrir a câmera de vídeo. Acesse por HTTPS ou use a pistola óptica USB / digitação.'
+    } else {
+      cameraError.value = 'Câmera não detectada ou permissão de vídeo negada no navegador. O leitor via pistola USB e a digitação de placa continuam funcionando normalmente!'
+    }
   } finally {
     isCameraLoading.value = false
   }
@@ -377,15 +385,26 @@ onUnmounted(() => {
   <div class="max-w-3xl mx-auto space-y-6">
     
     <!-- Header -->
-    <div class="text-center space-y-2">
-      <div class="inline-flex items-center space-x-2 bg-sky-950/80 border border-sky-800 px-3.5 py-1 rounded-full text-xs font-mono font-semibold text-sky-400">
-        <ScanLine class="w-3.5 h-3.5" />
-        <span>Portaria & Cancela Inteligente</span>
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4 bg-slate-900/60 p-5 rounded-2xl border border-slate-800">
+      <div class="text-center sm:text-left space-y-1">
+        <div class="inline-flex items-center space-x-2 bg-sky-950/80 border border-sky-800 px-3.5 py-1 rounded-full text-xs font-mono font-semibold text-sky-400">
+          <ScanLine class="w-3.5 h-3.5" />
+          <span>Portaria & Cancela Inteligente</span>
+        </div>
+        <h1 class="text-2xl font-black text-white tracking-tight">Leitor Óptico de QR Code & Placas</h1>
+        <p class="text-xs text-slate-400">
+          Validação instantânea por câmera de vídeo, leitor óptico USB de balcão (pistola laser) ou digitação de placa.
+        </p>
       </div>
-      <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight">Leitor Óptico de QR Code & Placas</h1>
-      <p class="text-xs text-slate-400 max-w-lg mx-auto">
-        Validação instantânea por câmera de vídeo, leitor óptico USB de balcão (pistola laser) ou digitação de placa.
-      </p>
+
+      <router-link
+        to="/mapa"
+        class="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 px-4 py-2.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer shadow-lg"
+        title="Ver mapa de veículos se aproximando da portaria"
+      >
+        <MapPin class="w-4 h-4 text-emerald-400" />
+        <span>Ver Veículos no Mapa GPS</span>
+      </router-link>
     </div>
 
     <!-- Scanner Input Card -->
@@ -578,54 +597,75 @@ onUnmounted(() => {
     <!-- =================================================================== -->
     <!-- MODAL DE VISUALIZAÇÃO DE QR CODE PARA TESTE                         -->
     <!-- =================================================================== -->
-    <div v-if="showQrModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 text-center relative">
-        <button 
-          @click="showQrModal = false"
-          class="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
-        >
-          <X class="w-5 h-5" />
-        </button>
-
-        <div class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-sky-950 text-sky-400 border border-sky-800 text-[11px] font-mono font-semibold">
-          <QrIcon class="w-3.5 h-3.5" />
-          <span>QR Code do Motorista (Simulação)</span>
-        </div>
-
-        <h3 class="text-base font-bold text-white">
-          Aponte sua Câmera ou Leitor USB
-        </h3>
-        
-        <p class="text-xs text-slate-400">
-          Este é o QR Code que o motorista da carreta <strong class="text-white">{{ samplePlateSelected }}</strong> recebe via WhatsApp.
-        </p>
-
-        <!-- QR Code Image -->
-        <div class="bg-white p-4 rounded-2xl inline-block shadow-xl border-4 border-sky-500/30">
-          <img :src="sampleQrDataUrl" alt="QR Code" class="w-48 h-48 mx-auto" />
-        </div>
-
-        <div class="flex items-center justify-center gap-2 pt-2">
-          <button
-            v-for="p in demoPlates"
-            :key="p"
-            @click="generateSampleQr(p)"
-            class="px-2.5 py-1 rounded-lg text-xs font-mono font-semibold transition-colors cursor-pointer"
-            :class="samplePlateSelected === p ? 'bg-[#086cfe] text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'"
+    <transition name="modal">
+      <div v-if="showQrModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="modal-panel bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 text-center relative">
+          <button 
+            @click="showQrModal = false"
+            class="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
           >
-            {{ p }}
+            <X class="w-5 h-5" />
+          </button>
+
+          <div class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-sky-950 text-sky-400 border border-sky-800 text-[11px] font-mono font-semibold">
+            <QrIcon class="w-3.5 h-3.5" />
+            <span>QR Code do Motorista (Simulação)</span>
+          </div>
+
+          <h3 class="text-base font-bold text-white">
+            Aponte sua Câmera ou Leitor USB
+          </h3>
+          
+          <p class="text-xs text-slate-400">
+            Este é o QR Code que o motorista da carreta <strong class="text-white">{{ samplePlateSelected }}</strong> recebe via WhatsApp.
+          </p>
+
+          <!-- QR Code Image -->
+          <div class="bg-white p-4 rounded-2xl inline-block shadow-xl border-4 border-sky-500/30">
+            <img :src="sampleQrDataUrl" alt="QR Code" class="w-48 h-48 mx-auto" />
+          </div>
+
+          <div class="flex items-center justify-center gap-2 pt-2">
+            <button
+              v-for="p in demoPlates"
+              :key="p"
+              @click="generateSampleQr(p)"
+              class="px-2.5 py-1 rounded-lg text-xs font-mono font-semibold transition-colors cursor-pointer"
+              :class="samplePlateSelected === p ? 'bg-[#086cfe] text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'"
+            >
+              {{ p }}
+            </button>
+          </div>
+
+          <button
+            @click="showQrModal = false; simulateOpticalScan(samplePlateSelected)"
+            class="w-full mt-2 bg-emerald-600 hover:bg-emerald-500 text-white font-mono text-xs font-bold py-2.5 px-4 rounded-xl shadow-lg transition-all cursor-pointer flex items-center justify-center space-x-2"
+          >
+            <Volume2 class="w-4 h-4" />
+            <span>Testar Validação Imediata</span>
           </button>
         </div>
-
-        <button
-          @click="showQrModal = false; simulateOpticalScan(samplePlateSelected)"
-          class="w-full mt-2 bg-emerald-600 hover:bg-emerald-500 text-white font-mono text-xs font-bold py-2.5 px-4 rounded-xl shadow-lg transition-all cursor-pointer flex items-center justify-center space-x-2"
-        >
-          <Volume2 class="w-4 h-4" />
-          <span>Testar Validação Imediata</span>
-        </button>
       </div>
-    </div>
+    </transition>
 
   </div>
 </template>
+
+<style scoped>
+:deep(#gate-camera-stream) {
+  width: 100% !important;
+  border: none !important;
+}
+
+:deep(#gate-camera-stream video) {
+  width: 100% !important;
+  height: auto !important;
+  max-height: 360px;
+  object-fit: cover !important;
+  border-radius: 0.75rem;
+}
+
+:deep(#gate-camera-stream__scan_region) {
+  min-height: 240px;
+}
+</style>

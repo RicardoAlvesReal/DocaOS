@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { useYardStore } from '../stores/yard'
 import KanbanCard from '../components/KanbanCard.vue'
 import YardMap from '../components/YardMap.vue'
+import { notifyDriverViaWhatsApp } from '../utils/whatsapp'
 import { 
   Calendar, 
   Clock, 
@@ -171,14 +172,20 @@ const overdueCount = computed(() => {
   }).length
 })
 
+const notifyViaWhatsAppOnAssign = ref(true)
+
 function handleAssignDock(schedule) {
   scheduleToAssign.value = schedule
   selectedDockId.value = schedule.dock_id || ''
+  notifyViaWhatsAppOnAssign.value = true
   isAssignDockModalOpen.value = true
 }
 
 async function confirmAssignDock() {
   if (!scheduleToAssign.value || !selectedDockId.value) return
+  const dock = yardStore.docks.find(d => d.id === selectedDockId.value)
+  const dockName = dock ? `${dock.code} (${dock.name})` : 'Doca Designada'
+
   try {
     await yardStore.updateScheduleStatus(
       scheduleToAssign.value.id,
@@ -186,6 +193,17 @@ async function confirmAssignDock() {
       selectedDockId.value,
       'Direcionado para a doca na Torre de Controle'
     )
+
+    if (notifyViaWhatsAppOnAssign.value) {
+      notifyDriverViaWhatsApp({
+        schedule: scheduleToAssign.value,
+        tenant: yardStore.currentTenant,
+        notificationType: 'dock_call',
+        dockName: dockName
+      })
+      yardStore.showNotification(`WhatsApp enviado para ${scheduleToAssign.value.driver_name || 'o motorista'} (${dockName})!`, 'success')
+    }
+
     isAssignDockModalOpen.value = false
   } catch (err) {
     // Erro exibido na store via toast
@@ -451,11 +469,11 @@ async function submitNewSchedule() {
           <p class="text-slate-400 mt-1">Carga: <span class="text-slate-200">{{ scheduleToAssign.cargo_type }}</span></p>
         </div>
 
-        <div class="space-y-2 mb-6">
-          <label class="block text-xs font-semibold text-slate-300">Selecione a Doca:</label>
+        <div class="space-y-2 mb-4">
+          <label class="block text-xs font-semibold text-slate-300">Selecione a Doca de Operação: *</label>
           <select 
             v-model="selectedDockId"
-            class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-sm text-slate-200 focus:outline-none focus:border-sky-500"
+            class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-sm text-slate-200 focus:outline-none focus:border-sky-500 cursor-pointer"
           >
             <option value="" disabled>Escolha uma doca física...</option>
             <option 
@@ -469,19 +487,36 @@ async function submitNewSchedule() {
           </select>
         </div>
 
+        <!-- WhatsApp Driver Call Notification Toggle -->
+        <div class="bg-emerald-950/40 border border-emerald-500/40 rounded-xl p-3.5 mb-6 flex items-start space-x-3">
+          <input 
+            type="checkbox" 
+            id="notifyWhatsappAssign" 
+            v-model="notifyViaWhatsAppOnAssign" 
+            class="mt-1 accent-emerald-500 rounded cursor-pointer w-4 h-4"
+          />
+          <label for="notifyWhatsappAssign" class="text-xs text-slate-200 cursor-pointer select-none">
+            <span class="font-bold text-emerald-300 block mb-0.5">Notificar Motorista no WhatsApp</span>
+            <span class="text-slate-400 text-[11px] leading-tight block">
+              Envia aviso instantâneo para <strong>{{ scheduleToAssign?.driver_name || 'o motorista' }}</strong> ({{ scheduleToAssign?.driver_phone || 'Sem tel.' }}) com a doca designada e ordem de deslocamento.
+            </span>
+          </label>
+        </div>
+
         <div class="flex justify-end space-x-3">
           <button 
             @click="isAssignDockModalOpen = false"
-            class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
           >
             Cancelar
           </button>
           <button 
             @click="confirmAssignDock"
             :disabled="!selectedDockId"
-            class="bg-sky-600 hover:bg-sky-500 disabled:opacity-50 text-white px-5 py-2 rounded-xl text-xs font-semibold shadow-lg shadow-sky-600/30 transition-all cursor-pointer"
+            class="flex items-center space-x-1.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-lg shadow-emerald-600/30 transition-all cursor-pointer"
           >
-            Confirmar e Encostar
+            <CheckCircle2 class="w-4 h-4" />
+            <span>Confirmar e Chamar Motorista</span>
           </button>
         </div>
       </div>

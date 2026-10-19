@@ -81,6 +81,40 @@ async function toggleDockMaintenance(dock) {
     console.error(err)
   }
 }
+
+import { notifyDriverViaWhatsApp } from '../utils/whatsapp'
+
+function getOccupyingSchedule(dockId) {
+  return (yardStore.schedules || []).find(s => s.dock_id === dockId && s.status === 'Em_Doca')
+}
+
+async function callNextTruckToDock(dock) {
+  const waitingTruck = yardStore.waitingYardList[0]
+  if (!waitingTruck) {
+    yardStore.showNotification('Nenhum caminhão aguardando no pátio no momento.', 'warning')
+    return
+  }
+
+  try {
+    await yardStore.updateScheduleStatus(
+      waitingTruck.id,
+      'Em_Doca',
+      dock.id,
+      `Chamado para ${dock.code} na Gestão de Docas`
+    )
+
+    notifyDriverViaWhatsApp({
+      schedule: waitingTruck,
+      tenant: yardStore.currentTenant,
+      notificationType: 'dock_call',
+      dockName: `${dock.code} (${dock.name})`
+    })
+
+    yardStore.showNotification(`Veículo ${waitingTruck.vehicle_plate} chamado para a ${dock.code} via WhatsApp!`, 'success')
+  } catch (err) {
+    yardStore.showNotification('Falha ao alocar doca.', 'error')
+  }
+}
 </script>
 
 <template>
@@ -148,17 +182,40 @@ async function toggleDockMaintenance(dock) {
           </span>
         </div>
 
-        <div class="text-xs text-slate-400 space-y-1 mb-4">
+        <!-- Caminhão Ocupando a Doca (se houver) -->
+        <div v-if="getOccupyingSchedule(dock.id)" class="bg-slate-950/90 border border-sky-500/30 rounded-lg p-2.5 mb-3 text-xs">
+          <div class="flex items-center justify-between text-slate-400 text-[11px] mb-1">
+            <span class="flex items-center space-x-1 text-sky-400 font-bold">
+              <Truck class="w-3.5 h-3.5" />
+              <span>Em Operação</span>
+            </span>
+            <span class="font-mono font-bold text-white">{{ getOccupyingSchedule(dock.id).vehicle_plate }}</span>
+          </div>
+          <p class="text-slate-300 truncate text-[11px] font-medium">{{ getOccupyingSchedule(dock.id).carrier_name }}</p>
+          <p class="text-[10px] text-slate-500 truncate">Motorista: {{ getOccupyingSchedule(dock.id).driver_name }} ({{ getOccupyingSchedule(dock.id).driver_phone || 'Sem tel.' }})</p>
+        </div>
+
+        <div class="text-xs text-slate-400 space-y-1 mb-3">
           <div class="flex justify-between">
             <span class="text-slate-500">Tipo:</span>
             <span class="text-slate-300 font-medium">{{ dock.dock_type }}</span>
           </div>
         </div>
 
-        <div class="pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
+        <div class="pt-3 border-t border-slate-800 flex items-center justify-between text-xs gap-2">
+          <!-- Botão Chamar Próximo da Fila no WhatsApp (se Livre) -->
+          <button
+            v-if="dock.status === 'Livre' && yardStore.waitingYardList.length > 0"
+            @click="callNextTruckToDock(dock)"
+            class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 px-2.5 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer flex items-center space-x-1"
+            title="Chama o primeiro caminhão da fila e envia notificação no WhatsApp"
+          >
+            <span>Chamar Próximo (WhatsApp)</span>
+          </button>
+
           <button
             @click="toggleDockMaintenance(dock)"
-            class="text-slate-400 hover:text-amber-400 flex items-center space-x-1 text-[11px] cursor-pointer"
+            class="text-slate-400 hover:text-amber-400 flex items-center space-x-1 text-[11px] cursor-pointer ml-auto"
           >
             <Wrench class="w-3.5 h-3.5" />
             <span>{{ dock.status === 'Manutenção' ? 'Liberar Doca' : 'Pôr em Manutenção' }}</span>

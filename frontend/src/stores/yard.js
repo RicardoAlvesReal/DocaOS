@@ -231,6 +231,14 @@ export const useYardStore = defineStore('yard', () => {
   }
 
   async function selectTenant(tenant) {
+    if (!tenant) return
+    // Bloqueio rigoroso: operador não-admin nunca pode acessar outro tenant
+    if (authStore.user?.role && authStore.user.role !== 'super_admin' && authStore.user.tenant_id) {
+      if (tenant.id !== authStore.user.tenant_id) {
+        console.warn('Acesso a tenant bloqueado por isolamento multi-inquilino.')
+        return
+      }
+    }
     currentTenant.value = tenant
     await Promise.all([fetchDocks(), fetchSchedules()])
     if (!authStore.isDemoMode) {

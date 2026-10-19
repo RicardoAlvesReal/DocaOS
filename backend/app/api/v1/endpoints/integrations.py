@@ -289,3 +289,76 @@ async def receive_telemetry_ping(ping: TelemetryPingRequest, db: Session = Depen
         "distance_meters": round(distance, 1),
         "is_inside_geofence": is_inside
     }
+
+
+# =========================================================================
+# NOTIFICAÇÕES WHATSAPP PARA MOTORISTAS (CHAMADA DE DOCA & CHECK-IN)
+# =========================================================================
+class WhatsAppSendRequest(BaseModel):
+    tenant_id: Optional[UUID] = None
+    schedule_id: Optional[UUID] = None
+    driver_phone: str
+    driver_name: str
+    vehicle_plate: str
+    dock_name: Optional[str] = None
+    notification_type: str = "dock_call"
+    custom_message: Optional[str] = None
+
+
+@router.post("/whatsapp/send")
+async def send_whatsapp_notification(
+    payload: WhatsAppSendRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Dispara ou registra envio de notificação via WhatsApp para o motorista de caminhão.
+    Compatível com gateways Evolution API, Z-API, Twilio ou link direto wa.me.
+    """
+    clean_phone = "".join(filter(str.isdigit, payload.driver_phone))
+    if clean_phone and not clean_phone.startswith("55"):
+        clean_phone = f"55{clean_phone}"
+
+    message = payload.custom_message
+    if not message:
+        if payload.notification_type == "dock_call":
+            dock = payload.dock_name or "Doca Designada"
+            message = (
+                f"🚨 *CHAMADA PARA DOCA*\n\n"
+                f"Olá, *{payload.driver_name}*!\n"
+                f"Seu veículo placa *{payload.vehicle_plate}* foi chamado para a *{dock}*.\n\n"
+                f"📍 Por favor, encoste o caminhão imediatamente.\n"
+                f"_RotaFlow YMS • Gestão de Pátios_"
+            )
+        else:
+            message = (
+                f"📋 *ROTAFLOW YMS*\n\n"
+                f"Olá, *{payload.driver_name}*! Notificação referente ao veículo *{payload.vehicle_plate}*."
+            )
+
+    direct_url = f"https://api.whatsapp.com/send?phone={clean_phone}&text={message}" if clean_phone else None
+
+    # Se houver webhook de eventos WhatsApp assinado pelo tenant, despacha em segundo plano
+    if payload.tenant_id:
+        await dispatch_tenant_webhook(
+            db=db,
+            tenant_id=payload.tenant_id,
+            event_name="driver.whatsapp_notified",
+            payload={
+                "driver_name": payload.driver_name,
+                "driver_phone": clean_phone,
+                "vehicle_plate": payload.vehicle_plate,
+                "dock_name": payload.dock_name,
+                "notification_type": payload.notification_type,
+                "message": message,
+                "timestamp": datetime.now(timezone.utc).isoformat()
+            }
+        )
+
+    return {
+        "success": True,
+        "message": "Notificação WhatsApp processada com sucesso.",
+        "phone": clean_phone,
+        "direct_url": direct_url,
+        "dispatched_text": message
+    }
+

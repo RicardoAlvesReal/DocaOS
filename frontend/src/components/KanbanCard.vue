@@ -94,18 +94,22 @@ const detentionCost = computed(() => {
   return (diffHours * feePerHour).toFixed(2)
 })
 
-function copyWhatsAppLink() {
-  const url = `${window.location.origin}/checkin/${props.schedule.access_token}`
-  const text = `Olá ${props.schedule.driver_name}, seu agendamento no terminal ${yardStore.currentTenant?.name || 'RotaFlow'} está confirmado para o veículo ${props.schedule.vehicle_plate}. Acesse seu link de check-in e QR Code da portaria aqui: ${url}`
-  
-  navigator.clipboard.writeText(url)
-  const rawPhone = (props.schedule.driver_phone || '').replace(/\D/g, '')
-  let whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`
-  if (rawPhone.length >= 10) {
-    const formattedPhone = rawPhone.startsWith('55') ? rawPhone : `55${rawPhone}`
-    whatsappUrl = `https://api.whatsapp.com/send?phone=${formattedPhone}&text=${encodeURIComponent(text)}`
-  }
-  window.open(whatsappUrl, '_blank')
+import { notifyDriverViaWhatsApp } from '../utils/whatsapp'
+
+function sendWhatsAppNotification() {
+  const status = props.schedule.status
+  let type = 'checkin_link'
+  if (status === 'Aguardando_Patio') type = 'dock_call'
+  else if (status === 'Em_Doca') type = 'dock_call'
+  else if (status === 'Liberado') type = 'release'
+
+  notifyDriverViaWhatsApp({
+    schedule: props.schedule,
+    tenant: yardStore.currentTenant,
+    notificationType: type,
+    dockName: props.schedule.dock_name || 'Doca Operacional'
+  })
+  yardStore.showNotification(`Disparando WhatsApp para ${props.schedule.driver_name || 'o motorista'}...`, 'success')
 }
 
 
@@ -204,15 +208,15 @@ async function advanceStatus() {
     </div>
 
     <!-- Actions Footer -->
-    <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between mt-2">
-      <!-- WhatsApp Link Button -->
+    <div class="flex items-center justify-between pt-2 border-t border-slate-800/80 mt-2">
+      <!-- WhatsApp Direct Dispatch Button -->
       <button
-        @click="copyWhatsAppLink"
-        title="Enviar link de check-in para o motorista no WhatsApp"
-        class="text-slate-400 hover:text-emerald-400 hover:bg-emerald-950/40 p-1.5 rounded-lg transition-colors flex items-center space-x-1 text-xs"
+        @click="sendWhatsAppNotification"
+        :title="schedule.status === 'Aguardando_Patio' ? 'Chamar motorista para a doca via WhatsApp' : 'Enviar notificação ao motorista no WhatsApp'"
+        class="text-emerald-400 hover:text-emerald-300 hover:bg-emerald-950/60 p-1.5 rounded-lg transition-colors flex items-center space-x-1 text-xs border border-emerald-500/20 shadow-sm cursor-pointer"
       >
-        <Share2 class="w-3.5 h-3.5" />
-        <span class="text-[11px]">WhatsApp</span>
+        <Share2 class="w-3.5 h-3.5 text-emerald-400" />
+        <span class="text-[11px] font-bold">WhatsApp</span>
       </button>
 
       <!-- Stage Transition Button -->

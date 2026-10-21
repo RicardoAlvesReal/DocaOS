@@ -39,6 +39,7 @@ import {
   Menu
 } from 'lucide-vue-next'
 import { useAuthStore } from '../stores/auth'
+import ThemeToggle from '../components/ThemeToggle.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -61,7 +62,7 @@ function closeMobileMenu() {
 const contactInfo = {
   whatsappRaw: '27996174965',
   whatsappDisplay: '(27) 99617-4965',
-  email: 'contato@docaos.log.br',
+  email: 'contato@raostecnologia.com.br',
   corporateEmail: 'contato@raostecnologia.com.br',
   cnpj: '66.914.167/0001-76',
   company: 'DocaOS • RAOS Tecnologia'
@@ -184,7 +185,8 @@ const faqs = [
         </nav>
 
         <!-- Coluna Direita: CTAs + Botão Hambúrguer Mobile -->
-        <div class="flex items-center gap-3 shrink-0">
+        <div class="flex items-center gap-2.5 sm:gap-3 shrink-0">
+          <ThemeToggle :compact="true" class="hidden sm:inline-flex" />
           <button
             @click="openWhatsAppDirect()"
             class="hidden sm:inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-semibold transition-all shadow-sm hover:shadow-emerald-500/10"
@@ -238,6 +240,7 @@ const faqs = [
           </div>
 
           <div class="mt-4 pt-4 border-t border-slate-800 flex flex-col gap-2.5">
+            <ThemeToggle class="mb-2" />
             <button
               @click="openWhatsAppDirect(); closeMobileMenu()"
               class="w-full py-2.5 px-4 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold text-xs flex items-center justify-center gap-2"
@@ -1031,7 +1034,7 @@ const faqs = [
                       <span>RAOS Tecnologia</span>
                       <span class="text-[11px] font-normal text-slate-400">• CNPJ: {{ contactInfo.cnpj }}</span>
                     </div>
-                    <div class="text-[11px] text-slate-400 mt-0.5">Software House Especializada em Soluções Logísticas</div>
+                    <div class="text-[11px] text-slate-400 mt-0.5">Empresa Especializada em Soluções Tecnológicas</div>
                   </div>
                 </div>
               </div>
@@ -1172,9 +1175,6 @@ const faqs = [
             <p class="text-xs text-slate-400 leading-relaxed">
               Sistema Operacional de Pátios (YMS) e Agendamento Inteligente de Docas com credenciamento por Crachá Digital e auditoria probatória sob a Lei Federal 11.442/2007.
             </p>
-            <div class="text-[11px] text-teal-400/80 font-mono">
-              Domínio Oficial: docaos.log.br
-            </div>
           </div>
 
           <!-- Col 2: Soluções -->

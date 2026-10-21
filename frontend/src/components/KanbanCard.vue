@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   MapPin
 } from 'lucide-vue-next'
+import { notifyDriverViaWhatsApp } from '../utils/whatsapp'
 
 const props = defineProps({
   schedule: {
@@ -94,8 +95,6 @@ const detentionCost = computed(() => {
   return (diffHours * feePerHour).toFixed(2)
 })
 
-import { notifyDriverViaWhatsApp } from '../utils/whatsapp'
-
 function sendWhatsAppNotification() {
   const status = props.schedule.status
   let type = 'checkin_link'
@@ -112,17 +111,13 @@ function sendWhatsAppNotification() {
   yardStore.showNotification(`Disparando WhatsApp para ${props.schedule.driver_name || 'o motorista'}...`, 'success')
 }
 
-
 async function advanceStatus() {
   const current = props.schedule.status
   if (current === 'Agendado') {
-    // Check-in na cancela
     await yardStore.updateScheduleStatus(props.schedule.id, 'Aguardando_Patio')
   } else if (current === 'Aguardando_Patio') {
-    // Alocar doca
     emit('assignDock', props.schedule)
   } else if (current === 'Em_Doca') {
-    // Liberar
     await yardStore.updateScheduleStatus(props.schedule.id, 'Liberado')
   }
 }
@@ -130,25 +125,25 @@ async function advanceStatus() {
 
 <template>
   <div 
-    class="bg-[#0e1422] rounded-lg p-3.5 border transition-all duration-150"
+    class="bg-white dark:bg-[#04244a] rounded-xl p-3.5 border transition-all duration-150 shadow-sm"
     :class="[
       isOverdue 
-        ? 'border-rose-600/70 bg-[#160d14]' 
-        : 'border-slate-800 hover:border-slate-700'
+        ? 'border-rose-300 dark:border-rose-500/50 bg-rose-50/70 dark:bg-rose-950/20' 
+        : 'border-slate-200 dark:border-teal-500/20 hover:border-teal-500/40 dark:hover:border-teal-400/40'
     ]"
   >
     <!-- Card Header: Placa e SLA Badge -->
     <div class="flex items-start justify-between mb-2">
       <div>
         <div class="flex items-center space-x-1.5">
-          <span class="font-mono text-sm font-bold text-white tracking-wider bg-slate-800 px-2 py-0.5 rounded border border-slate-700">
+          <span class="font-mono text-sm font-bold tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white px-2 py-0.5 rounded border border-slate-300 dark:border-slate-700">
             {{ schedule.vehicle_plate }}
           </span>
-          <span v-if="schedule.trailer_plate" class="text-xs font-mono text-slate-400">
+          <span v-if="schedule.trailer_plate" class="text-xs font-mono text-slate-500 dark:text-slate-400">
             + {{ schedule.trailer_plate }}
           </span>
         </div>
-        <p class="text-xs font-medium text-slate-300 mt-1 truncate max-w-[170px]">
+        <p class="text-xs font-semibold text-slate-800 dark:text-slate-200 mt-1 truncate max-w-[170px]">
           {{ schedule.carrier_name }}
         </p>
       </div>
@@ -158,8 +153,8 @@ async function advanceStatus() {
         class="flex items-center space-x-1.5 px-2.5 py-1 rounded-md text-xs font-mono font-semibold"
         :class="[
           isOverdue 
-            ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40 animate-pulse' 
-            : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
+            ? 'bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-300 border border-rose-300 dark:border-rose-500/40 animate-pulse' 
+            : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30'
         ]"
         :title="isOverdue ? 'Tempo excedido gerando custo de estadia' : 'Dentro da tolerância / SLA'"
       >
@@ -169,25 +164,25 @@ async function advanceStatus() {
     </div>
 
     <!-- Cargo & Driver details -->
-    <div class="space-y-1.5 text-xs text-slate-400 my-3">
+    <div class="space-y-1.5 text-xs text-slate-600 dark:text-slate-400 my-3">
       <div class="flex items-center justify-between">
-        <span class="text-slate-500">Carga:</span>
-        <span class="text-slate-300 font-medium truncate max-w-[170px]">{{ schedule.cargo_type }}</span>
+        <span class="text-slate-500 dark:text-slate-400">Carga:</span>
+        <span class="text-slate-800 dark:text-slate-200 font-medium truncate max-w-[170px]">{{ schedule.cargo_type }}</span>
       </div>
       <div class="flex items-center justify-between">
-        <span class="text-slate-500">Motorista:</span>
-        <span class="text-slate-300 font-medium truncate max-w-[170px]">{{ schedule.driver_name }}</span>
+        <span class="text-slate-500 dark:text-slate-400">Motorista:</span>
+        <span class="text-slate-800 dark:text-slate-200 font-medium truncate max-w-[170px]">{{ schedule.driver_name }}</span>
       </div>
       <div v-if="schedule.dock_name" class="flex items-center justify-between">
-        <span class="text-slate-500">Doca:</span>
-        <span class="text-sky-400 font-semibold bg-sky-950/60 px-1.5 py-0.5 rounded border border-sky-800/60">
+        <span class="text-slate-500 dark:text-slate-400">Doca:</span>
+        <span class="text-teal-700 dark:text-[#00E5C8] font-bold bg-teal-50 dark:bg-teal-950/60 px-1.5 py-0.5 rounded border border-teal-200 dark:border-teal-800/60">
           {{ schedule.dock_name }}
         </span>
       </div>
       <div v-if="schedule.geofence_validated" class="flex items-center justify-between">
-        <span class="text-slate-500">Presença:</span>
-        <span class="text-emerald-400 font-mono text-[11px] flex items-center space-x-1" title="Presença física auditada por GPS">
-          <ShieldCheck class="w-3 h-3 text-emerald-400" />
+        <span class="text-slate-500 dark:text-slate-400">Presença:</span>
+        <span class="text-emerald-600 dark:text-emerald-400 font-mono text-[11px] flex items-center space-x-1" title="Presença física auditada por GPS">
+          <ShieldCheck class="w-3 h-3 text-emerald-500 shrink-0" />
           <span>GPS Auditado ({{ schedule.checkin_distance_meters ? schedule.checkin_distance_meters + 'm' : 'Pátio' }})</span>
         </span>
       </div>
@@ -196,26 +191,26 @@ async function advanceStatus() {
     <!-- Overdue Alert with Detention Cost -->
     <div 
       v-if="isOverdue && detentionCost > 0"
-      class="bg-rose-950/40 border border-rose-800/80 rounded-lg p-2 my-2.5 flex items-center justify-between text-xs"
+      class="bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/80 rounded-lg p-2 my-2.5 flex items-center justify-between text-xs"
     >
-      <div class="flex items-center space-x-1.5 text-rose-300">
-        <AlertTriangle class="w-3.5 h-3.5 text-rose-400 shrink-0" />
+      <div class="flex items-center space-x-1.5 text-rose-700 dark:text-rose-300">
+        <AlertTriangle class="w-3.5 h-3.5 text-rose-500 dark:text-rose-400 shrink-0" />
         <span class="font-medium text-[11px]">Multa de Estadia:</span>
       </div>
-      <span class="font-mono font-bold text-rose-300">
+      <span class="font-mono font-bold text-rose-700 dark:text-rose-300">
         R$ {{ detentionCost }}
       </span>
     </div>
 
     <!-- Actions Footer -->
-    <div class="flex items-center justify-between pt-2 border-t border-slate-800/80 mt-2">
+    <div class="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-slate-800/80 mt-2">
       <!-- WhatsApp Direct Dispatch Button -->
       <button
         @click="sendWhatsAppNotification"
         :title="schedule.status === 'Aguardando_Patio' ? 'Chamar motorista para a doca via WhatsApp' : 'Enviar notificação ao motorista no WhatsApp'"
-        class="text-emerald-400 hover:text-emerald-300 hover:bg-emerald-950/60 p-1.5 rounded-lg transition-colors flex items-center space-x-1 text-xs border border-emerald-500/20 shadow-sm cursor-pointer"
+        class="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 bg-emerald-50 dark:bg-transparent hover:bg-emerald-100 dark:hover:bg-emerald-950/60 p-1.5 rounded-lg transition-colors flex items-center space-x-1 text-xs border border-emerald-200 dark:border-emerald-500/20 shadow-sm cursor-pointer"
       >
-        <Share2 class="w-3.5 h-3.5 text-emerald-400" />
+        <Share2 class="w-3.5 h-3.5 text-emerald-500 shrink-0" />
         <span class="text-[11px] font-bold">WhatsApp</span>
       </button>
 
@@ -223,13 +218,13 @@ async function advanceStatus() {
       <button
         v-if="schedule.status !== 'Liberado'"
         @click="advanceStatus"
-        class="flex items-center space-x-1 text-xs font-semibold px-2.5 py-1 rounded-md transition-all active:scale-95"
+        class="flex items-center space-x-1 text-xs font-semibold px-2.5 py-1 rounded-md transition-all active:scale-95 shadow-sm cursor-pointer"
         :class="[
           schedule.status === 'Agendado' 
-            ? 'bg-amber-600/20 text-amber-300 hover:bg-amber-600/30 border border-amber-600/40'
+            ? 'bg-amber-100 text-amber-800 dark:bg-amber-600/20 dark:text-amber-300 hover:bg-amber-200 dark:hover:bg-amber-600/30 border border-amber-300 dark:border-amber-600/40'
             : schedule.status === 'Aguardando_Patio'
-            ? 'bg-sky-600/20 text-sky-300 hover:bg-sky-600/30 border border-sky-600/40'
-            : 'bg-emerald-600/20 text-emerald-300 hover:bg-emerald-600/30 border border-emerald-600/40'
+            ? 'bg-teal-100 text-teal-800 dark:bg-teal-600/20 dark:text-teal-300 hover:bg-teal-200 dark:hover:bg-teal-600/30 border border-teal-300 dark:border-teal-600/40'
+            : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-600/20 dark:text-emerald-300 hover:bg-emerald-200 dark:hover:bg-emerald-600/30 border border-emerald-300 dark:border-emerald-600/40'
         ]"
       >
         <span>
@@ -241,10 +236,10 @@ async function advanceStatus() {
               : 'Liberar' 
           }}
         </span>
-        <ArrowRightCircle class="w-3.5 h-3.5" />
+        <ArrowRightCircle class="w-3.5 h-3.5 shrink-0" />
       </button>
 
-      <span v-else class="flex items-center space-x-1 text-emerald-400 text-xs font-medium">
+      <span v-else class="flex items-center space-x-1 text-emerald-600 dark:text-emerald-400 text-xs font-medium">
         <CheckCircle2 class="w-3.5 h-3.5" />
         <span>Concluído</span>
       </span>

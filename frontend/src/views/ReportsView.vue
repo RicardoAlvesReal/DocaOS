@@ -297,7 +297,7 @@ function formatCurrency(val) {
     <!-- Header & Filtros -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-slate-900/80 p-6 rounded-3xl border border-slate-800 shadow-xl backdrop-blur-md">
       <div>
-        <div class="flex items-center space-x-2 text-sky-400 text-xs font-bold uppercase tracking-wider mb-1">
+        <div class="flex items-center space-x-2 text-[#00A896] dark:text-[#00E5C8] text-xs font-bold uppercase tracking-wider mb-1">
           <BarChart3 class="w-4 h-4" />
           <span>Inteligência Logística &bull; {{ yardStore.currentTenant?.name || 'Armazém' }}</span>
         </div>
@@ -311,28 +311,28 @@ function formatCurrency(val) {
           <button 
             @click="selectedPeriod = 'today'"
             class="px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer"
-            :class="selectedPeriod === 'today' ? 'bg-sky-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'"
+            :class="selectedPeriod === 'today' ? 'bg-[#00A896] text-white shadow' : 'text-slate-400 hover:text-slate-200'"
           >
             Hoje
           </button>
           <button 
             @click="selectedPeriod = '7d'"
             class="px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer"
-            :class="selectedPeriod === '7d' ? 'bg-sky-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'"
+            :class="selectedPeriod === '7d' ? 'bg-[#00A896] text-white shadow' : 'text-slate-400 hover:text-slate-200'"
           >
             7 Dias
           </button>
           <button 
             @click="selectedPeriod = '30d'"
             class="px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer"
-            :class="selectedPeriod === '30d' ? 'bg-sky-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'"
+            :class="selectedPeriod === '30d' ? 'bg-[#00A896] text-white shadow' : 'text-slate-400 hover:text-slate-200'"
           >
             30 Dias
           </button>
           <button 
             @click="selectedPeriod = 'all'"
             class="px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer"
-            :class="selectedPeriod === 'all' ? 'bg-sky-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'"
+            :class="selectedPeriod === 'all' ? 'bg-[#00A896] text-white shadow' : 'text-slate-400 hover:text-slate-200'"
           >
             Histórico Total
           </button>
@@ -362,10 +362,10 @@ function formatCurrency(val) {
         <!-- Botão Imprimir / Salvar PDF -->
         <button
           @click="handlePrintPdf"
-          class="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-sky-300 border border-slate-700 hover:border-sky-500/40 px-3.5 py-2.5 rounded-xl text-xs font-bold shadow active:scale-95 transition-all cursor-pointer"
+          class="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-teal-700 dark:text-teal-300 border border-slate-700 hover:border-[#00A896]/40 px-3.5 py-2.5 rounded-xl text-xs font-bold shadow active:scale-95 transition-all cursor-pointer"
           title="Imprimir ou salvar Laudo Pericial em PDF"
         >
-          <Printer class="w-4 h-4 text-sky-400" />
+          <Printer class="w-4 h-4 text-[#00A896] dark:text-[#00E5C8]" />
           <span>Imprimir Laudo (PDF)</span>
         </button>
       </div>
@@ -375,10 +375,10 @@ function formatCurrency(val) {
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       
       <!-- Dwell Time Médio -->
-      <div class="bg-slate-900/70 border border-slate-800/80 p-5 rounded-2xl relative overflow-hidden group hover:border-sky-500/40 transition-all">
+      <div class="bg-slate-900/70 border border-slate-800/80 p-5 rounded-2xl relative overflow-hidden group hover:border-[#00A896]/40 transition-all">
         <div class="flex items-center justify-between mb-2">
           <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Tempo Médio no Pátio</span>
-          <div class="p-2 rounded-xl bg-sky-500/10 text-sky-400">
+          <div class="p-2 rounded-xl bg-sky-500/10 text-[#00A896] dark:text-[#00E5C8]">
             <Clock class="w-4 h-4" />
           </div>
         </div>
@@ -387,7 +387,7 @@ function formatCurrency(val) {
         </div>
         <p class="text-[11px] text-slate-400 mt-1 flex items-center space-x-1">
           <span>Carência padrão:</span>
-          <span class="text-sky-400 font-bold">{{ yardStore.currentTenant?.grace_period_minutes || 30 }} min</span>
+          <span class="text-[#00A896] dark:text-[#00E5C8] font-bold">{{ yardStore.currentTenant?.grace_period_minutes || 30 }} min</span>
         </p>
       </div>
 
@@ -408,10 +408,10 @@ function formatCurrency(val) {
       </div>
 
       <!-- Tempo Médio em Doca -->
-      <div class="bg-slate-900/70 border border-slate-800/80 p-5 rounded-2xl relative overflow-hidden group hover:border-sky-500/40 transition-all">
+      <div class="bg-slate-900/70 border border-slate-800/80 p-5 rounded-2xl relative overflow-hidden group hover:border-[#00A896]/40 transition-all">
         <div class="flex items-center justify-between mb-2">
           <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Tempo Médio em Doca</span>
-          <div class="p-2 rounded-xl bg-sky-500/10 text-sky-400">
+          <div class="p-2 rounded-xl bg-sky-500/10 text-[#00A896] dark:text-[#00E5C8]">
             <Warehouse class="w-4 h-4" />
           </div>
         </div>
@@ -474,7 +474,7 @@ function formatCurrency(val) {
               class="hover:bg-slate-800/30 transition-colors"
             >
               <td class="py-3.5 px-4 font-bold text-white flex items-center space-x-2">
-                <Truck class="w-3.5 h-3.5 text-sky-400" />
+                <Truck class="w-3.5 h-3.5 text-[#00A896] dark:text-[#00E5C8]" />
                 <span>{{ c.carrier_name }}</span>
               </td>
               <td class="py-3.5 px-4 text-center font-semibold text-slate-200">
@@ -543,7 +543,7 @@ function formatCurrency(val) {
             <p class="text-[10px] text-slate-400">{{ dock.dock_type }} &bull; Status: <strong :class="dock.status === 'Ocupada' ? 'text-rose-400' : 'text-emerald-400'">{{ dock.status }}</strong></p>
           </div>
           <div class="text-right">
-            <span class="text-lg font-black text-sky-400">{{ dock.appointments_count }}</span>
+            <span class="text-lg font-black text-[#00A896] dark:text-[#00E5C8]">{{ dock.appointments_count }}</span>
             <p class="text-[9px] uppercase font-bold text-slate-500">Agendamentos</p>
           </div>
         </div>

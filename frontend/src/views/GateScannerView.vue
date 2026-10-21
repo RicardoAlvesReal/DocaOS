@@ -450,7 +450,7 @@ onUnmounted(() => {
     <!-- Header -->
     <div class="flex flex-col sm:flex-row items-center justify-between gap-4 bg-slate-900/60 p-5 rounded-2xl border border-slate-800">
       <div class="text-center sm:text-left space-y-1">
-        <div class="inline-flex items-center space-x-2 bg-sky-950/80 border border-sky-800 px-3.5 py-1 rounded-full text-xs font-mono font-semibold text-sky-400">
+        <div class="inline-flex items-center space-x-2 bg-teal-950/80 border border-teal-800 px-3.5 py-1 rounded-full text-xs font-mono font-semibold text-[#00A896] dark:text-[#00E5C8]">
           <ScanLine class="w-3.5 h-3.5" />
           <span>Portaria & Cancela Inteligente</span>
         </div>
@@ -482,7 +482,7 @@ onUnmounted(() => {
     </div>
 
     <!-- Scanner Input Card -->
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
+    <div class="bg-white dark:bg-[#031d3d] border border-slate-200 dark:border-teal-500/20 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
       
       <!-- =============================================================== -->
       <!-- Visual Scanner / Video Camera Stream Box                        -->
@@ -492,7 +492,7 @@ onUnmounted(() => {
 
         <!-- CÂMERA ATIVA -->
         <div v-show="isCameraActive" class="space-y-3">
-          <div class="relative max-w-sm mx-auto overflow-hidden rounded-xl border border-sky-500/40 bg-black shadow-2xl">
+          <div class="relative max-w-sm mx-auto overflow-hidden rounded-xl border border-[#00A896]/40 bg-black shadow-2xl">
             <div id="gate-camera-stream" class="w-full"></div>
             <!-- Target Overlay HUD -->
             <div class="absolute inset-0 border-2 border-sky-400/30 pointer-events-none flex items-center justify-center">
@@ -524,7 +524,7 @@ onUnmounted(() => {
 
         <!-- CÂMERA DESLIGADA / STANDBY -->
         <div v-show="!isCameraActive" class="space-y-4">
-          <div class="w-16 h-16 rounded-2xl bg-slate-900 border border-sky-500/30 flex items-center justify-center mx-auto text-sky-400 shadow-xl shadow-sky-500/10 mb-2">
+          <div class="w-16 h-16 rounded-2xl bg-slate-900 border border-[#00A896]/30 flex items-center justify-center mx-auto text-[#00A896] dark:text-[#00E5C8] shadow-xl shadow-sky-500/10 mb-2">
             <Camera class="w-8 h-8" :class="{ 'animate-pulse': isCameraLoading }" />
           </div>
           
@@ -540,7 +540,7 @@ onUnmounted(() => {
             <button
               @click="startCamera"
               :disabled="isCameraLoading"
-              class="px-4 py-2 rounded-xl bg-[#086cfe] hover:bg-blue-600 disabled:opacity-50 text-white font-mono text-xs font-bold shadow-lg shadow-blue-600/20 flex items-center space-x-2 transition-all cursor-pointer active:scale-95"
+              class="px-4 py-2 rounded-xl bg-gradient-to-r from-[#00A896] to-teal-500 hover:bg-blue-600 disabled:opacity-50 text-white font-mono text-xs font-bold shadow-lg shadow-blue-600/20 flex items-center space-x-2 transition-all cursor-pointer active:scale-95"
             >
               <Camera class="w-4 h-4" />
               <span>{{ isCameraLoading ? 'Iniciando Leitor de Vídeo...' : 'Ligar Câmera / Leitor Web' }}</span>
@@ -549,9 +549,9 @@ onUnmounted(() => {
             <button
               v-if="isSandboxMode"
               @click="generateSampleQr('BRA2E19')"
-              class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-sky-300 border border-sky-500/30 font-mono text-xs font-semibold flex items-center space-x-1.5 transition-colors cursor-pointer"
+              class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-teal-700 dark:text-teal-300 border border-[#00A896]/30 font-mono text-xs font-semibold flex items-center space-x-1.5 transition-colors cursor-pointer"
             >
-              <Eye class="w-4 h-4 text-sky-400" />
+              <Eye class="w-4 h-4 text-[#00A896] dark:text-[#00E5C8]" />
               <span>Ver QR Code de Teste</span>
             </button>
           </div>
@@ -590,10 +590,10 @@ onUnmounted(() => {
             class="flex items-center justify-between w-full text-xs font-semibold text-slate-300 hover:text-white cursor-pointer"
           >
             <div class="flex items-center space-x-2">
-              <ClipboardCheck class="w-4 h-4 text-sky-400" />
+              <ClipboardCheck class="w-4 h-4 text-[#00A896] dark:text-[#00E5C8]" />
               <span>Vistoria de Portaria (Conferência de Lacre & Avarias)</span>
             </div>
-            <span class="text-[10px] font-mono text-sky-400 px-2 py-0.5 rounded bg-sky-950 border border-sky-800">
+            <span class="text-[10px] font-mono text-[#00A896] dark:text-[#00E5C8] px-2 py-0.5 rounded bg-teal-950 border border-teal-800">
               {{ showInspection ? 'Ocultar Checklist' : '+ Abrir Vistoria ISO' }}
             </span>
           </button>
@@ -607,7 +607,7 @@ onUnmounted(() => {
                   v-model="sealNumber"
                   type="text"
                   placeholder="Ex: LCR-88910"
-                  class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs font-mono uppercase text-white focus:outline-none focus:border-sky-500"
+                  class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs font-mono uppercase text-white focus:outline-none focus:border-[#00A896]"
                 />
               </div>
 
@@ -615,7 +615,7 @@ onUnmounted(() => {
                 <label class="block text-[11px] font-semibold text-slate-400 mb-1">Condição do Lacre</label>
                 <select
                   v-model="sealStatus"
-                  class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-sky-500 cursor-pointer"
+                  class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-[#00A896] cursor-pointer"
                 >
                   <option value="Intacto">Intacto / Conferido</option>
                   <option value="Rompido">Rompido / Violado (Alerta)</option>
@@ -650,7 +650,7 @@ onUnmounted(() => {
         <button
           type="submit"
           :disabled="isScanning || !scanInput"
-          class="w-full bg-[#086cfe] hover:bg-blue-600 disabled:opacity-50 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-blue-600/25 text-xs font-mono uppercase tracking-wider flex items-center justify-center space-x-2 transition-all active:scale-[0.98] cursor-pointer"
+          class="w-full bg-gradient-to-r from-[#00A896] to-teal-500 hover:bg-blue-600 disabled:opacity-50 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-blue-600/25 text-xs font-mono uppercase tracking-wider flex items-center justify-center space-x-2 transition-all active:scale-[0.98] cursor-pointer"
         >
           <span v-if="isScanning" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
           <span v-else>Validar Acesso na Cancela / Catraca</span>
@@ -675,11 +675,11 @@ onUnmounted(() => {
             v-for="p in demoPlates"
             :key="p"
             @click="simulateOpticalScan(p)"
-            class="px-2.5 py-1 rounded-xl bg-slate-950 hover:bg-slate-800 text-xs font-mono text-sky-300 hover:text-white border border-sky-500/30 hover:border-sky-400 transition-colors cursor-pointer flex items-center space-x-1"
+            class="px-2.5 py-1 rounded-xl bg-slate-950 hover:bg-slate-800 text-xs font-mono text-teal-700 dark:text-teal-300 hover:text-white border border-[#00A896]/30 hover:border-sky-400 transition-colors cursor-pointer flex items-center space-x-1"
             :title="`Disparar leitura óptica com bip para ${p}`"
           >
             <Volume2 class="w-3.5 h-3.5 text-emerald-400" />
-            <Truck class="w-3.5 h-3.5 text-sky-400" />
+            <Truck class="w-3.5 h-3.5 text-[#00A896] dark:text-[#00E5C8]" />
             <span>{{ p }}</span>
           </button>
         </div>
@@ -752,7 +752,7 @@ onUnmounted(() => {
           <span class="text-slate-500 text-[10px] font-mono uppercase block">
             {{ scanResult.badge_info ? 'Zonas Liberadas' : 'Doca / Pátio' }}
           </span>
-          <p class="font-semibold text-sky-400 mt-0.5 truncate">{{ scanResult.dock_name }}</p>
+          <p class="font-semibold text-[#00A896] dark:text-[#00E5C8] mt-0.5 truncate">{{ scanResult.dock_name }}</p>
         </div>
       </div>
 
@@ -769,7 +769,7 @@ onUnmounted(() => {
 
       <div class="flex items-center justify-between text-xs text-slate-400 pt-1 font-mono">
         <span>Status Atual: <strong class="text-white">{{ scanResult.new_status }}</strong></span>
-        <button @click="scanResult = null" class="text-sky-400 hover:text-white underline cursor-pointer text-[11px]">
+        <button @click="scanResult = null" class="text-[#00A896] dark:text-[#00E5C8] hover:text-white underline cursor-pointer text-[11px]">
           Fechar Notificação
         </button>
       </div>
@@ -788,7 +788,7 @@ onUnmounted(() => {
             <X class="w-5 h-5" />
           </button>
 
-          <div class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-sky-950 text-sky-400 border border-sky-800 text-[11px] font-mono font-semibold">
+          <div class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-teal-950 text-[#00A896] dark:text-[#00E5C8] border border-teal-800 text-[11px] font-mono font-semibold">
             <QrIcon class="w-3.5 h-3.5" />
             <span>QR Code do Motorista (Simulação)</span>
           </div>
@@ -802,7 +802,7 @@ onUnmounted(() => {
           </p>
 
           <!-- QR Code Image -->
-          <div class="bg-white p-4 rounded-2xl inline-block shadow-xl border-4 border-sky-500/30">
+          <div class="bg-white p-4 rounded-2xl inline-block shadow-xl border-4 border-[#00A896]/30">
             <img :src="sampleQrDataUrl" alt="QR Code" class="w-48 h-48 mx-auto" />
           </div>
 
@@ -812,7 +812,7 @@ onUnmounted(() => {
               :key="p"
               @click="generateSampleQr(p)"
               class="px-2.5 py-1 rounded-lg text-xs font-mono font-semibold transition-colors cursor-pointer"
-              :class="samplePlateSelected === p ? 'bg-[#086cfe] text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'"
+              :class="samplePlateSelected === p ? 'bg-gradient-to-r from-[#00A896] to-teal-500 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'"
             >
               {{ p }}
             </button>

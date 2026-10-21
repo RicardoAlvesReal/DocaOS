@@ -1,22 +1,54 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @layer base {
   :root {
-    --color-ground: #070a12;
-    --color-surface: #0b0f19;
-    --color-surface-card: #0e1422;
-    --color-surface-hover: #131b2e;
-    --color-surface-elevated: #18233c;
-    --color-border: #1a2233;
-    --color-border-subtle: #242f47;
+    /* =========================================================================
+       MODO CLARO (LIGHT MODE) - CLEAN & CORPORATIVO
+       ========================================================================= */
+    --color-ground: #f8fafc;
+    --color-surface: #ffffff;
+    --color-surface-card: #ffffff;
+    --color-surface-hover: #f1f5f9;
+    --color-surface-elevated: #ffffff;
+    --color-border: #e2e8f0;
+    --color-border-subtle: #cbd5e1;
+    
+    --color-ink-primary: #0f172a;
+    --color-ink-secondary: #475569;
+    --color-ink-muted: #94a3b8;
+    
+    /* DocaOS Brand Colors */
+    --color-accent: #00A896;
+    --color-accent-hover: #008777;
+    --color-accent-subtle: rgba(0, 168, 150, 0.12);
+
+    --color-status-success: #10b981;
+    --color-status-warning: #f59e0b;
+    --color-status-danger: #ef4444;
+  }
+
+  html.dark, :root.dark {
+    /* =========================================================================
+       MODO ESCURO (DARK MODE) - DOCAOS NAVY & TEAL
+       ========================================================================= */
+    --color-ground: #00142c;
+    --color-surface: #001c3d;
+    --color-surface-card: #04244a;
+    --color-surface-hover: #073160;
+    --color-surface-elevated: #093b74;
+    --color-border: rgba(0, 168, 150, 0.22);
+    --color-border-subtle: #0d3663;
     
     --color-ink-primary: #f8fafc;
     --color-ink-secondary: #94a3b8;
     --color-ink-muted: #64748b;
     
-    --color-accent: #0284c7;
-    --color-accent-hover: #0369a1;
-    --color-accent-subtle: rgba(2, 132, 199, 0.12);
+    /* DocaOS Brand Colors */
+    --color-accent: #00A896;
+    --color-accent-hover: #00d2b4;
+    --color-accent-subtle: rgba(0, 168, 150, 0.2);
 
     --color-status-success: #10b981;
     --color-status-warning: #f59e0b;
@@ -32,6 +64,7 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     letter-spacing: -0.011em;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 
   /* Monospace font standard */
@@ -59,115 +92,14 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #070a12;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
-  border-radius: 2px;
+  background: var(--color-border);
+  border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: var(--color-accent);
 }
-
-/* ========================================================================= */
-/* TASTE-SKILL MICRO-ANIMATIONS: ROTAS, ABAS E MODAIS                       */
-/* Transições discretas em opacidade e transform (<= 180ms), sem elasticidade*/
-/* ========================================================================= */
-
-/* Transição de Páginas (Router View) */
-.page-fade-enter-active,
-.page-fade-leave-active {
-  transition: opacity 0.16s ease-out, transform 0.16s ease-out;
-}
-
-.page-fade-enter-from {
-  opacity: 0;
-  transform: translateY(4px);
-}
-
-.page-fade-leave-to {
-  opacity: 0;
-  transform: translateY(-4px);
-}
-
-/* Transição de Abas Internas (Tabs) */
-.tab-fade-enter-active,
-.tab-fade-leave-active {
-  transition: opacity 0.14s ease-out, transform 0.14s ease-out;
-}
-
-.tab-fade-enter-from {
-  opacity: 0;
-  transform: translateY(3px);
-}
-
-.tab-fade-leave-to {
-  opacity: 0;
-  transform: translateY(-3px);
-}
-
-/* Transição de Modais (Backdrop + Caixa de Diálogo) */
-.modal-enter-active,
-.modal-leave-active {
-  transition: opacity 0.18s ease-out;
-}
-
-.modal-enter-active .modal-panel,
-.modal-leave-active .modal-panel {
-  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.18s ease-out;
-}
-
-.modal-enter-from {
-  opacity: 0;
-}
-
-.modal-enter-from .modal-panel {
-  opacity: 0;
-  transform: scale(0.96) translateY(6px);
-}
-
-.modal-leave-to {
-  opacity: 0;
-}
-
-.modal-leave-to .modal-panel {
-  opacity: 0;
-  transform: scale(0.97) translateY(4px);
-}
-
-/* Acessibilidade: Desativa movimento se o usuário preferir */
-@media (prefers-reduced-motion: reduce) {
-  .page-fade-enter-active,
-  .page-fade-leave-active,
-  .tab-fade-enter-active,
-  .tab-fade-leave-active,
-  .modal-enter-active,
-  .modal-leave-active,
-  .modal-panel {
-    transition: none !important;
-    transform: none !important;
-  }
-}
-
-/* Regras de Impressão e Exportação para PDF */
-@media print {
-  @page {
-    size: A4 portrait;
-    margin: 12mm;
-  }
-  body {
-    background-color: #ffffff !important;
-    color: #0f172a !important;
-  }
-  aside, nav, header, .print\:hidden, .no-print {
-    display: none !important;
-  }
-  main {
-    padding: 0 !important;
-    margin: 0 !important;
-    max-width: 100% !important;
-  }
-}
-

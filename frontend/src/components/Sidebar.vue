@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useYardStore } from '../stores/yard'
 import { useAuthStore } from '../stores/auth'
+import ThemeToggle from './ThemeToggle.vue'
 import { 
   LayoutDashboard, 
   DoorClosed, 
@@ -159,7 +160,7 @@ function handleExitDemo() {
     <!-- ================================================================= -->
     <header 
       class="lg:hidden sticky top-0 z-40 border-b backdrop-blur-md px-4 h-16 flex items-center justify-between"
-      :class="isSuperAdminRoute ? 'bg-[#090b16]/95 border-indigo-900/80' : 'bg-[#070e1c]/95 border-slate-800/90'"
+      :class="isSuperAdminRoute ? 'bg-white/95 dark:bg-[#090b16]/95 border-slate-200 dark:border-indigo-900/80' : 'bg-white/95 dark:bg-[#00142c]/95 border-slate-200 dark:border-teal-500/20'"
     >
       <div class="flex items-center space-x-3">
         <button 
@@ -199,6 +200,7 @@ function handleExitDemo() {
 
       <!-- Quick Actions Mobile -->
       <div class="flex items-center space-x-2">
+        <ThemeToggle :compact="true" class="mr-1" />
         <template v-if="isSuperAdminRoute">
           <button
             @click="handleNewTenantClick"
@@ -461,7 +463,7 @@ function handleExitDemo() {
         </div>
 
         <!-- Sandbox Alert Badge -->
-        <div v-if="authStore.isDemoMode" class="bg-[#0e1422] border border-amber-500/30 rounded-xl p-3 space-y-2">
+        <div v-if="authStore.isDemoMode" class="bg-amber-50 dark:bg-[#04244a] border border-amber-500/30 rounded-xl p-3 space-y-2">
           <div class="flex items-center space-x-1.5 text-xs font-bold text-amber-400">
             <Sparkles class="w-3.5 h-3.5 text-amber-400" />
             <span>MODO SANDBOX</span>
@@ -487,7 +489,7 @@ function handleExitDemo() {
         </div>
 
         <!-- Armazém Ativo & Conexão Realtime -->
-        <div class="bg-[#0e1422] border border-slate-800 rounded-xl p-3 space-y-2">
+        <div class="bg-slate-100/80 dark:bg-[#04244a] border border-slate-200 dark:border-teal-500/20 rounded-xl p-3 space-y-2">
           <div class="flex items-center justify-between text-xs">
             <span class="text-xs font-medium text-slate-400">Armazém Ativo</span>
             <div 
@@ -501,7 +503,7 @@ function handleExitDemo() {
           </div>
 
           <div class="flex items-center space-x-2">
-            <div class="p-1.5 rounded-lg bg-slate-800 border border-slate-700 text-sky-400 shrink-0">
+            <div class="p-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[#00A896] dark:text-[#00E5C8] shrink-0">
               <Warehouse class="w-4 h-4" />
             </div>
 
@@ -524,7 +526,7 @@ function handleExitDemo() {
 
             <!-- Se for Operador Real: Nome Travado -->
             <div v-else class="min-w-0 flex-1">
-              <p class="text-xs font-bold text-white truncate" :title="yardStore.currentTenant?.name || authStore.user?.tenant_name">
+              <p class="text-xs font-bold text-slate-800 dark:text-white truncate" :title="yardStore.currentTenant?.name || authStore.user?.tenant_name">
                 {{ yardStore.currentTenant?.name || authStore.user?.tenant_name || 'Terminal Demonstrativo' }}
               </p>
               <span class="text-[11px] text-slate-400">Unidade Operacional</span>
@@ -535,7 +537,7 @@ function handleExitDemo() {
         <!-- Botão Novo Agendamento (CTA Operacional) -->
         <button
           @click="handleNewSchedule"
-          class="w-full bg-sky-600 hover:bg-sky-500 active:scale-95 text-white py-2.5 px-4 rounded-lg font-bold text-xs uppercase tracking-wider flex items-center justify-center space-x-2 transition-all cursor-pointer"
+          class="w-full bg-gradient-to-r from-[#00A896] to-teal-500 hover:from-teal-500 hover:to-emerald-500 active:scale-95 text-white py-2.5 px-4 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center space-x-2 shadow-md shadow-teal-500/20 transition-all cursor-pointer"
         >
           <PlusCircle class="w-4 h-4" />
           <span>Novo Agendamento</span>
@@ -552,22 +554,22 @@ function handleExitDemo() {
             class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg text-xs font-medium transition-all cursor-pointer text-left"
             :class="[
               route.path === item.path
-                ? 'bg-[#0e1422] text-white border-l-2 border-l-sky-500 font-semibold'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-[#0e1422]/60'
+                ? 'bg-teal-500/10 dark:bg-teal-500/20 text-teal-800 dark:text-[#00E5C8] border-l-2 border-l-[#00A896] font-bold shadow-sm'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#04244a]/60'
             ]"
           >
             <div class="flex items-center space-x-3">
               <component 
                 :is="item.icon" 
                 class="w-4 h-4 shrink-0 transition-colors"
-                :class="route.path === item.path ? 'text-sky-400' : 'text-slate-400'"
+                :class="route.path === item.path ? 'text-[#00A896] dark:text-[#00E5C8]' : 'text-slate-400 dark:text-slate-500'"
               />
               <span class="tracking-wide">{{ item.name }}</span>
             </div>
 
             <span 
               v-if="item.badge && item.badge()" 
-              class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-medium"
+              class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium"
             >
               {{ item.badge() }}
             </span>
@@ -582,10 +584,10 @@ function handleExitDemo() {
           </p>
           <button
             @click="handleOpenCarrierPortal"
-            class="w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/60 transition-all cursor-pointer border border-sky-500/20 bg-sky-950/20"
+            class="w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/60 transition-all cursor-pointer border border-teal-500/30 bg-teal-50/50 dark:bg-teal-950/30 text-teal-800 dark:text-teal-300"
           >
             <div class="flex items-center space-x-2.5">
-              <Truck class="w-4 h-4 text-sky-400 shrink-0" />
+              <Truck class="w-4 h-4 text-[#00A896] dark:text-[#00E5C8] shrink-0" />
               <span>Auto-Agendamento</span>
             </div>
             <ExternalLink class="w-3.5 h-3.5 text-slate-400" />
@@ -614,20 +616,21 @@ function handleExitDemo() {
       <!-- =============================================================== -->
       <div 
         class="p-4 border-t"
-        :class="isSuperAdminRoute ? 'border-indigo-950 bg-slate-950/80' : 'border-slate-800/90 bg-slate-950/60'"
+        :class="isSuperAdminRoute ? 'border-slate-200 dark:border-indigo-950 bg-slate-50 dark:bg-slate-950/80' : 'border-slate-200 dark:border-teal-500/20 bg-slate-50 dark:bg-slate-950/60'"
       >
+        <ThemeToggle class="mb-3" />
         <div class="flex items-center justify-between">
           <div class="flex items-center space-x-3 min-w-0">
             <!-- Avatar -->
             <div 
               class="w-9 h-9 rounded-xl flex items-center justify-center font-bold uppercase text-xs shrink-0"
-              :class="isSuperAdminRoute ? 'bg-indigo-950 text-amber-400 border border-amber-500/40' : 'bg-gradient-to-tr from-[#086cfe]/20 to-sky-400/20 border border-sky-500/30 text-sky-400'"
+              :class="isSuperAdminRoute ? 'bg-indigo-950 text-amber-400 border border-amber-500/40' : 'bg-teal-500/10 dark:bg-teal-500/20 border border-teal-500/30 text-[#00A896] dark:text-[#00E5C8]'"
             >
               {{ isSuperAdminRoute ? 'RA' : (authStore.user?.name || 'OP').substring(0, 2) }}
             </div>
             <!-- Info -->
             <div class="min-w-0">
-              <p class="text-xs font-bold text-white truncate" :title="authStore.user?.name">
+              <p class="text-xs font-bold text-slate-800 dark:text-white truncate" :title="authStore.user?.name">
                 {{ isSuperAdminRoute ? 'Super Admin RAOS' : (authStore.user?.name || 'Operador Convidado') }}
               </p>
               <p class="text-[10px] font-mono text-slate-500 truncate" :title="authStore.user?.email">

@@ -169,7 +169,7 @@ onMounted(() => {
       
       <!-- Estado de Carregamento -->
       <div v-if="isLoading" class="text-center py-16 space-y-3">
-        <div class="w-10 h-10 border-4 border-sky-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+        <div class="w-10 h-10 border-4 border-[#00A896] border-t-transparent rounded-full animate-spin mx-auto"></div>
         <p class="text-xs font-mono text-slate-400">Carregando janelas e docas do armazém...</p>
       </div>
 
@@ -202,9 +202,9 @@ onMounted(() => {
         </div>
 
         <!-- QR Code Card -->
-        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-6 text-center max-w-sm mx-auto space-y-3">
+        <div class="bg-slate-50 dark:bg-[#00142c] border border-slate-200 dark:border-slate-800 rounded-2xl p-6 text-center max-w-sm mx-auto space-y-3">
           <p class="text-[11px] font-mono font-bold text-slate-300 uppercase">QR Code Oficial de Portaria</p>
-          <div class="bg-white p-3 rounded-2xl inline-block shadow-lg border-2 border-sky-500/40">
+          <div class="bg-white p-3 rounded-2xl inline-block shadow-lg border-2 border-[#00A896]/40">
             <img :src="bookingQrCodeUrl" alt="QR Code de Agendamento" class="w-44 h-44 mx-auto" />
           </div>
           <p class="text-[10px] text-slate-400">Apresente este código na guarita física para liberação imediata da cancela.</p>
@@ -215,7 +215,7 @@ onMounted(() => {
           <a
             :href="bookingSuccess.driver_access_url"
             target="_blank"
-            class="w-full bg-[#086cfe] hover:bg-blue-600 text-white font-mono text-xs font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-blue-600/25 flex items-center justify-center space-x-2 transition-all cursor-pointer"
+            class="w-full bg-gradient-to-r from-[#00A896] to-teal-500 hover:bg-blue-600 text-white font-mono text-xs font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-blue-600/25 flex items-center justify-center space-x-2 transition-all cursor-pointer"
           >
             <span>Abrir Cartão do Motorista no Celular</span>
             <ExternalLink class="w-4 h-4" />
@@ -225,7 +225,7 @@ onMounted(() => {
             @click="copyDriverUrl"
             class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 font-mono text-xs font-semibold py-3 px-4 rounded-xl border border-slate-700 flex items-center justify-center space-x-2 transition-colors cursor-pointer"
           >
-            <Copy class="w-4 h-4 text-sky-400" />
+            <Copy class="w-4 h-4 text-[#00A896] dark:text-[#00E5C8]" />
             <span>{{ copiedLink ? 'Link Copiado para o WhatsApp!' : 'Copiar Link para Enviar ao Motorista' }}</span>
           </button>
 
@@ -239,17 +239,17 @@ onMounted(() => {
       </div>
 
       <!-- FORMULÁRIO DE AUTO-AGENDAMENTO -->
-      <div v-else class="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-xl space-y-6">
+      <div v-else class="bg-white dark:bg-[#031d3d] border border-slate-200 dark:border-teal-500/20 rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-xl space-y-6">
         
         <!-- Identificação do Armazém -->
         <div class="flex items-center justify-between pb-4 border-b border-slate-800">
           <div>
-            <span class="text-[11px] font-mono font-bold text-sky-400 uppercase tracking-wider">Agendamento de Entrega / Coleta</span>
+            <span class="text-[11px] font-mono font-bold text-[#00A896] dark:text-[#00E5C8] uppercase tracking-wider">Agendamento de Entrega / Coleta</span>
             <h1 class="text-xl sm:text-2xl font-black text-white">{{ tenantInfo.name }}</h1>
             <p v-if="tenantInfo.cnpj" class="text-xs font-mono text-slate-400">CNPJ: {{ tenantInfo.cnpj }}</p>
           </div>
           <div class="hidden sm:flex items-center space-x-2 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 text-xs font-mono text-slate-300">
-            <Building2 class="w-4 h-4 text-sky-400" />
+            <Building2 class="w-4 h-4 text-[#00A896] dark:text-[#00E5C8]" />
             <span>{{ tenantInfo.docks.length }} Docas Disponíveis</span>
           </div>
         </div>
@@ -264,7 +264,7 @@ onMounted(() => {
           <!-- Seção 1: Transportadora & Carga -->
           <div>
             <h3 class="text-xs font-mono font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center space-x-1.5">
-              <Truck class="w-4 h-4 text-sky-400" />
+              <Truck class="w-4 h-4 text-[#00A896] dark:text-[#00E5C8]" />
               <span>1. Dados da Transportadora & Carga</span>
             </h3>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -306,7 +306,7 @@ onMounted(() => {
           <!-- Seção 2: Veículo & Motorista -->
           <div class="pt-2 border-t border-slate-800/80">
             <h3 class="text-xs font-mono font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center space-x-1.5">
-              <User class="w-4 h-4 text-sky-400" />
+              <User class="w-4 h-4 text-[#00A896] dark:text-[#00E5C8]" />
               <span>2. Veículo & Motorista</span>
             </h3>
             <!-- Especificação do Veículo & Carroceria -->
@@ -424,7 +424,7 @@ onMounted(() => {
           <!-- Seção 3: Data, Horário & Doca -->
           <div class="pt-2 border-t border-slate-800/80">
             <h3 class="text-xs font-mono font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center space-x-1.5">
-              <Clock class="w-4 h-4 text-sky-400" />
+              <Clock class="w-4 h-4 text-[#00A896] dark:text-[#00E5C8]" />
               <span>3. Janela de Horário Desejada</span>
             </h3>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -465,7 +465,7 @@ onMounted(() => {
           <button
             type="submit"
             :disabled="isBooking"
-            class="w-full bg-[#086cfe] hover:bg-blue-600 disabled:opacity-50 text-white font-mono text-xs font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-blue-600/25 flex items-center justify-center space-x-2 transition-all cursor-pointer active:scale-[0.98]"
+            class="w-full bg-gradient-to-r from-[#00A896] to-teal-500 hover:bg-blue-600 disabled:opacity-50 text-white font-mono text-xs font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-blue-600/25 flex items-center justify-center space-x-2 transition-all cursor-pointer active:scale-[0.98]"
           >
             <span v-if="isBooking" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
             <span v-else>Confirmar Janela & Gerar QR Code</span>

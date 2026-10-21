@@ -178,7 +178,7 @@ async function callNextTruckToDock(dock) {
   <div class="space-y-6">
     
     <!-- Header with Capacity Banner & View Mode Switcher -->
-    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-[#0e1422] border border-slate-800 p-5 rounded-2xl shadow-xl">
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-[#0e1422] border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-xl">
       <div>
         <div class="inline-flex items-center space-x-1.5 px-3 py-0.5 rounded-full bg-sky-950/80 border border-sky-800 text-xs font-mono font-semibold text-sky-400 mb-1">
           <DoorClosed class="w-3.5 h-3.5" />
@@ -190,11 +190,11 @@ async function callNextTruckToDock(dock) {
 
       <div class="flex flex-wrap items-center gap-3">
         <!-- Alternador de Visão: Grid vs Agenda -->
-        <div class="bg-[#070a12] border border-slate-800 p-1 rounded-xl flex items-center space-x-1">
+        <div class="bg-slate-50 dark:bg-[#00142c] border border-slate-200 dark:border-slate-800 p-1 rounded-xl flex items-center space-x-1">
           <button
             @click="viewMode = 'grid'"
             class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer"
-            :class="viewMode === 'grid' ? 'bg-[#086cfe] text-white shadow-md' : 'text-slate-400 hover:text-white'"
+            :class="viewMode === 'grid' ? 'bg-[#00A896] text-white font-bold shadow-md' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
           >
             <LayoutGrid class="w-3.5 h-3.5" />
             <span>Tempo Real (Grid)</span>
@@ -203,7 +203,7 @@ async function callNextTruckToDock(dock) {
           <button
             @click="viewMode = 'agenda'"
             class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer"
-            :class="viewMode === 'agenda' ? 'bg-[#086cfe] text-white shadow-md' : 'text-slate-400 hover:text-white'"
+            :class="viewMode === 'agenda' ? 'bg-[#00A896] text-white font-bold shadow-md' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
           >
             <Calendar class="w-3.5 h-3.5" />
             <span>Agenda & Slots (Gantt)</span>
@@ -211,16 +211,16 @@ async function callNextTruckToDock(dock) {
         </div>
 
         <!-- License quota pill -->
-        <div class="bg-[#070a12] border border-slate-800 px-3 py-1.5 rounded-xl text-xs font-mono">
+        <div class="bg-slate-100 dark:bg-[#00142c] border border-slate-200 dark:border-slate-200 dark:border-slate-800 px-3 py-1.5 rounded-xl text-xs font-mono">
           <span class="text-slate-400">Docas: </span>
-          <span class="font-bold text-sky-400">{{ yardStore.docks.length }}</span>
+          <span class="font-bold text-[#00A896] dark:text-[#00E5C8]">{{ yardStore.docks.length }}</span>
           <span class="text-slate-500"> / {{ maxDocks }}</span>
         </div>
 
         <button
           @click="openModal"
           :disabled="isLimitReached"
-          class="flex items-center space-x-1.5 bg-sky-600 hover:bg-sky-500 disabled:opacity-50 text-white px-3.5 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer shadow-lg"
+          class="flex items-center space-x-1.5 bg-gradient-to-r from-[#00A896] to-teal-500 hover:from-teal-500 hover:to-emerald-500 disabled:opacity-50 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-lg shadow-teal-500/20"
         >
           <PlusCircle class="w-4 h-4" />
           <span>+ Cadastrar Doca</span>
@@ -241,16 +241,16 @@ async function callNextTruckToDock(dock) {
             ? 'border-sky-500/40 bg-[#0c1322] shadow-lg shadow-sky-950/20'
             : dock.status === 'Manutenção'
             ? 'border-amber-600/40 bg-[#16120b]'
-            : 'border-slate-800 hover:border-slate-700'
+            : 'border-slate-200 dark:border-slate-800 hover:border-slate-700'
         ]"
       >
         <div>
           <div class="flex items-start justify-between mb-3">
             <div>
-              <span class="font-mono text-sm font-bold text-white bg-slate-800 px-2 py-0.5 rounded border border-slate-700">
+              <span class="font-mono text-sm font-bold text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-300 dark:border-slate-700">
                 {{ dock.code }}
               </span>
-              <h3 class="text-xs font-bold text-slate-200 mt-2 truncate">{{ dock.name }}</h3>
+              <h3 class="text-xs font-bold text-slate-800 dark:text-slate-200 mt-2 truncate">{{ dock.name }}</h3>
             </div>
 
             <span 
@@ -288,7 +288,7 @@ async function callNextTruckToDock(dock) {
           </div>
         </div>
 
-        <div class="pt-3 border-t border-slate-800 flex items-center justify-between text-xs gap-2">
+        <div class="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs gap-2">
           <!-- Botão Chamar Próximo da Fila no WhatsApp (se Livre) -->
           <button
             v-if="dock.status === 'Livre' && yardStore.waitingYardList.length > 0"
@@ -316,11 +316,11 @@ async function callNextTruckToDock(dock) {
     <div v-else class="space-y-4">
       
       <!-- Date Navigator & Info -->
-      <div class="flex flex-col sm:flex-row items-center justify-between gap-3 bg-[#0a0f1d] border border-slate-800 p-4 rounded-2xl">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-100 dark:bg-[#001833] border border-slate-200 dark:border-slate-800 p-4 rounded-2xl">
         <div class="flex items-center space-x-3">
           <button
             @click="changeDate(-1)"
-            class="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 cursor-pointer"
+            class="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-200 dark:border-slate-800 cursor-pointer"
             title="Dia Anterior"
           >
             <ChevronLeft class="w-4 h-4" />
@@ -333,7 +333,7 @@ async function callNextTruckToDock(dock) {
 
           <button
             @click="changeDate(1)"
-            class="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 cursor-pointer"
+            class="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-200 dark:border-slate-800 cursor-pointer"
             title="Próximo Dia"
           >
             <ChevronRight class="w-4 h-4" />
@@ -349,16 +349,16 @@ async function callNextTruckToDock(dock) {
       </div>
 
       <!-- Gantt Matrix Table -->
-      <div class="bg-[#0e1422] border border-slate-800 rounded-2xl shadow-xl overflow-x-auto">
+      <div class="bg-white dark:bg-[#031d3d] border border-slate-200 dark:border-teal-500/20 rounded-2xl shadow-sm text-slate-800 dark:text-slate-100 shadow-xl overflow-x-auto">
         <table class="w-full text-left border-collapse min-w-[900px]">
           <!-- Time Header -->
           <thead>
-            <tr class="border-b border-slate-800 bg-slate-950/80 text-[11px] font-mono text-slate-400">
-              <th class="py-3 px-4 w-48 font-bold text-white border-r border-slate-800/80">Doca Física</th>
+            <tr class="border-b border-slate-200 dark:border-slate-800 bg-slate-950/80 text-[11px] font-mono text-slate-400">
+              <th class="py-3 px-4 w-48 font-bold text-white border-r border-slate-200 dark:border-slate-800/80">Doca Física</th>
               <th 
                 v-for="slot in timeSlots" 
                 :key="slot.label"
-                class="py-3 px-2 text-center border-r border-slate-800/50 min-w-[110px]"
+                class="py-3 px-2 text-center border-r border-slate-200 dark:border-slate-800/50 min-w-[110px]"
               >
                 <div class="font-bold text-slate-200">{{ slot.label }}</div>
                 <span class="text-[9px] text-slate-500">Janela 2h</span>
@@ -374,9 +374,9 @@ async function callNextTruckToDock(dock) {
               class="hover:bg-slate-900/40 transition-colors"
             >
               <!-- Dock Name Column -->
-              <td class="py-3 px-4 border-r border-slate-800/80 bg-slate-950/40">
+              <td class="py-3 px-4 border-r border-slate-200 dark:border-slate-800/80 bg-slate-950/40">
                 <div class="flex items-center space-x-2">
-                  <span class="font-mono text-xs font-bold text-sky-400 bg-slate-900 border border-slate-800 px-2 py-0.5 rounded">
+                  <span class="font-mono text-xs font-bold text-sky-400 bg-slate-900 border border-slate-200 dark:border-slate-800 px-2 py-0.5 rounded">
                     {{ dock.code }}
                   </span>
                   <div>
@@ -390,7 +390,7 @@ async function callNextTruckToDock(dock) {
               <td 
                 v-for="slot in timeSlots" 
                 :key="slot.label"
-                class="p-1.5 border-r border-slate-800/50 align-top"
+                class="p-1.5 border-r border-slate-200 dark:border-slate-800/50 align-top"
               >
                 <!-- Agendamento Alocado -->
                 <div 
@@ -415,7 +415,7 @@ async function callNextTruckToDock(dock) {
                 <!-- Slot Livre -->
                 <div 
                   v-else 
-                  class="h-16 rounded-xl border border-dashed border-slate-800/60 hover:border-sky-500/40 hover:bg-sky-500/5 flex items-center justify-center text-[10px] font-mono text-slate-600 hover:text-sky-400 transition-colors p-1 text-center"
+                  class="h-16 rounded-xl border border-dashed border-slate-200 dark:border-slate-800/60 hover:border-sky-500/40 hover:bg-sky-500/5 flex items-center justify-center text-[10px] font-mono text-slate-600 hover:text-sky-400 transition-colors p-1 text-center"
                 >
                   <span>Livre</span>
                 </div>
@@ -433,8 +433,8 @@ async function callNextTruckToDock(dock) {
         v-if="isNewDockModalOpen"
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4"
       >
-        <div class="modal-panel bg-[#0e1422] border border-slate-800 rounded-xl max-w-md w-full p-6 shadow-2xl">
-          <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
+        <div class="modal-panel bg-[#0e1422] border border-slate-200 dark:border-slate-800 rounded-xl max-w-md w-full p-6 shadow-2xl">
+          <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-200 dark:border-slate-800">
             <h3 class="font-bold text-base text-white">Cadastrar Nova Doca Física</h3>
             <button @click="isNewDockModalOpen = false" class="text-slate-400 hover:text-white cursor-pointer">
               <X class="w-5 h-5" />
@@ -453,7 +453,7 @@ async function callNextTruckToDock(dock) {
                 type="text"
                 required
                 placeholder="Ex: DOCA-05"
-                class="w-full bg-[#070a12] border border-slate-800 rounded-lg px-3 py-2 text-xs font-mono uppercase text-white focus:outline-none focus:border-sky-500"
+                class="w-full bg-slate-50 dark:bg-[#00142c] border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs font-mono uppercase text-white focus:outline-none focus:border-sky-500"
               />
             </div>
 
@@ -464,7 +464,7 @@ async function callNextTruckToDock(dock) {
                 type="text"
                 required
                 placeholder="Ex: Doca 05 - Carga Seca"
-                class="w-full bg-[#070a12] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500"
+                class="w-full bg-slate-50 dark:bg-[#00142c] border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500"
               />
             </div>
 
@@ -472,7 +472,7 @@ async function callNextTruckToDock(dock) {
               <label class="block text-xs font-semibold text-slate-300 mb-1">Tipo de Doca</label>
               <select
                 v-model="newDockForm.dock_type"
-                class="w-full bg-[#070a12] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500 cursor-pointer"
+                class="w-full bg-slate-50 dark:bg-[#00142c] border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500 cursor-pointer"
               >
                 <option value="Geral">Carga Geral</option>
                 <option value="Seca">Carga Seca</option>
@@ -481,7 +481,7 @@ async function callNextTruckToDock(dock) {
               </select>
             </div>
 
-            <div class="flex justify-end space-x-3 pt-3 border-t border-slate-800">
+            <div class="flex justify-end space-x-3 pt-3 border-t border-slate-200 dark:border-slate-800">
               <button
                 type="button"
                 @click="isNewDockModalOpen = false"

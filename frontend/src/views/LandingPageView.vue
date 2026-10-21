@@ -1023,13 +1023,15 @@ const faqs = [
                   </div>
                 </div>
 
-                <div class="flex items-center gap-3 p-4 rounded-xl bg-slate-900/60 border border-slate-800">
-                  <Building2 class="w-5 h-5 text-sky-400 shrink-0" />
+                <div class="flex items-center gap-3.5 p-4 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-teal-500/30 transition-colors">
+                  <img src="/raos-icon.png" alt="RAOS Tecnologia" class="w-11 h-11 object-contain rounded-xl p-1 bg-slate-800/90 border border-teal-500/30 shadow-md shrink-0" />
                   <div>
-                    <div class="text-[11px] text-slate-400">Empresa Desenvolvedora</div>
-                    <div class="text-xs sm:text-sm font-bold text-white">
-                      {{ contactInfo.company }} • CNPJ: {{ contactInfo.cnpj }}
+                    <div class="text-[11px] text-teal-400/90 font-semibold uppercase tracking-wider">Empresa Desenvolvedora</div>
+                    <div class="text-xs sm:text-sm font-bold text-white flex flex-wrap items-center gap-1.5">
+                      <span>RAOS Tecnologia</span>
+                      <span class="text-[11px] font-normal text-slate-400">• CNPJ: {{ contactInfo.cnpj }}</span>
                     </div>
+                    <div class="text-[11px] text-slate-400 mt-0.5">Software House Especializada em Soluções Logísticas</div>
                   </div>
                 </div>
               </div>
@@ -1202,8 +1204,11 @@ const faqs = [
           <!-- Col 4: Contato -->
           <div>
             <div class="font-bold text-white text-xs uppercase tracking-wider mb-3">Contato & Empresa</div>
-            <div class="space-y-2 text-xs">
-              <div>{{ contactInfo.company }}</div>
+            <div class="flex items-center gap-2.5 mb-2.5">
+              <img src="/raos-icon.png" alt="RAOS Tecnologia" class="w-6 h-6 object-contain rounded-md border border-slate-700 bg-slate-800/80 p-0.5" />
+              <span class="font-bold text-white text-xs">RAOS Tecnologia</span>
+            </div>
+            <div class="space-y-1.5 text-xs text-slate-400">
               <div>CNPJ: {{ contactInfo.cnpj }}</div>
               <div>WhatsApp: {{ contactInfo.whatsappDisplay }}</div>
               <div>E-mail: {{ contactInfo.email }}</div>

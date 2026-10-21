@@ -56,6 +56,28 @@ const form = ref({
 async function fetchTenantInfo() {
   isLoading.value = true
   errorMessage.value = ''
+  if (localStorage.getItem('docaos_demo_mode') === 'true' || localStorage.getItem('rotaflow_demo_mode') === 'true' || !tenantSlug.value || tenantSlug.value === 'comlog' || tenantSlug.value === 'demo') {
+    tenantInfo.value = {
+      tenant_name: 'Terminal Logístico Santos Hub (DocaOS)',
+      has_carrier_portal: true,
+      allowed_advance_days: 7,
+      docks: [
+        { id: 'dock-01', code: 'DOCA-01', name: 'Doca 01 - Carga Geral Seca', cargo_category: 'Carga_Geral' },
+        { id: 'dock-02', code: 'DOCA-02', name: 'Doca 02 - Alimentos Refrigerados', cargo_category: 'Refrigerado' },
+        { id: 'dock-03', code: 'DOCA-03', name: 'Doca 03 - Cross-Docking Expresso', cargo_category: 'Crossdocking' },
+        { id: 'dock-05', code: 'DOCA-05', name: 'Doca 05 - Eletrônicos & Alto Valor', cargo_category: 'Carga_Geral' }
+      ]
+    }
+    form.value.carrier_name = 'Rodonaves Transportes Ltda'
+    form.value.vehicle_plate = 'BRA2E19'
+    form.value.driver_name = 'Carlos Alberto Silva'
+    form.value.driver_cpf = '123.456.789-00'
+    form.value.driver_phone = '(11) 98765-4321'
+    form.value.invoice_number = 'NF-892410'
+    form.value.dock_id = 'dock-01'
+    isLoading.value = false
+    return
+  }
   try {
     const res = await fetch(`/api/v1/carrier-portal/${tenantSlug.value}/info`)
     if (!res.ok) {

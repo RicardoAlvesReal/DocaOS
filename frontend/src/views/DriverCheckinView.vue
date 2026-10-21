@@ -95,6 +95,26 @@ async function fetchStatus() {
 }
 
 onMounted(async () => {
+  if (token?.toLowerCase().includes('demo') || localStorage.getItem('docaos_demo_mode') === 'true' || localStorage.getItem('rotaflow_demo_mode') === 'true') {
+    appointmentData.value = {
+      vehicle_plate: 'BRA2E19',
+      driver_name: 'Carlos Alberto Silva',
+      driver_cpf: '123.456.789-00',
+      carrier_name: 'Rodonaves Transportes Ltda',
+      dock_number: '05',
+      dock_name: 'Doca 05 - Eletrônicos & Alto Valor',
+      scheduled_time: '14:00',
+      status: 'Em_Doca',
+      cargo_type: 'Equipamentos Médicos Hospitalares',
+      warehouse_name: 'Terminal Logístico Santos Hub',
+      qr_code_token: 'DOCAOS:DEMO:BRA2E19',
+      geofence_status: 'VALIDADO_NO_PERIMETRO'
+    }
+    inputPlate.value = 'BRA2E19'
+    step.value = 2
+    isLoading.value = false
+    return
+  }
   try {
     const res = await fetch(`/api/v1/driver/${token}`)
     if (!res.ok) {

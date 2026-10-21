@@ -35,7 +35,8 @@ import {
   Send,
   MessageSquare,
   Lock,
-  ChevronDown
+  ChevronDown,
+  Menu
 } from 'lucide-vue-next'
 import { useAuthStore } from '../stores/auth'
 
@@ -45,6 +46,15 @@ const authStore = useAuthStore()
 function handleEnterDemo() {
   authStore.enterDemoMode()
   router.push('/app')
+}
+
+// Menu Mobile State
+const isMobileMenuOpen = ref(false)
+function toggleMobileMenu() {
+  isMobileMenuOpen.value = !isMobileMenuOpen.value
+}
+function closeMobileMenu() {
+  isMobileMenuOpen.value = false
 }
 
 // Contatos Oficiais RAOS Tecnologia / DocaOS
@@ -149,77 +159,133 @@ const faqs = [
 <template>
   <div class="min-h-screen bg-[#001c3d] text-slate-100 flex flex-col font-sans selection:bg-[#00A896] selection:text-white">
     <!-- ============================================ -->
-    <!-- HEADER NAVBAR                                -->
+    <!-- HEADER NAVBAR RIGOROSAMENTE CENTRALIZADO     -->
     <!-- ============================================ -->
-    <header class="sticky top-0 z-50 bg-[#00142c]/90 backdrop-blur-md border-b border-teal-500/20">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-        <!-- Logo -->
-        <a href="#inicio" class="flex items-center gap-3 group focus:outline-none focus:ring-2 focus:ring-[#00A896] rounded-lg p-1">
-          <img src="/docaos-logo.png" alt="DocaOS - Patio & Dock Operating System" class="h-10 sm:h-12 w-auto object-contain transition-transform group-hover:scale-105 duration-200" />
-        </a>
+    <header class="sticky top-0 z-50 bg-[#00142c]/95 backdrop-blur-md border-b border-teal-500/20">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+        <!-- Coluna Esquerda: Logo Oficial DocaOS -->
+        <div class="flex items-center shrink-0">
+          <a href="#inicio" @click="closeMobileMenu" class="flex items-center gap-3 group focus:outline-none focus:ring-2 focus:ring-[#00A896] rounded-lg p-1" aria-label="DocaOS - Início">
+            <img src="/docaos-logo.png" alt="DocaOS - Patio & Dock Operating System" class="h-10 sm:h-12 w-auto object-contain transition-transform group-hover:scale-105 duration-200" />
+          </a>
+        </div>
 
-        <!-- Desktop Nav -->
-        <nav class="hidden md:flex items-center gap-6 lg:gap-8 text-sm font-medium text-slate-300">
-          <a href="#funcionalidades" class="hover:text-[#00A896] transition-colors">Funcionalidades</a>
-          <a href="#solucoes" class="hover:text-[#00A896] transition-colors">Soluções</a>
-          <a href="#crachas" class="hover:text-[#00A896] transition-colors">Crachá Digital</a>
-          <a href="#lei11442" class="hover:text-[#00A896] transition-colors">Lei 11.442/07</a>
-          <a href="#calculadora-roi" class="hover:text-[#00A896] transition-colors">Calculadora ROI</a>
-          <a href="#diferenciais" class="hover:text-[#00A896] transition-colors">Diferenciais</a>
-          <a href="#contato" class="hover:text-[#00A896] transition-colors">Contato</a>
+        <!-- Coluna Central: Menu Desktop Rigorosamente Centralizado -->
+        <nav class="hidden lg:flex items-center justify-center flex-1" aria-label="Menu Principal">
+          <div class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-slate-900/80 border border-teal-500/30 backdrop-blur-md shadow-inner text-xs xl:text-sm font-semibold text-slate-300">
+            <a href="#inicio" class="px-3.5 py-1 rounded-full hover:text-white hover:bg-teal-500/20 transition-all">Início</a>
+            <a href="#funcionalidades" class="px-3.5 py-1 rounded-full hover:text-white hover:bg-teal-500/20 transition-all">Módulos</a>
+            <a href="#solucoes" class="px-3.5 py-1 rounded-full hover:text-white hover:bg-teal-500/20 transition-all">Soluções</a>
+            <a href="#crachas" class="px-3.5 py-1 rounded-full hover:text-white hover:bg-teal-500/20 transition-all">Crachá Digital</a>
+            <a href="#lei11442" class="px-3.5 py-1 rounded-full hover:text-white hover:bg-teal-500/20 transition-all">Lei 11.442/07</a>
+            <a href="#calculadora-roi" class="px-3.5 py-1 rounded-full hover:text-white hover:bg-teal-500/20 transition-all">Calculadora ROI</a>
+            <a href="#contato" class="px-3.5 py-1 rounded-full hover:text-white hover:bg-teal-500/20 transition-all">Contato</a>
+          </div>
         </nav>
 
-        <!-- CTA Actions -->
-        <div class="flex items-center gap-3">
+        <!-- Coluna Direita: CTAs + Botão Hambúrguer Mobile -->
+        <div class="flex items-center gap-3 shrink-0">
           <button
             @click="openWhatsAppDirect()"
             class="hidden sm:inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-semibold transition-all shadow-sm hover:shadow-emerald-500/10"
             title="Falar com consultor via WhatsApp"
           >
             <PhoneCall class="w-3.5 h-3.5 text-emerald-400" />
-            <span>Falar no WhatsApp</span>
+            <span>WhatsApp</span>
           </button>
 
           <button
             @click="handleEnterDemo"
             class="inline-flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg bg-gradient-to-r from-[#00A896] to-teal-500 hover:from-teal-500 hover:to-emerald-500 text-white text-xs sm:text-sm font-bold shadow-lg shadow-teal-500/20 hover:shadow-teal-500/35 transition-all transform hover:-translate-y-0.5 active:translate-y-0"
           >
-            <span>Acessar Demonstração</span>
+            <span>Acessar Demo</span>
             <ArrowRight class="w-4 h-4" />
+          </button>
+
+          <!-- Botão Menu Mobile -->
+          <button
+            @click="toggleMobileMenu"
+            class="lg:hidden p-2 rounded-lg bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-teal-400 border border-slate-700/80 focus:outline-none focus:ring-2 focus:ring-[#00A896] transition-colors"
+            aria-label="Abrir Menu de Navegação"
+          >
+            <X v-if="isMobileMenuOpen" class="w-6 h-6 text-teal-400" />
+            <Menu v-else class="w-6 h-6" />
           </button>
         </div>
       </div>
+
+      <!-- Menu Gaveta Mobile / Tablet (Expansível) -->
+      <transition
+        enter-active-class="transition duration-200 ease-out"
+        enter-from-class="opacity-0 -translate-y-2"
+        enter-to-class="opacity-100 translate-y-0"
+        leave-active-class="transition duration-150 ease-in"
+        leave-from-class="opacity-100 translate-y-0"
+        leave-to-class="opacity-0 -translate-y-2"
+      >
+        <div
+          v-if="isMobileMenuOpen"
+          class="lg:hidden bg-[#00142c] border-b border-teal-500/20 px-4 pt-3 pb-6 shadow-2xl backdrop-blur-xl"
+        >
+          <div class="flex flex-col space-y-2 text-center text-sm font-semibold text-slate-200">
+            <a href="#inicio" @click="closeMobileMenu" class="py-2.5 px-4 rounded-lg hover:bg-teal-500/10 hover:text-teal-300 transition-colors">Início</a>
+            <a href="#funcionalidades" @click="closeMobileMenu" class="py-2.5 px-4 rounded-lg hover:bg-teal-500/10 hover:text-teal-300 transition-colors">Módulos da Plataforma</a>
+            <a href="#solucoes" @click="closeMobileMenu" class="py-2.5 px-4 rounded-lg hover:bg-teal-500/10 hover:text-teal-300 transition-colors">Soluções para Pátios & Docas</a>
+            <a href="#crachas" @click="closeMobileMenu" class="py-2.5 px-4 rounded-lg hover:bg-teal-500/10 hover:text-teal-300 transition-colors">Crachá Digital de Pedestres</a>
+            <a href="#lei11442" @click="closeMobileMenu" class="py-2.5 px-4 rounded-lg hover:bg-teal-500/10 hover:text-teal-300 transition-colors">Compliance Lei 11.442/07</a>
+            <a href="#calculadora-roi" @click="closeMobileMenu" class="py-2.5 px-4 rounded-lg hover:bg-teal-500/10 hover:text-teal-300 transition-colors">Calculadora de ROI</a>
+            <a href="#contato" @click="closeMobileMenu" class="py-2.5 px-4 rounded-lg hover:bg-teal-500/10 hover:text-teal-300 transition-colors">Fale com Especialista</a>
+          </div>
+
+          <div class="mt-4 pt-4 border-t border-slate-800 flex flex-col gap-2.5">
+            <button
+              @click="openWhatsAppDirect(); closeMobileMenu()"
+              class="w-full py-2.5 px-4 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold text-xs flex items-center justify-center gap-2"
+            >
+              <PhoneCall class="w-4 h-4" />
+              <span>Falar no WhatsApp: (27) 99617-4965</span>
+            </button>
+            <button
+              @click="handleEnterDemo(); closeMobileMenu()"
+              class="w-full py-3 px-4 rounded-lg bg-gradient-to-r from-[#00A896] to-teal-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-teal-500/20"
+            >
+              <span>Acessar Demonstração Ao Vivo</span>
+              <ArrowRight class="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </transition>
     </header>
 
     <main class="flex-1">
       <!-- ============================================ -->
-      <!-- HERO SECTION                                 -->
+      <!-- HERO SECTION (CENTRALIZADO COM MÁXIMO IMPACTO) -->
       <!-- ============================================ -->
-      <section id="inicio" class="relative pt-12 pb-20 md:pt-16 md:pb-28 overflow-hidden bg-gradient-to-b from-[#00142c] via-[#001c3d] to-[#02234c]">
+      <section id="inicio" class="relative pt-12 pb-20 md:pt-16 md:pb-28 overflow-hidden bg-gradient-to-b from-[#00142c] via-[#001c3d] to-[#02234c] flex flex-col items-center justify-center text-center">
         <!-- Background Lighting Orbs -->
         <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-gradient-to-tr from-[#00A896]/20 to-teal-400/10 rounded-full blur-[140px] pointer-events-none"></div>
         <div class="absolute -top-10 right-10 w-80 h-80 bg-sky-500/10 rounded-full blur-[100px] pointer-events-none"></div>
 
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div class="text-center max-w-4xl mx-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full flex flex-col items-center">
+          <div class="text-center max-w-4xl mx-auto flex flex-col items-center">
             <!-- Badge -->
-            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/30 text-teal-300 text-xs sm:text-sm font-semibold mb-6 shadow-sm">
+            <div class="inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/30 text-teal-300 text-xs sm:text-sm font-semibold mb-6 shadow-sm mx-auto">
               <span class="w-2 h-2 rounded-full bg-[#00A896] animate-pulse"></span>
               Plataforma 100% Cloud • docaos.log.br • Pátios & Docas em Tempo Real
             </div>
 
             <!-- SEO Main H1 -->
-            <h1 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.15] mb-6">
+            <h1 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.15] mb-6 text-center">
               Reduza <span class="bg-gradient-to-r from-[#00A896] via-teal-300 to-sky-400 bg-clip-text text-transparent">Custos Operacionais</span> e Elimine Filas na Portaria Logística
             </h1>
 
             <!-- Subtitle -->
-            <p class="text-base sm:text-lg lg:text-xl text-slate-300 leading-relaxed mb-8 max-w-3xl mx-auto">
+            <p class="text-base sm:text-lg lg:text-xl text-slate-300 leading-relaxed mb-8 max-w-3xl mx-auto text-center">
               Plataforma corporativa de <strong>Yard Management System (YMS)</strong> e <strong>Agendamento de Docas</strong>: controle de acesso por QR Code, matriz de slots diários, crachá digital para chapas e motoristas, vistoria de lacres OEA e blindagem jurídica contra sobreestadias da Lei 11.442/07.
             </p>
 
             <!-- Actions -->
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12 w-full max-w-md sm:max-w-none">
               <a
                 href="#contato"
                 class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-gradient-to-r from-[#00A896] to-teal-500 hover:from-teal-400 hover:to-emerald-400 text-white font-bold text-sm sm:text-base shadow-xl shadow-teal-500/25 hover:shadow-teal-500/40 transition-all transform hover:-translate-y-0.5"
@@ -237,30 +303,30 @@ const faqs = [
               </button>
             </div>
 
-            <!-- Key Numbers Ribbon -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 sm:p-6 rounded-2xl bg-[#00142c]/70 border border-teal-500/20 backdrop-blur-md shadow-2xl mb-14 text-center">
-              <div class="p-2 sm:border-r border-slate-800">
+            <!-- Key Numbers Ribbon Rigorosamente Centralizado -->
+            <div class="w-full max-w-4xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 sm:p-6 rounded-2xl bg-[#00142c]/80 border border-teal-500/20 backdrop-blur-md shadow-2xl mb-14 text-center justify-center items-center">
+              <div class="p-2 sm:border-r border-slate-800 flex flex-col items-center justify-center">
                 <div class="text-2xl sm:text-3xl font-extrabold text-[#00A896]">-42%</div>
                 <div class="text-xs text-slate-400 mt-1 font-medium">Tempo de Portaria (Check-in em 35s)</div>
               </div>
-              <div class="p-2 sm:border-r border-slate-800">
+              <div class="p-2 sm:border-r border-slate-800 flex flex-col items-center justify-center">
                 <div class="text-2xl sm:text-3xl font-extrabold text-teal-300">Zero</div>
                 <div class="text-xs text-slate-400 mt-1 font-medium">Papel & Planilhas Manuais</div>
               </div>
-              <div class="p-2 sm:border-r border-slate-800">
+              <div class="p-2 sm:border-r border-slate-800 flex flex-col items-center justify-center">
                 <div class="text-2xl sm:text-3xl font-extrabold text-sky-400">100%</div>
                 <div class="text-xs text-slate-400 mt-1 font-medium">Auditoria & Laudo Lei 11.442</div>
               </div>
-              <div class="p-2">
+              <div class="p-2 flex flex-col items-center justify-center">
                 <div class="text-2xl sm:text-3xl font-extrabold text-emerald-400">+50.000</div>
                 <div class="text-xs text-slate-400 mt-1 font-medium">Acessos & Cargas Processadas</div>
               </div>
             </div>
           </div>
 
-          <!-- Hero Realistic Logistics Photography Showcase -->
-          <div class="relative max-w-5xl mx-auto group">
-            <div class="relative rounded-2xl overflow-hidden border-2 border-teal-500/30 shadow-2xl shadow-teal-500/10">
+          <!-- Hero Realistic Logistics Photography Showcase Centralizado -->
+          <div class="relative w-full max-w-5xl mx-auto flex flex-col items-center group">
+            <div class="w-full relative rounded-2xl overflow-hidden border-2 border-teal-500/30 shadow-2xl shadow-teal-500/10">
               <img
                 src="/images/hero-hub.jpg"
                 alt="Centro de Distribuição e Hub Logístico Automatizado com DocaOS"
@@ -299,11 +365,11 @@ const faqs = [
       <!-- CLIENTS / TARGET OPERATORS CAROUSEL          -->
       <!-- ============================================ -->
       <section class="py-10 bg-[#00142c] border-y border-teal-500/20">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p class="text-xs uppercase tracking-wider text-teal-400/80 font-bold mb-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex flex-col items-center">
+          <p class="text-xs uppercase tracking-wider text-teal-400/80 font-bold mb-6 text-center">
             Projetado para Operações Logísticas de Alta Densidade no Brasil
           </p>
-          <div class="grid grid-cols-2 md:grid-cols-6 gap-4 items-center justify-center text-slate-300 font-semibold text-xs sm:text-sm">
+          <div class="w-full grid grid-cols-2 md:grid-cols-6 gap-4 items-center justify-center text-slate-300 font-semibold text-xs sm:text-sm">
             <div class="p-3 rounded-lg bg-slate-800/40 border border-slate-700/50 flex items-center justify-center gap-2">
               <Warehouse class="w-4 h-4 text-[#00A896]" />
               <span>Condomínios Logísticos</span>
@@ -333,107 +399,107 @@ const faqs = [
       </section>
 
       <!-- ============================================ -->
-      <!-- CORE MODULES GRID                            -->
+      <!-- CORE MODULES GRID CENTRALIZADO               -->
       <!-- ============================================ -->
       <section id="funcionalidades" class="py-20 bg-[#001c3d]">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div class="text-center max-w-3xl mx-auto mb-16">
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-teal-500/10 text-teal-300 border border-teal-500/30 mb-3">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center">
+          <div class="text-center max-w-3xl mx-auto mb-16 flex flex-col items-center">
+            <span class="inline-flex items-center justify-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-teal-500/10 text-teal-300 border border-teal-500/30 mb-3 mx-auto">
               Módulos da Plataforma
             </span>
-            <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+            <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight text-center">
               Uma Plataforma Integrada, <span class="bg-gradient-to-r from-[#00A896] to-teal-300 bg-clip-text text-transparent">Toda a Operação</span> sob Controle
             </h2>
-            <p class="text-slate-300 text-sm sm:text-base mt-4">
+            <p class="text-slate-300 text-sm sm:text-base mt-4 text-center">
               Cada módulo foi desenvolvido para eliminar gargalos crônicos da logística: filas na guarita, docas ociosas, falta de controle de ajudantes e diárias de sobreestadia.
             </p>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div class="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch justify-center">
             <!-- Card 1 -->
-            <div class="p-6 rounded-2xl bg-[#00142c]/80 border border-teal-500/20 hover:border-teal-500/50 transition-all hover:-translate-y-1 shadow-lg group">
+            <div class="p-6 rounded-2xl bg-[#00142c]/80 border border-teal-500/20 hover:border-teal-500/50 transition-all hover:-translate-y-1 shadow-lg group flex flex-col">
               <div class="w-12 h-12 rounded-xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-[#00A896] mb-5 group-hover:scale-110 transition-transform">
                 <QrCode class="w-6 h-6" />
               </div>
               <h3 class="text-base font-bold text-white mb-2">Scanner QR Code & Portaria</h3>
-              <p class="text-slate-300 text-xs sm:text-sm leading-relaxed">
+              <p class="text-slate-300 text-xs sm:text-sm leading-relaxed flex-1">
                 Leitura instantânea de QR Code via câmera de celular, tablet ou leitor laser USB. Validação automática de placas Mercosul e liberação da cancela em menos de 40 segundos.
               </p>
             </div>
 
             <!-- Card 2 -->
-            <div class="p-6 rounded-2xl bg-[#00142c]/80 border border-teal-500/20 hover:border-teal-500/50 transition-all hover:-translate-y-1 shadow-lg group">
+            <div class="p-6 rounded-2xl bg-[#00142c]/80 border border-teal-500/20 hover:border-teal-500/50 transition-all hover:-translate-y-1 shadow-lg group flex flex-col">
               <div class="w-12 h-12 rounded-xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-[#00A896] mb-5 group-hover:scale-110 transition-transform">
                 <CalendarDays class="w-6 h-6" />
               </div>
               <h3 class="text-base font-bold text-white mb-2">Agendamento em Slots (Gantt)</h3>
-              <p class="text-slate-300 text-xs sm:text-sm leading-relaxed">
+              <p class="text-slate-300 text-xs sm:text-sm leading-relaxed flex-1">
                 Matriz de janelas horárias configuráveis (slots de 2h das 06h às 22h). Elimine conflitos de agendamento, reduza ociosidade e maximize o giro das docas.
               </p>
             </div>
 
             <!-- Card 3 -->
-            <div class="p-6 rounded-2xl bg-[#00142c]/80 border border-teal-500/20 hover:border-teal-500/50 transition-all hover:-translate-y-1 shadow-lg group">
+            <div class="p-6 rounded-2xl bg-[#00142c]/80 border border-teal-500/20 hover:border-teal-500/50 transition-all hover:-translate-y-1 shadow-lg group flex flex-col">
               <div class="w-12 h-12 rounded-xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-[#00A896] mb-5 group-hover:scale-110 transition-transform">
                 <BadgeCheck class="w-6 h-6" />
               </div>
               <h3 class="text-base font-bold text-white mb-2">Crachá Digital de Pedestres</h3>
-              <p class="text-slate-300 text-xs sm:text-sm leading-relaxed">
+              <p class="text-slate-300 text-xs sm:text-sm leading-relaxed flex-1">
                 Credenciamento de ajudantes (chapas), motoristas e prestadores em 2 minutos. Envio imediato para o celular via WhatsApp ou impressão no padrão crachá de bolso.
               </p>
             </div>
 
             <!-- Card 4 -->
-            <div class="p-6 rounded-2xl bg-[#00142c]/80 border border-teal-500/20 hover:border-teal-500/50 transition-all hover:-translate-y-1 shadow-lg group">
+            <div class="p-6 rounded-2xl bg-[#00142c]/80 border border-teal-500/20 hover:border-teal-500/50 transition-all hover:-translate-y-1 shadow-lg group flex flex-col">
               <div class="w-12 h-12 rounded-xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-[#00A896] mb-5 group-hover:scale-110 transition-transform">
                 <Camera class="w-6 h-6" />
               </div>
               <h3 class="text-base font-bold text-white mb-2">Vistoria de Lacres OEA</h3>
-              <p class="text-slate-300 text-xs sm:text-sm leading-relaxed">
+              <p class="text-slate-300 text-xs sm:text-sm leading-relaxed flex-1">
                 Auditoria de integridade de lacres (rompido, intacto, divergente da NF) e registro fotográfico de avarias físicas na carga antes da entrada ou saída da cancela.
               </p>
             </div>
 
             <!-- Card 5 -->
-            <div class="p-6 rounded-2xl bg-[#00142c]/80 border border-teal-500/20 hover:border-teal-500/50 transition-all hover:-translate-y-1 shadow-lg group">
+            <div class="p-6 rounded-2xl bg-[#00142c]/80 border border-teal-500/20 hover:border-teal-500/50 transition-all hover:-translate-y-1 shadow-lg group flex flex-col">
               <div class="w-12 h-12 rounded-xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-[#00A896] mb-5 group-hover:scale-110 transition-transform">
                 <Truck class="w-6 h-6" />
               </div>
               <h3 class="text-base font-bold text-white mb-2">Gestão de Frotas & Veículos</h3>
-              <p class="text-slate-300 text-xs sm:text-sm leading-relaxed">
+              <p class="text-slate-300 text-xs sm:text-sm leading-relaxed flex-1">
                 Cadastro detalhado por tipo de veículo (VUC, Toco, Truck, Carreta, Bitrem), especificação de carroceria (Sider, Baú, Frigorífico) e capacidade em pallets.
               </p>
             </div>
 
             <!-- Card 6 -->
-            <div class="p-6 rounded-2xl bg-[#00142c]/80 border border-teal-500/20 hover:border-teal-500/50 transition-all hover:-translate-y-1 shadow-lg group">
+            <div class="p-6 rounded-2xl bg-[#00142c]/80 border border-teal-500/20 hover:border-teal-500/50 transition-all hover:-translate-y-1 shadow-lg group flex flex-col">
               <div class="w-12 h-12 rounded-xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-[#00A896] mb-5 group-hover:scale-110 transition-transform">
                 <Layers class="w-6 h-6" />
               </div>
               <h3 class="text-base font-bold text-white mb-2">Torre de Controle Kanban</h3>
-              <p class="text-slate-300 text-xs sm:text-sm leading-relaxed">
+              <p class="text-slate-300 text-xs sm:text-sm leading-relaxed flex-1">
                 Visão macro em tempo real com WebSockets. Arraste veículos entre as etapas (Agendado, No Pátio, Em Doca e Liberado) com notificações push e alertas sonoros.
               </p>
             </div>
 
             <!-- Card 7 -->
-            <div class="p-6 rounded-2xl bg-[#00142c]/80 border border-teal-500/20 hover:border-teal-500/50 transition-all hover:-translate-y-1 shadow-lg group">
+            <div class="p-6 rounded-2xl bg-[#00142c]/80 border border-teal-500/20 hover:border-teal-500/50 transition-all hover:-translate-y-1 shadow-lg group flex flex-col">
               <div class="w-12 h-12 rounded-xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-[#00A896] mb-5 group-hover:scale-110 transition-transform">
                 <Smartphone class="w-6 h-6" />
               </div>
               <h3 class="text-base font-bold text-white mb-2">Cerca GPS & Check-in PWA</h3>
-              <p class="text-slate-300 text-xs sm:text-sm leading-relaxed">
+              <p class="text-slate-300 text-xs sm:text-sm leading-relaxed flex-1">
                 Sem necessidade de baixar apps em lojas. Motorista realiza pré-check-in no navegador e entra na fila automaticamente quando entra no raio georreferenciado do pátio.
               </p>
             </div>
 
             <!-- Card 8 -->
-            <div class="p-6 rounded-2xl bg-[#00142c]/80 border border-teal-500/20 hover:border-teal-500/50 transition-all hover:-translate-y-1 shadow-lg group">
+            <div class="p-6 rounded-2xl bg-[#00142c]/80 border border-teal-500/20 hover:border-teal-500/50 transition-all hover:-translate-y-1 shadow-lg group flex flex-col">
               <div class="w-12 h-12 rounded-xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-[#00A896] mb-5 group-hover:scale-110 transition-transform">
                 <Lock class="w-6 h-6" />
               </div>
               <h3 class="text-base font-bold text-white mb-2">Multi-Tenant com Segurança RLS</h3>
-              <p class="text-slate-300 text-xs sm:text-sm leading-relaxed">
+              <p class="text-slate-300 text-xs sm:text-sm leading-relaxed flex-1">
                 Gestão centralizada de múltiplos condomínios e clientes. Isolamento total de dados no banco de dados e perfis granulares (Master, Portaria, Doca, Transportador).
               </p>
             </div>
@@ -448,8 +514,8 @@ const faqs = [
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <!-- Content -->
-            <div>
-              <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-teal-500/10 text-teal-300 border border-teal-500/30 mb-4">
+            <div class="flex flex-col justify-center">
+              <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-teal-500/10 text-teal-300 border border-teal-500/30 mb-4 w-fit">
                 Controle de Acesso & Guarita
               </span>
               <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight mb-5 leading-tight">
@@ -478,7 +544,7 @@ const faqs = [
                 </li>
               </ul>
 
-              <div class="flex items-center gap-4">
+              <div>
                 <a
                   href="#contato"
                   class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#00A896] to-teal-500 hover:from-teal-400 hover:to-emerald-400 text-white font-bold text-sm shadow-lg shadow-teal-500/20 transition-all"
@@ -489,9 +555,9 @@ const faqs = [
               </div>
             </div>
 
-            <!-- Photo Showcase -->
-            <div class="relative group">
-              <div class="rounded-2xl overflow-hidden border-2 border-teal-500/30 shadow-2xl shadow-teal-500/10">
+            <!-- Photo Showcase Centralizado -->
+            <div class="relative group flex justify-center items-center">
+              <div class="w-full rounded-2xl overflow-hidden border-2 border-teal-500/30 shadow-2xl shadow-teal-500/10">
                 <img
                   src="/images/gate-portaria.jpg"
                   alt="Portaria Inteligente de Centro de Distribuição com Totem QR Code e Vistoria DocaOS"
@@ -514,9 +580,9 @@ const faqs = [
       <section class="py-20 bg-[#00142c] border-t border-teal-500/10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <!-- Photo Showcase (Order 2 on mobile, 1 on desktop) -->
-            <div class="relative group order-2 lg:order-1">
-              <div class="rounded-2xl overflow-hidden border-2 border-teal-500/30 shadow-2xl shadow-teal-500/10">
+            <!-- Photo Showcase Centralizado -->
+            <div class="relative group order-2 lg:order-1 flex justify-center items-center">
+              <div class="w-full rounded-2xl overflow-hidden border-2 border-teal-500/30 shadow-2xl shadow-teal-500/10">
                 <img
                   src="/images/dock-operations.jpg"
                   alt="Operação de Docas e Carregamento com Caminhões e Empilhadeiras no DocaOS"
@@ -531,8 +597,8 @@ const faqs = [
             </div>
 
             <!-- Content -->
-            <div class="order-1 lg:order-2">
-              <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-teal-500/10 text-teal-300 border border-teal-500/30 mb-4">
+            <div class="order-1 lg:order-2 flex flex-col justify-center">
+              <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-teal-500/10 text-teal-300 border border-teal-500/30 mb-4 w-fit">
                 Gestão & Agendamento de Docas
               </span>
               <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight mb-5 leading-tight">
@@ -561,7 +627,7 @@ const faqs = [
                 </li>
               </ul>
 
-              <div class="flex items-center gap-4">
+              <div>
                 <button
                   @click="handleEnterDemo"
                   class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-teal-300 border border-teal-500/30 font-bold text-sm transition-all"
@@ -582,8 +648,8 @@ const faqs = [
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <!-- Content -->
-            <div>
-              <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 mb-4">
+            <div class="flex flex-col justify-center">
+              <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 mb-4 w-fit">
                 Controle de Pedestres & Chapas
               </span>
               <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight mb-5 leading-tight">
@@ -612,7 +678,7 @@ const faqs = [
                 </li>
               </ul>
 
-              <div class="flex items-center gap-4">
+              <div>
                 <button
                   @click="openWhatsAppDirect('Olá! Gostaria de entender mais sobre como funciona o Crachá Digital para chapas e ajudantes no DocaOS.')"
                   class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-bold text-sm shadow-lg shadow-emerald-500/20 transition-all"
@@ -623,9 +689,9 @@ const faqs = [
               </div>
             </div>
 
-            <!-- Photo Showcase -->
-            <div class="relative group">
-              <div class="rounded-2xl overflow-hidden border-2 border-teal-500/30 shadow-2xl shadow-teal-500/10">
+            <!-- Photo Showcase Centralizado -->
+            <div class="relative group flex justify-center items-center">
+              <div class="w-full rounded-2xl overflow-hidden border-2 border-teal-500/30 shadow-2xl shadow-teal-500/10">
                 <img
                   src="/images/driver-cracha.jpg"
                   alt="Motorista e Ajudante de Carga Apresentando Crachá Digital DocaOS no Celular"
@@ -643,10 +709,10 @@ const faqs = [
       </section>
 
       <!-- ============================================ -->
-      <!-- SECTION: LEI FEDERAL 11.442/2007             -->
+      <!-- SECTION: LEI FEDERAL 11.442/2007 CENTRALIZADA -->
       <!-- ============================================ -->
-      <section id="lei11442" class="py-20 bg-[#00142c] border-t border-teal-500/10">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section id="lei11442" class="py-20 bg-[#00142c] border-t border-teal-500/10 flex flex-col items-center">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div class="p-8 sm:p-12 rounded-3xl bg-gradient-to-br from-slate-900 to-[#001c3d] border border-teal-500/30 relative overflow-hidden shadow-2xl">
             <div class="absolute -right-20 -top-20 w-80 h-80 bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
@@ -674,11 +740,11 @@ const faqs = [
                 </div>
               </div>
 
-              <!-- Visual badge box -->
-              <div class="p-6 rounded-2xl bg-[#00142c] border border-teal-500/30 text-center flex flex-col justify-center">
+              <!-- Visual badge box Centralizado -->
+              <div class="p-6 rounded-2xl bg-[#00142c] border border-teal-500/30 text-center flex flex-col justify-center items-center">
                 <div class="text-xs uppercase tracking-wider text-slate-400 font-bold mb-2">Economia Média Apurada</div>
                 <div class="text-3xl sm:text-4xl font-extrabold text-[#00A896] mb-2">R$ 84.000+</div>
-                <div class="text-xs text-slate-300 mb-6">economizados por mês em diárias e contestações abusivas de frotistas.</div>
+                <div class="text-xs text-slate-300 mb-6 max-w-xs">economizados por mês em diárias e contestações abusivas de frotistas.</div>
                 <a
                   href="#calculadora-roi"
                   class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 border border-teal-500/40 text-xs font-bold transition-colors"
@@ -693,23 +759,23 @@ const faqs = [
       </section>
 
       <!-- ============================================ -->
-      <!-- ROI CALCULATOR SECTION                       -->
+      <!-- ROI CALCULATOR SECTION RIGOROSAMENTE CENTRALIZADA -->
       <!-- ============================================ -->
-      <section id="calculadora-roi" class="py-20 bg-[#001c3d] border-t border-teal-500/10">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div class="text-center max-w-3xl mx-auto mb-16">
-            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-teal-500/10 text-teal-300 border border-teal-500/30 mb-3">
+      <section id="calculadora-roi" class="py-20 bg-[#001c3d] border-t border-teal-500/10 flex flex-col items-center">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex flex-col items-center">
+          <div class="text-center max-w-3xl mx-auto mb-16 flex flex-col items-center">
+            <span class="inline-flex items-center justify-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-teal-500/10 text-teal-300 border border-teal-500/30 mb-3 mx-auto">
               Simulador de Economia Real
             </span>
-            <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+            <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight text-center">
               Quanto o seu armazém pode <span class="bg-gradient-to-r from-[#00A896] to-teal-300 bg-clip-text text-transparent">economizar</span> por mês?
             </h2>
-            <p class="text-slate-300 text-sm sm:text-base mt-4">
+            <p class="text-slate-300 text-sm sm:text-base mt-4 text-center">
               Ajuste as variáveis reais do seu centro de distribuição ou condomínio logístico e descubra o impacto financeiro da eliminação de filas e sobreestadias.
             </p>
           </div>
 
-          <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center max-w-5xl mx-auto">
+          <div class="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center max-w-5xl mx-auto">
             <!-- Inputs -->
             <div class="lg:col-span-7 p-6 sm:p-8 rounded-2xl bg-[#00142c] border border-teal-500/20 shadow-xl space-y-6">
               <!-- Slider 1 -->
@@ -776,15 +842,15 @@ const faqs = [
               </div>
             </div>
 
-            <!-- Output Box -->
-            <div class="lg:col-span-5 p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-[#00142c] to-[#02234c] border-2 border-teal-500/40 shadow-2xl text-center">
+            <!-- Output Box Centralizada -->
+            <div class="lg:col-span-5 p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-[#00142c] to-[#02234c] border-2 border-teal-500/40 shadow-2xl text-center flex flex-col items-center">
               <div class="text-xs uppercase tracking-wider text-teal-300 font-bold mb-2">Economia Mensal Estimada</div>
               <div class="text-3xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#00A896] via-teal-300 to-emerald-400 mb-2">
                 {{ formatBRL(calculatedRoi.monthlySavings) }}
               </div>
               <div class="text-xs text-slate-400 mb-6">redução direta de perdas por sobreestadia e diárias</div>
 
-              <div class="space-y-3 pt-4 border-t border-slate-800 text-left text-xs sm:text-sm">
+              <div class="w-full space-y-3 pt-4 border-t border-slate-800 text-left text-xs sm:text-sm">
                 <div class="flex justify-between text-slate-300">
                   <span>Horas excedentes/carreta:</span>
                   <span class="font-bold text-amber-400">{{ calculatedRoi.excessHours }}h além da tolerância</span>
@@ -812,20 +878,20 @@ const faqs = [
       </section>
 
       <!-- ============================================ -->
-      <!-- TESTIMONIALS SECTION                         -->
+      <!-- TESTIMONIALS SECTION CENTRALIZADA            -->
       <!-- ============================================ -->
-      <section class="py-20 bg-[#00142c] border-t border-teal-500/10">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div class="text-center max-w-3xl mx-auto mb-16">
-            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-teal-500/10 text-teal-300 border border-teal-500/30 mb-3">
+      <section class="py-20 bg-[#00142c] border-t border-teal-500/10 flex flex-col items-center">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex flex-col items-center">
+          <div class="text-center max-w-3xl mx-auto mb-16 flex flex-col items-center">
+            <span class="inline-flex items-center justify-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-teal-500/10 text-teal-300 border border-teal-500/30 mb-3 mx-auto">
               Cases de Sucesso
             </span>
-            <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+            <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight text-center">
               O que Diretores e Gestores Logísticos <span class="text-[#00A896]">Dizem Sobre o DocaOS</span>
             </h2>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="w-full grid grid-cols-1 md:grid-cols-3 gap-6 justify-center">
             <!-- Testimonial 1 -->
             <div class="p-6 rounded-2xl bg-[#001c3d]/80 border border-teal-500/20 flex flex-col justify-between shadow-lg">
               <p class="text-slate-300 text-xs sm:text-sm leading-relaxed italic mb-6">
@@ -878,20 +944,20 @@ const faqs = [
       </section>
 
       <!-- ============================================ -->
-      <!-- FAQ SECTION                                  -->
+      <!-- FAQ SECTION CENTRALIZADA                     -->
       <!-- ============================================ -->
-      <section class="py-20 bg-[#001c3d] border-t border-teal-500/10">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div class="text-center mb-14">
-            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-teal-500/10 text-teal-300 border border-teal-500/30 mb-3">
+      <section class="py-20 bg-[#001c3d] border-t border-teal-500/10 flex flex-col items-center">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex flex-col items-center">
+          <div class="text-center mb-14 flex flex-col items-center">
+            <span class="inline-flex items-center justify-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-teal-500/10 text-teal-300 border border-teal-500/30 mb-3 mx-auto">
               Perguntas Frequentes
             </span>
-            <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+            <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight text-center">
               Tudo o que você precisa saber sobre o <span class="text-[#00A896]">DocaOS</span>
             </h2>
           </div>
 
-          <div class="space-y-4">
+          <div class="w-full space-y-4">
             <div
               v-for="(faq, index) in faqs"
               :key="index"
@@ -916,59 +982,60 @@ const faqs = [
       </section>
 
       <!-- ============================================ -->
-      <!-- CONTACT FORM SECTION (HIGH CONVERSION)       -->
+      <!-- CONTACT FORM SECTION (CENTRALIZADA B2B)      -->
       <!-- ============================================ -->
-      <section id="contato" class="py-20 bg-gradient-to-b from-[#00142c] to-[#000e20] border-t border-teal-500/20">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+      <section id="contato" class="py-20 bg-gradient-to-b from-[#00142c] to-[#000e20] border-t border-teal-500/20 flex flex-col items-center">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+          <!-- Centered Header -->
+          <div class="text-center max-w-3xl mx-auto mb-16 flex flex-col items-center">
+            <span class="inline-flex items-center justify-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-teal-500/10 text-teal-300 border border-teal-500/30 mb-3 mx-auto">
+              Fale com Nossos Especialistas
+            </span>
+            <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight text-center">
+              Pronto para transformar a gestão do seu <span class="text-[#00A896]">pátio logístico</span>?
+            </h2>
+            <p class="text-slate-300 text-sm sm:text-base mt-4 text-center">
+              Agende uma reunião consultiva personalizada com nossa equipe de engenharia e operações. Analisamos seu fluxo de veículos e desenhamos a implantação ideal para seu CD.
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start justify-center max-w-6xl mx-auto">
             <!-- Left info -->
-            <div class="lg:col-span-5 flex flex-col justify-between">
-              <div>
-                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-teal-500/10 text-teal-300 border border-teal-500/30 mb-4">
-                  Fale com Nossos Especialistas
-                </span>
-                <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight mb-4">
-                  Pronto para transformar a gestão do seu <span class="text-[#00A896]">pátio logístico</span>?
-                </h2>
-                <p class="text-slate-300 text-sm sm:text-base leading-relaxed mb-8">
-                  Agende uma reunião consultiva personalizada com nossa equipe de engenharia e operações. Analisamos seu fluxo de veículos e desenhamos a implantação ideal para seu CD.
-                </p>
-
-                <div class="space-y-4">
-                  <div class="flex items-center gap-3 p-3.5 rounded-xl bg-slate-900/60 border border-slate-800">
-                    <PhoneCall class="w-5 h-5 text-emerald-400 shrink-0" />
-                    <div>
-                      <div class="text-[11px] text-slate-400">Atendimento Imediato via WhatsApp</div>
-                      <a :href="`https://wa.me/55${contactInfo.whatsappRaw}`" target="_blank" class="text-xs sm:text-sm font-bold text-white hover:text-emerald-400 transition-colors">
-                        {{ contactInfo.whatsappDisplay }}
-                      </a>
-                    </div>
+            <div class="lg:col-span-5 flex flex-col justify-between space-y-6">
+              <div class="space-y-4">
+                <div class="flex items-center gap-3 p-4 rounded-xl bg-slate-900/60 border border-slate-800">
+                  <PhoneCall class="w-5 h-5 text-emerald-400 shrink-0" />
+                  <div>
+                    <div class="text-[11px] text-slate-400">Atendimento Imediato via WhatsApp</div>
+                    <a :href="`https://wa.me/55${contactInfo.whatsappRaw}`" target="_blank" class="text-xs sm:text-sm font-bold text-white hover:text-emerald-400 transition-colors">
+                      {{ contactInfo.whatsappDisplay }}
+                    </a>
                   </div>
+                </div>
 
-                  <div class="flex items-center gap-3 p-3.5 rounded-xl bg-slate-900/60 border border-slate-800">
-                    <Mail class="w-5 h-5 text-teal-400 shrink-0" />
-                    <div>
-                      <div class="text-[11px] text-slate-400">E-mail Comercial & Suporte</div>
-                      <a :href="`mailto:${contactInfo.email}`" class="text-xs sm:text-sm font-bold text-white hover:text-teal-400 transition-colors">
-                        {{ contactInfo.email }}
-                      </a>
-                    </div>
+                <div class="flex items-center gap-3 p-4 rounded-xl bg-slate-900/60 border border-slate-800">
+                  <Mail class="w-5 h-5 text-teal-400 shrink-0" />
+                  <div>
+                    <div class="text-[11px] text-slate-400">E-mail Comercial & Suporte</div>
+                    <a :href="`mailto:${contactInfo.email}`" class="text-xs sm:text-sm font-bold text-white hover:text-teal-400 transition-colors">
+                      {{ contactInfo.email }}
+                    </a>
                   </div>
+                </div>
 
-                  <div class="flex items-center gap-3 p-3.5 rounded-xl bg-slate-900/60 border border-slate-800">
-                    <Building2 class="w-5 h-5 text-sky-400 shrink-0" />
-                    <div>
-                      <div class="text-[11px] text-slate-400">Empresa Desenvolvedora</div>
-                      <div class="text-xs sm:text-sm font-bold text-white">
-                        {{ contactInfo.company }} • CNPJ: {{ contactInfo.cnpj }}
-                      </div>
+                <div class="flex items-center gap-3 p-4 rounded-xl bg-slate-900/60 border border-slate-800">
+                  <Building2 class="w-5 h-5 text-sky-400 shrink-0" />
+                  <div>
+                    <div class="text-[11px] text-slate-400">Empresa Desenvolvedora</div>
+                    <div class="text-xs sm:text-sm font-bold text-white">
+                      {{ contactInfo.company }} • CNPJ: {{ contactInfo.cnpj }}
                     </div>
                   </div>
                 </div>
               </div>
 
               <!-- Quick direct WhatsApp CTA -->
-              <div class="mt-8 pt-6 border-t border-slate-800">
+              <div class="pt-2">
                 <button
                   @click="openWhatsAppDirect()"
                   class="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-lg shadow-emerald-600/25 transition-all"
@@ -1092,7 +1159,7 @@ const faqs = [
     </main>
 
     <!-- ============================================ -->
-    <!-- FOOTER                                       -->
+    <!-- FOOTER CENTRALIZADO & HARMONIOSO             -->
     <!-- ============================================ -->
     <footer class="bg-[#000e20] border-t border-teal-500/20 py-12 text-slate-400 text-xs sm:text-sm">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -1144,11 +1211,11 @@ const faqs = [
           </div>
         </div>
 
-        <div class="pt-8 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+        <div class="pt-8 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 text-center sm:text-left">
           <div>
             © 2026 DocaOS (docaos.log.br) • Desenvolvido por RAOS Tecnologia. Todos os direitos reservados.
           </div>
-          <div class="flex items-center gap-6">
+          <div class="flex items-center gap-6 justify-center">
             <span>Lei 11.442/2007 Compliant</span>
             <span>Segurança RLS Supabase</span>
             <span>100% Cloud</span>

@@ -87,8 +87,8 @@
 
 /* Custom scrollbars - discrete, low-distraction */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -102,4 +102,123 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-accent);
+}
+
+/* =========================================================================
+   PAGE ROUTE TRANSITIONS (Vue Router)
+   ========================================================================= */
+.page-fade-enter-active {
+  transition: opacity 0.24s cubic-bezier(0.16, 1, 0.3, 1), transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.page-fade-leave-active {
+  transition: opacity 0.16s cubic-bezier(0.7, 0, 0.84, 0), transform 0.16s cubic-bezier(0.7, 0, 0.84, 0);
+  will-change: opacity, transform;
+}
+
+.page-fade-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.page-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+/* =========================================================================
+   MODAL & DIALOG TRANSITIONS
+   ========================================================================= */
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity;
+}
+
+.modal-enter-active .modal-panel,
+.modal-enter-active > div:not(.modal-backdrop),
+.modal-leave-active .modal-panel,
+.modal-leave-active > div:not(.modal-backdrop) {
+  transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+
+.modal-enter-from .modal-panel,
+.modal-enter-from > div:not(.modal-backdrop),
+.modal-leave-to .modal-panel,
+.modal-leave-to > div:not(.modal-backdrop) {
+  opacity: 0;
+  transform: scale(0.95) translateY(14px);
+}
+
+.modal-enter-to .modal-panel,
+.modal-enter-to > div:not(.modal-backdrop),
+.modal-leave-from .modal-panel,
+.modal-leave-from > div:not(.modal-backdrop) {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+
+/* =========================================================================
+   GENERIC FADE & SCALE TRANSITIONS
+   ========================================================================= */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* =========================================================================
+   DRAWER TRANSITIONS (Sidebar & Mobile Menus)
+   ========================================================================= */
+.drawer-enter-active,
+.drawer-leave-active {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+}
+
+.drawer-enter-from,
+.drawer-leave-to {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+/* =========================================================================
+   MICRO-INTERACTIONS & HOVER EFFECTS
+   ========================================================================= */
+.hover-lift {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+}
+
+.card-press {
+  transition: transform 0.12s ease-out;
+}
+
+.card-press:active {
+  transform: scale(0.98);
+}
+
+/* =========================================================================
+   ACCESSIBILITY: REDUCED MOTION
+   ========================================================================= */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

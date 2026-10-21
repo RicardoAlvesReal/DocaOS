@@ -780,7 +780,7 @@ onUnmounted(() => {
     <!-- =================================================================== -->
     <transition name="modal">
       <div v-if="showQrModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="modal-panel bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 text-center relative">
+        <div class="modal-panel bg-white dark:bg-[#001c3d] text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-teal-500/20 rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 text-center relative">
           <button 
             @click="showQrModal = false"
             class="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
@@ -793,11 +793,11 @@ onUnmounted(() => {
             <span>QR Code do Motorista (Simulação)</span>
           </div>
 
-          <h3 class="text-base font-bold text-white">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white">
             Aponte sua Câmera ou Leitor USB
           </h3>
           
-          <p class="text-xs text-slate-400">
+          <p class="text-xs text-slate-600 dark:text-slate-400">
             Este é o QR Code que o motorista da carreta <strong class="text-white">{{ samplePlateSelected }}</strong> recebe via WhatsApp.
           </p>
 

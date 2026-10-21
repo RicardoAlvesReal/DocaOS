@@ -178,7 +178,7 @@ async function callNextTruckToDock(dock) {
   <div class="space-y-6">
     
     <!-- Header with Capacity Banner & View Mode Switcher -->
-    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-[#0e1422] border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-xl">
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white dark:bg-[#001c3d] border border-slate-200 dark:border-teal-500/20 p-5 rounded-2xl shadow-sm">
       <div>
         <div class="inline-flex items-center space-x-1.5 px-3 py-0.5 rounded-full bg-sky-950/80 border border-sky-800 text-xs font-mono font-semibold text-sky-400 mb-1">
           <DoorClosed class="w-3.5 h-3.5" />
@@ -235,13 +235,13 @@ async function callNextTruckToDock(dock) {
       <div
         v-for="dock in yardStore.docks"
         :key="dock.id"
-        class="bg-[#0e1422] border rounded-2xl p-5 transition-all relative overflow-hidden flex flex-col justify-between"
+        class="bg-white dark:bg-[#001c3d] text-slate-900 dark:text-slate-100 border rounded-2xl p-5 hover-lift transition-all relative overflow-hidden flex flex-col justify-between shadow-sm"
         :class="[
           dock.status === 'Ocupada'
-            ? 'border-sky-500/40 bg-[#0c1322] shadow-lg shadow-sky-950/20'
+            ? 'border-teal-500/40 bg-teal-50/40 dark:bg-[#04244a] shadow-lg shadow-teal-500/5'
             : dock.status === 'Manutenção'
             ? 'border-amber-600/40 bg-[#16120b]'
-            : 'border-slate-200 dark:border-slate-800 hover:border-slate-700'
+            : 'border-slate-200 dark:border-teal-500/20 hover:border-[#00A896]'
         ]"
       >
         <div>
@@ -257,10 +257,10 @@ async function callNextTruckToDock(dock) {
               class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded border font-mono"
               :class="[
                 dock.status === 'Livre' 
-                  ? 'bg-emerald-950/60 text-emerald-400 border-emerald-800' 
+                  ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800' 
                   : dock.status === 'Ocupada' 
-                  ? 'bg-sky-950/60 text-sky-400 border-sky-800 animate-pulse' 
-                  : 'bg-amber-950/60 text-amber-400 border-amber-800'
+                  ? 'bg-teal-50 text-teal-700 dark:bg-teal-950/60 dark:text-teal-400 border-teal-200 dark:border-teal-800 animate-pulse' 
+                  : 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400 border-amber-200 dark:border-amber-800'
               ]"
             >
               {{ dock.status }}
@@ -433,10 +433,10 @@ async function callNextTruckToDock(dock) {
         v-if="isNewDockModalOpen"
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4"
       >
-        <div class="modal-panel bg-[#0e1422] border border-slate-200 dark:border-slate-800 rounded-xl max-w-md w-full p-6 shadow-2xl">
+        <div class="modal-panel bg-white dark:bg-[#001c3d] text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-teal-500/30 rounded-2xl max-w-md w-full p-6 shadow-2xl">
           <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-200 dark:border-slate-800">
-            <h3 class="font-bold text-base text-white">Cadastrar Nova Doca Física</h3>
-            <button @click="isNewDockModalOpen = false" class="text-slate-400 hover:text-white cursor-pointer">
+            <h3 class="font-bold text-base text-slate-900 dark:text-white">Cadastrar Nova Doca Física</h3>
+            <button @click="isNewDockModalOpen = false" class="text-slate-400 hover:text-slate-700 dark:hover:text-white p-1 rounded-lg cursor-pointer">
               <X class="w-5 h-5" />
             </button>
           </div>
@@ -447,32 +447,32 @@ async function callNextTruckToDock(dock) {
             </div>
 
             <div>
-              <label class="block text-xs font-semibold text-slate-300 mb-1">Código da Doca *</label>
+              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Código da Doca *</label>
               <input
                 v-model="newDockForm.code"
                 type="text"
                 required
                 placeholder="Ex: DOCA-05"
-                class="w-full bg-slate-50 dark:bg-[#00142c] border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs font-mono uppercase text-white focus:outline-none focus:border-sky-500"
+                class="w-full bg-slate-50 dark:bg-[#00142c] border border-slate-300 dark:border-teal-500/30 rounded-lg px-3 py-2 text-xs font-mono uppercase text-slate-900 dark:text-white focus:outline-none focus:border-[#00A896]"
               />
             </div>
 
             <div>
-              <label class="block text-xs font-semibold text-slate-300 mb-1">Nome de Identificação *</label>
+              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Nome de Identificação *</label>
               <input
                 v-model="newDockForm.name"
                 type="text"
                 required
                 placeholder="Ex: Doca 05 - Carga Seca"
-                class="w-full bg-slate-50 dark:bg-[#00142c] border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500"
+                class="w-full bg-slate-50 dark:bg-[#00142c] border border-slate-300 dark:border-teal-500/30 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[#00A896]"
               />
             </div>
 
             <div>
-              <label class="block text-xs font-semibold text-slate-300 mb-1">Tipo de Doca</label>
+              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Tipo de Doca</label>
               <select
                 v-model="newDockForm.dock_type"
-                class="w-full bg-slate-50 dark:bg-[#00142c] border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500 cursor-pointer"
+                class="w-full bg-slate-50 dark:bg-[#00142c] border border-slate-300 dark:border-teal-500/30 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[#00A896] cursor-pointer"
               >
                 <option value="Geral">Carga Geral</option>
                 <option value="Seca">Carga Seca</option>
@@ -485,14 +485,14 @@ async function callNextTruckToDock(dock) {
               <button
                 type="button"
                 @click="isNewDockModalOpen = false"
-                class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white cursor-pointer"
+                class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
                 :disabled="isSubmitting"
-                class="bg-sky-600 hover:bg-sky-500 text-white px-5 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer"
+                class="bg-gradient-to-r from-[#00A896] to-teal-500 hover:from-teal-600 hover:to-emerald-500 text-white px-5 py-2 rounded-lg text-xs font-bold shadow-md shadow-teal-500/20 transition-all cursor-pointer"
               >
                 {{ isSubmitting ? 'Salvando...' : 'Salvar Doca' }}
               </button>

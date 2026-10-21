@@ -470,81 +470,81 @@ async function submitNewSchedule() {
 
     </div>
 
-    <!-- Modal: Alocação de Doca -->
+        <!-- Modal: Alocação de Doca -->
     <transition name="modal">
       <div 
         v-if="isAssignDockModalOpen" 
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4"
       >
-        <div class="modal-panel bg-[#0e1422] border border-slate-800 rounded-xl max-w-md w-full p-6 shadow-2xl">
-          <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-200 dark:border-slate-800">
-          <div class="flex items-center space-x-2">
-            <DoorClosed class="w-5 h-5 text-sky-400" />
-            <h3 class="font-bold text-base text-white">Alocar Doca de Operação</h3>
+        <div class="modal-panel bg-white dark:bg-[#001c3d] text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-teal-500/30 rounded-2xl max-w-md w-full p-6 shadow-2xl">
+          <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-200 dark:border-teal-500/20">
+            <div class="flex items-center space-x-2">
+              <DoorClosed class="w-5 h-5 text-teal-600 dark:text-teal-400" />
+              <h3 class="font-bold text-base text-slate-900 dark:text-white">Alocar Doca de Operação</h3>
+            </div>
+            <button @click="isAssignDockModalOpen = false" class="text-slate-400 hover:text-slate-700 dark:hover:text-white p-1 rounded-lg cursor-pointer">
+              <X class="w-5 h-5" />
+            </button>
           </div>
-          <button @click="isAssignDockModalOpen = false" class="text-slate-400 hover:text-white">
-            <X class="w-5 h-5" />
-          </button>
-        </div>
 
-        <div v-if="scheduleToAssign" class="mb-4 bg-slate-950 p-3 rounded-xl border border-slate-800/80 text-xs">
-          <p class="text-slate-400">Veículo:</p>
-          <p class="font-mono font-bold text-sm text-white">{{ scheduleToAssign.vehicle_plate }} - {{ scheduleToAssign.carrier_name }}</p>
-          <p class="text-slate-400 mt-1">Carga: <span class="text-slate-200">{{ scheduleToAssign.cargo_type }}</span></p>
-        </div>
+          <div v-if="scheduleToAssign" class="mb-4 bg-slate-50 dark:bg-[#00142c] p-3 rounded-xl border border-slate-200 dark:border-teal-500/20 text-xs">
+            <p class="text-slate-500 dark:text-slate-400">Veículo:</p>
+            <p class="font-mono font-bold text-sm text-slate-900 dark:text-white">{{ scheduleToAssign.vehicle_plate }} - {{ scheduleToAssign.carrier_name }}</p>
+            <p class="text-slate-500 dark:text-slate-400 mt-1">Carga: <span class="text-slate-800 dark:text-slate-200 font-semibold">{{ scheduleToAssign.cargo_type }}</span></p>
+          </div>
 
-        <div class="space-y-2 mb-4">
-          <label class="block text-xs font-semibold text-slate-300">Selecione a Doca de Operação: *</label>
-          <select 
-            v-model="selectedDockId"
-            class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-sm text-slate-200 focus:outline-none focus:border-sky-500 cursor-pointer"
-          >
-            <option value="" disabled>Escolha uma doca física...</option>
-            <option 
-              v-for="dock in yardStore.docks" 
-              :key="dock.id" 
-              :value="dock.id"
-              :disabled="dock.status === 'Manutenção'"
+          <div class="space-y-2 mb-4">
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300">Selecione a Doca de Operação: *</label>
+            <select 
+              v-model="selectedDockId"
+              class="w-full bg-slate-50 dark:bg-[#00142c] border border-slate-300 dark:border-teal-500/30 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:border-[#00A896] cursor-pointer"
             >
-              {{ dock.code }} - {{ dock.name }} (Status: {{ dock.status }})
-            </option>
-          </select>
-        </div>
+              <option value="" disabled>Escolha uma doca física...</option>
+              <option 
+                v-for="dock in yardStore.docks" 
+                :key="dock.id" 
+                :value="dock.id"
+                :disabled="dock.status === 'Manutenção'"
+              >
+                {{ dock.code }} - {{ dock.name }} (Status: {{ dock.status }})
+              </option>
+            </select>
+          </div>
 
-        <!-- WhatsApp Driver Call Notification Toggle -->
-        <div class="bg-emerald-950/40 border border-emerald-500/40 rounded-xl p-3.5 mb-6 flex items-start space-x-3">
-          <input 
-            type="checkbox" 
-            id="notifyWhatsappAssign" 
-            v-model="notifyViaWhatsAppOnAssign" 
-            class="mt-1 accent-emerald-500 rounded cursor-pointer w-4 h-4"
-          />
-          <label for="notifyWhatsappAssign" class="text-xs text-slate-200 cursor-pointer select-none">
-            <span class="font-bold text-emerald-300 block mb-0.5">Notificar Motorista no WhatsApp</span>
-            <span class="text-slate-400 text-[11px] leading-tight block">
-              Envia aviso instantâneo para <strong>{{ scheduleToAssign?.driver_name || 'o motorista' }}</strong> ({{ scheduleToAssign?.driver_phone || 'Sem tel.' }}) com a doca designada e ordem de deslocamento.
-            </span>
-          </label>
-        </div>
+          <!-- WhatsApp Driver Call Notification Toggle -->
+          <div class="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-500/40 rounded-xl p-3.5 mb-6 flex items-start space-x-3">
+            <input 
+              type="checkbox" 
+              id="notifyWhatsappAssign" 
+              v-model="notifyViaWhatsAppOnAssign" 
+              class="mt-1 accent-emerald-500 rounded cursor-pointer w-4 h-4"
+            />
+            <label for="notifyWhatsappAssign" class="text-xs text-slate-800 dark:text-slate-200 cursor-pointer select-none">
+              <span class="font-bold text-emerald-800 dark:text-emerald-300 block mb-0.5">Notificar Motorista no WhatsApp</span>
+              <span class="text-slate-600 dark:text-slate-400 text-[11px] leading-tight block">
+                Envia aviso instantâneo para <strong>{{ scheduleToAssign?.driver_name || 'o motorista' }}</strong> ({{ scheduleToAssign?.driver_phone || 'Sem tel.' }}) com a doca designada e ordem de deslocamento.
+              </span>
+            </label>
+          </div>
 
-        <div class="flex justify-end space-x-3">
-          <button 
-            @click="isAssignDockModalOpen = false"
-            class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
-          >
-            Cancelar
-          </button>
-          <button 
-            @click="confirmAssignDock"
-            :disabled="!selectedDockId"
-            class="flex items-center space-x-1.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-lg shadow-emerald-600/30 transition-all cursor-pointer"
-          >
-            <CheckCircle2 class="w-4 h-4" />
-            <span>Confirmar e Chamar Motorista</span>
-          </button>
+          <div class="flex justify-end space-x-3">
+            <button 
+              @click="isAssignDockModalOpen = false"
+              class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+            >
+              Cancelar
+            </button>
+            <button 
+              @click="confirmAssignDock"
+              :disabled="!selectedDockId"
+              class="flex items-center space-x-1.5 bg-gradient-to-r from-[#00A896] to-emerald-600 hover:from-teal-600 hover:to-emerald-500 disabled:opacity-50 text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-lg shadow-teal-500/20 transition-all cursor-pointer"
+            >
+              <CheckCircle2 class="w-4 h-4" />
+              <span>Confirmar e Chamar Motorista</span>
+            </button>
+          </div>
         </div>
       </div>
-    </div>
     </transition>
 
     <!-- Modal: Novo Agendamento (Time Slot) -->
@@ -553,347 +553,350 @@ async function submitNewSchedule() {
         v-if="isNewScheduleModalOpen" 
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 overflow-y-auto"
       >
-        <div class="modal-panel bg-[#0e1422] border border-slate-800 rounded-xl max-w-xl w-full p-6 shadow-2xl my-8">
-          <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-200 dark:border-slate-800">
-          <div class="flex items-center space-x-2">
-            <Calendar class="w-5 h-5 text-indigo-400" />
-            <h3 class="font-bold text-base text-white">Agendar Janela de Horário (Time Slot)</h3>
-          </div>
-          <button @click="isNewScheduleModalOpen = false" class="text-slate-400 hover:text-white">
-            <X class="w-5 h-5" />
-          </button>
-        </div>
-
-        <form @submit.prevent="submitNewSchedule" class="space-y-4">
-          <div v-if="scheduleError" class="p-3 bg-rose-950/60 border border-rose-800 rounded-xl text-rose-300 text-xs">
-            {{ scheduleError }}
+        <div class="modal-panel bg-white dark:bg-[#001c3d] text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-teal-500/30 rounded-2xl max-w-xl w-full p-6 sm:p-8 shadow-2xl my-8">
+          <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-200 dark:border-teal-500/20">
+            <div class="flex items-center space-x-2">
+              <Calendar class="w-5 h-5 text-teal-600 dark:text-teal-400" />
+              <h3 class="font-bold text-base text-slate-900 dark:text-white">Agendar Janela de Horário (Time Slot)</h3>
+            </div>
+            <button @click="isNewScheduleModalOpen = false" class="text-slate-400 hover:text-slate-700 dark:hover:text-white p-1 rounded-lg cursor-pointer">
+              <X class="w-5 h-5" />
+            </button>
           </div>
 
-          <!-- Transportadora e Tipo de Carga -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label class="block text-xs font-medium text-slate-300 mb-1">Transportadora *</label>
-              <input
-                v-model="newScheduleForm.carrier_name"
-                type="text"
-                required
-                placeholder="Ex: Braspress, Jamef, Autônomo"
-                class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500"
-              />
+          <form @submit.prevent="submitNewSchedule" class="space-y-4">
+            <div v-if="scheduleError" class="p-3 bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 rounded-xl text-rose-700 dark:text-rose-300 text-xs">
+              {{ scheduleError }}
             </div>
-            <div>
-              <label class="block text-xs font-medium text-slate-300 mb-1">Tipo de Carga *</label>
-              <select
-                v-model="newScheduleForm.cargo_type"
-                class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500"
-              >
-                <option value="Carga Geral">Carga Geral</option>
-                <option value="Alimentos Congelados">Alimentos Congelados</option>
-                <option value="Eletrônicos e Peças">Eletrônicos e Peças</option>
-                <option value="Insumos Químicos">Insumos Químicos</option>
-                <option value="Granel">Granel</option>
-              </select>
-            </div>
-          </div>
 
-          <!-- Placas -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label class="block text-xs font-medium text-slate-300 mb-1">Placa do Cavalo *</label>
-              <input
-                v-model="newScheduleForm.vehicle_plate"
-                type="text"
-                required
-                placeholder="Ex: BRA2E19"
-                class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white font-mono uppercase focus:outline-none focus:border-sky-500"
-              />
-            </div>
-            <div>
-              <label class="block text-xs font-medium text-slate-300 mb-1">Placa da Carreta (Opcional)</label>
-              <input
-                v-model="newScheduleForm.trailer_plate"
-                type="text"
-                placeholder="Ex: ABC1234"
-                class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white font-mono uppercase focus:outline-none focus:border-sky-500"
-              />
-            </div>
-          </div>
-
-          <!-- Especificações de Carroceria & Refrigeração (Diferencial Competitivo) -->
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-950/70 p-3 rounded-xl border border-slate-800">
-            <div>
-              <label class="block text-[11px] font-semibold text-slate-300 mb-1">Tipo de Carroceria *</label>
-              <select
-                v-model="newScheduleForm.vehicle_body_type"
-                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-sky-500 cursor-pointer"
-              >
-                <option value="Baú Fechado">Baú Fechado</option>
-                <option value="Sider Lateral">Sider (Carga Lateral)</option>
-                <option value="Frigorífico / Reefer">Frigorífico (Refrigerado)</option>
-                <option value="Grade Baixa">Grade Baixa</option>
-                <option value="Prancha / Container">Prancha / Container</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-[11px] font-semibold text-slate-300 mb-1">Refrigeração</label>
-              <label class="flex items-center space-x-2 mt-2 cursor-pointer text-xs text-slate-300">
-                <input
-                  type="checkbox"
-                  v-model="newScheduleForm.temperature_controlled"
-                  class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-sky-500"
-                />
-                <span>Termoking Ativo</span>
-              </label>
-            </div>
-            <div v-if="newScheduleForm.temperature_controlled">
-              <label class="block text-[11px] font-semibold text-slate-300 mb-1">Temperatura Alvo</label>
-              <input
-                v-model="newScheduleForm.temperature_target"
-                type="text"
-                placeholder="Ex: -18°C ou +4°C"
-                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-sky-500"
-              />
-            </div>
-          </div>
-
-          <!-- Motorista -->
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div>
-              <label class="block text-xs font-medium text-slate-300 mb-1">Nome do Motorista *</label>
-              <input
-                v-model="newScheduleForm.driver_name"
-                type="text"
-                required
-                placeholder="Nome completo"
-                class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500"
-              />
-            </div>
-            <div>
-              <label class="block text-xs font-medium text-slate-300 mb-1">CPF do Motorista *</label>
-              <input
-                v-model="newScheduleForm.driver_cpf"
-                type="text"
-                required
-                placeholder="Apenas números"
-                class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-sky-500"
-              />
-            </div>
-            <div>
-              <label class="block text-xs font-medium text-slate-300 mb-1">WhatsApp / Telefone</label>
-              <input
-                v-model="newScheduleForm.driver_phone"
-                type="text"
-                placeholder="(11) 99999-9999"
-                class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-sky-500"
-              />
-            </div>
-          </div>
-
-          <!-- Ajudante de Carga / Descarga (Chapa) com Emissão de Crachá Digital -->
-          <div class="bg-indigo-950/30 border border-indigo-900/60 p-3.5 rounded-xl space-y-2">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold text-indigo-300 flex items-center space-x-1.5">
-                <IdCard class="w-3.5 h-3.5 text-indigo-400" />
-                <span>Ajudante de Carga / Descarga (Chapa)</span>
-              </span>
-              <span class="text-[9px] font-mono bg-indigo-950 text-indigo-300 border border-indigo-800 px-1.5 py-0.5 rounded font-bold">CRACHÁ AUTOMÁTICO</span>
-            </div>
+            <!-- Transportadora e Tipo de Carga -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label class="block text-[11px] font-medium text-slate-300 mb-1">Nome do Ajudante (Opcional)</label>
+                <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Transportadora *</label>
                 <input
-                  v-model="newScheduleForm.helper_name"
+                  v-model="newScheduleForm.carrier_name"
                   type="text"
-                  placeholder="Ex: Wellington Gomes Pereira"
-                  class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500"
+                  required
+                  placeholder="Ex: Braspress, Jamef, Autônomo"
+                  class="w-full bg-slate-50 dark:bg-[#00142c] border border-slate-300 dark:border-teal-500/30 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-[#00A896]"
                 />
               </div>
               <div>
-                <label class="block text-[11px] font-medium text-slate-300 mb-1">CPF do Ajudante (Opcional)</label>
+                <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Tipo de Carga *</label>
+                <select
+                  v-model="newScheduleForm.cargo_type"
+                  class="w-full bg-slate-50 dark:bg-[#00142c] border border-slate-300 dark:border-teal-500/30 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[#00A896] cursor-pointer"
+                >
+                  <option value="Carga Geral">Carga Geral</option>
+                  <option value="Alimentos Congelados">Alimentos Congelados</option>
+                  <option value="Eletrônicos e Peças">Eletrônicos e Peças</option>
+                  <option value="Insumos Químicos">Insumos Químicos</option>
+                  <option value="Granel">Granel</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Placas -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Placa do Cavalo *</label>
                 <input
-                  v-model="newScheduleForm.helper_cpf"
+                  v-model="newScheduleForm.vehicle_plate"
                   type="text"
-                  placeholder="000.000.000-00"
-                  class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-indigo-500"
+                  required
+                  placeholder="Ex: BRA2E19"
+                  class="w-full bg-slate-50 dark:bg-[#00142c] border border-slate-300 dark:border-teal-500/30 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-white font-mono uppercase placeholder-slate-400 focus:outline-none focus:border-[#00A896]"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Placa da Carreta (Opcional)</label>
+                <input
+                  v-model="newScheduleForm.trailer_plate"
+                  type="text"
+                  placeholder="Ex: ABC1234"
+                  class="w-full bg-slate-50 dark:bg-[#00142c] border border-slate-300 dark:border-teal-500/30 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-white font-mono uppercase placeholder-slate-400 focus:outline-none focus:border-[#00A896]"
                 />
               </div>
             </div>
-            <p class="text-[10px] text-indigo-300/80">O sistema emitirá automaticamente o Crachá Digital com QR Code para liberar o ajudante na portaria.</p>
-          </div>
 
-          <!-- Janela de Horário e Doca Pré-alocada -->
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <!-- Especificações de Carroceria & Refrigeração -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-50 dark:bg-[#00142c]/70 p-3 rounded-xl border border-slate-200 dark:border-teal-500/20">
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">Tipo de Carroceria *</label>
+                <select
+                  v-model="newScheduleForm.vehicle_body_type"
+                  class="w-full bg-white dark:bg-[#00142c] border border-slate-300 dark:border-teal-500/30 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[#00A896] cursor-pointer"
+                >
+                  <option value="Baú Fechado">Baú Fechado</option>
+                  <option value="Sider Lateral">Sider (Carga Lateral)</option>
+                  <option value="Frigorífico / Reefer">Frigorífico (Refrigerado)</option>
+                  <option value="Grade Baixa">Grade Baixa</option>
+                  <option value="Prancha / Container">Prancha / Container</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">Refrigeração</label>
+                <label class="flex items-center space-x-2 mt-2 cursor-pointer text-xs text-slate-700 dark:text-slate-300">
+                  <input
+                    type="checkbox"
+                    v-model="newScheduleForm.temperature_controlled"
+                    class="w-4 h-4 rounded accent-teal-600"
+                  />
+                  <span>Termoking Ativo</span>
+                </label>
+              </div>
+              <div v-if="newScheduleForm.temperature_controlled">
+                <label class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">Temperatura Alvo</label>
+                <input
+                  v-model="newScheduleForm.temperature_target"
+                  type="text"
+                  placeholder="Ex: -18°C ou +4°C"
+                  class="w-full bg-white dark:bg-[#00142c] border border-slate-300 dark:border-teal-500/30 rounded-lg px-2.5 py-1.5 text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:border-[#00A896]"
+                />
+              </div>
+            </div>
+
+            <!-- Motorista -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Nome do Motorista *</label>
+                <input
+                  v-model="newScheduleForm.driver_name"
+                  type="text"
+                  required
+                  placeholder="Nome completo"
+                  class="w-full bg-slate-50 dark:bg-[#00142c] border border-slate-300 dark:border-teal-500/30 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-[#00A896]"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">CPF do Motorista *</label>
+                <input
+                  v-model="newScheduleForm.driver_cpf"
+                  type="text"
+                  required
+                  placeholder="Apenas números"
+                  class="w-full bg-slate-50 dark:bg-[#00142c] border border-slate-300 dark:border-teal-500/30 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-white font-mono placeholder-slate-400 focus:outline-none focus:border-[#00A896]"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">WhatsApp / Telefone</label>
+                <input
+                  v-model="newScheduleForm.driver_phone"
+                  type="text"
+                  placeholder="(11) 99999-9999"
+                  class="w-full bg-slate-50 dark:bg-[#00142c] border border-slate-300 dark:border-teal-500/30 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-white font-mono placeholder-slate-400 focus:outline-none focus:border-[#00A896]"
+                />
+              </div>
+            </div>
+
+            <!-- Ajudante / Chapa -->
+            <div class="bg-indigo-50/60 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800/50 p-3.5 rounded-xl space-y-2">
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  v-model="newScheduleForm.has_helper"
+                  class="w-4 h-4 rounded accent-indigo-600"
+                />
+                <span class="text-xs font-bold text-indigo-900 dark:text-indigo-300">Veículo com Ajudante / Chapa de Descarga</span>
+              </label>
+
+              <div v-if="newScheduleForm.has_helper" class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-indigo-200/60 dark:border-indigo-800/40">
+                <div>
+                  <label class="block text-[11px] font-medium text-slate-700 dark:text-slate-300 mb-1">Nome do Ajudante *</label>
+                  <input
+                    v-model="newScheduleForm.helper_name"
+                    type="text"
+                    required
+                    placeholder="Nome do ajudante"
+                    class="w-full bg-white dark:bg-[#00142c] border border-slate-300 dark:border-teal-500/30 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[#00A896]"
+                  />
+                </div>
+                <div>
+                  <label class="block text-[11px] font-medium text-slate-700 dark:text-slate-300 mb-1">CPF do Ajudante *</label>
+                  <input
+                    v-model="newScheduleForm.helper_cpf"
+                    type="text"
+                    required
+                    placeholder="Apenas números"
+                    class="w-full bg-white dark:bg-[#00142c] border border-slate-300 dark:border-teal-500/30 rounded-lg px-2.5 py-1.5 text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:border-[#00A896]"
+                  />
+                </div>
+              </div>
+              <p class="text-[10px] text-indigo-700 dark:text-indigo-300/80">O sistema emitirá automaticamente o Crachá Digital com QR Code para liberar o ajudante na portaria.</p>
+            </div>
+
+            <!-- Janela de Horário e Doca Pré-alocada -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Início da Janela *</label>
+                <input
+                  v-model="newScheduleForm.scheduled_window_start"
+                  type="datetime-local"
+                  required
+                  class="w-full bg-slate-50 dark:bg-[#00142c] border border-slate-300 dark:border-teal-500/30 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[#00A896]"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Fim da Janela *</label>
+                <input
+                  v-model="newScheduleForm.scheduled_window_end"
+                  type="datetime-local"
+                  required
+                  class="w-full bg-slate-50 dark:bg-[#00142c] border border-slate-300 dark:border-teal-500/30 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[#00A896]"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Doca Designada</label>
+                <select
+                  v-model="newScheduleForm.dock_id"
+                  class="w-full bg-slate-50 dark:bg-[#00142c] border border-slate-300 dark:border-teal-500/30 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[#00A896] cursor-pointer"
+                >
+                  <option value="">A definir na chegada</option>
+                  <option v-for="d in yardStore.docks" :key="d.id" :value="d.id">
+                    {{ d.code }} - {{ d.name }}
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Observações -->
             <div>
-              <label class="block text-xs font-medium text-slate-300 mb-1">Início da Janela *</label>
+              <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Observações / NF-e</label>
               <input
-                v-model="newScheduleForm.scheduled_window_start"
-                type="datetime-local"
-                required
-                class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500"
+                v-model="newScheduleForm.notes"
+                type="text"
+                placeholder="Ex: NF 10429, descarregar pallets prioritários"
+                class="w-full bg-slate-50 dark:bg-[#00142c] border border-slate-300 dark:border-teal-500/30 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-[#00A896]"
               />
             </div>
-            <div>
-              <label class="block text-xs font-medium text-slate-300 mb-1">Fim da Janela *</label>
-              <input
-                v-model="newScheduleForm.scheduled_window_end"
-                type="datetime-local"
-                required
-                class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500"
-              />
-            </div>
-            <div>
-              <label class="block text-xs font-medium text-slate-300 mb-1">Doca Designada</label>
-              <select
-                v-model="newScheduleForm.dock_id"
-                class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500"
+
+            <div class="flex justify-end space-x-3 pt-3 border-t border-slate-200 dark:border-teal-500/20">
+              <button
+                type="button"
+                @click="isNewScheduleModalOpen = false"
+                class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
               >
-                <option value="">A definir na chegada</option>
-                <option v-for="d in yardStore.docks" :key="d.id" :value="d.id">
-                  {{ d.code }} - {{ d.name }}
-                </option>
-              </select>
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                :disabled="isSubmitting"
+                class="bg-gradient-to-r from-[#00A896] to-teal-500 hover:from-teal-600 hover:to-emerald-500 text-white px-5 py-2 rounded-xl text-xs font-semibold shadow-lg shadow-teal-500/25 transition-all cursor-pointer"
+              >
+                {{ isSubmitting ? 'Validando Horário...' : 'Gerar Agendamento & Link WhatsApp' }}
+              </button>
             </div>
-          </div>
-
-          <!-- Observações -->
-          <div>
-            <label class="block text-xs font-medium text-slate-300 mb-1">Observações / NF-e</label>
-            <input
-              v-model="newScheduleForm.notes"
-              type="text"
-              placeholder="Ex: NF 10429, descarregar pallets prioritários"
-              class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500"
-            />
-          </div>
-
-          <div class="flex justify-end space-x-3 pt-3 border-t border-slate-800">
-            <button
-              type="button"
-              @click="isNewScheduleModalOpen = false"
-              class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              :disabled="isSubmitting"
-              class="bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white px-5 py-2 rounded-xl text-xs font-semibold shadow-lg shadow-sky-600/30 transition-all cursor-pointer"
-            >
-              {{ isSubmitting ? 'Validando Horário...' : 'Gerar Agendamento & Link WhatsApp' }}
-            </button>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
-    </div>
     </transition>
 
-    <!-- Modal Importação em Lote (CSV) -->
     <!-- Modal: Importação em Lote (CSV) -->
     <transition name="modal">
       <div
         v-if="isBatchModalOpen"
         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
       >
-        <div class="modal-panel bg-[#0e1422] border border-slate-800 rounded-xl max-w-xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-        <button
-          @click="isBatchModalOpen = false"
-          class="absolute top-5 right-5 text-slate-400 hover:text-white cursor-pointer"
-        >
-          <X class="w-5 h-5" />
-        </button>
-
-        <div class="flex items-center space-x-2.5 text-emerald-400 mb-1">
-          <FileSpreadsheet class="w-5 h-5" />
-          <h3 class="text-base font-black text-white">Importação em Lote de Agendamentos</h3>
-        </div>
-        <p class="text-xs text-slate-400 mb-4">
-          Suba a grade diária de caminhões do seu armazém via arquivo CSV formatado.
-        </p>
-
-        <!-- Download do Modelo CSV -->
-        <div class="bg-slate-950/80 border border-slate-800 p-4 rounded-2xl flex items-center justify-between mb-4">
-          <div>
-            <h4 class="text-xs font-bold text-white">Modelo Padrão DocaOS (.csv)</h4>
-            <p class="text-[11px] text-slate-400">Contém colunas oficiais de placa, motorista, transportadora e horários.</p>
-          </div>
-          <a
-            href="/api/v1/schedules/batch/template-csv"
-            download
-            class="flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-700 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer"
+        <div class="modal-panel bg-white dark:bg-[#001c3d] text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-teal-500/30 rounded-2xl max-w-xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+          <button
+            @click="isBatchModalOpen = false"
+            class="absolute top-5 right-5 text-slate-400 hover:text-slate-700 dark:hover:text-white p-1 rounded-lg cursor-pointer"
           >
-            <Download class="w-3.5 h-3.5" />
-            <span>Baixar Modelo</span>
-          </a>
-        </div>
+            <X class="w-5 h-5" />
+          </button>
 
-        <!-- Área de Upload -->
-        <div class="border-2 border-dashed border-slate-700 hover:border-sky-500/60 rounded-2xl p-6 text-center transition-all bg-slate-950/40 mb-4">
-          <UploadCloud class="w-8 h-8 text-slate-400 mx-auto mb-2" />
-          <p class="text-xs font-semibold text-slate-200 mb-1">
-            {{ batchFile ? batchFile.name : 'Selecione ou arraste sua planilha CSV aqui' }}
+          <div class="flex items-center space-x-2.5 text-teal-600 dark:text-[#00E5C8] mb-1">
+            <FileSpreadsheet class="w-5 h-5" />
+            <h3 class="text-base font-black text-slate-900 dark:text-white">Importação em Lote de Agendamentos</h3>
+          </div>
+          <p class="text-xs text-slate-600 dark:text-slate-400 mb-4">
+            Suba a grade diária de caminhões do seu armazém via arquivo CSV formatado.
           </p>
-          <p class="text-[10px] text-slate-500 mb-3">Formatos aceitos: .csv (delimitador ponto e vírgula ou vírgula)</p>
-          <input
-            type="file"
-            accept=".csv"
-            @change="onBatchFileSelected"
-            class="hidden"
-            id="batch-file-input"
-          />
-          <label
-            for="batch-file-input"
-            class="inline-flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-4 py-2 rounded-xl text-xs font-semibold cursor-pointer transition-all"
-          >
-            <span>Escolher Arquivo</span>
-          </label>
-        </div>
 
-        <!-- Erro Geral -->
-        <div v-if="batchError" class="bg-rose-950/60 border border-rose-800 text-rose-300 p-3 rounded-xl text-xs mb-4 flex items-center space-x-2">
-          <AlertCircle class="w-4 h-4 shrink-0 text-rose-400" />
-          <span>{{ batchError }}</span>
-        </div>
-
-        <!-- Relatório de Resultado -->
-        <div v-if="batchResult" class="space-y-3 mb-4">
-          <div class="bg-emerald-950/50 border border-emerald-850 p-3.5 rounded-xl text-xs text-emerald-200 flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-              <CheckCircle2 class="w-4 h-4 text-emerald-400" />
-              <span><strong>{{ batchResult.created_count }}</strong> agendamentos criados com sucesso!</span>
+          <!-- Download do Modelo CSV -->
+          <div class="bg-slate-50 dark:bg-[#00142c] border border-slate-200 dark:border-teal-500/20 p-4 rounded-2xl flex items-center justify-between mb-4">
+            <div>
+              <h4 class="text-xs font-bold text-slate-900 dark:text-white">Modelo Padrão DocaOS (.csv)</h4>
+              <p class="text-[11px] text-slate-600 dark:text-slate-400">Contém colunas oficiais de placa, motorista, transportadora e horários.</p>
             </div>
-            <span class="text-[11px] text-slate-400">{{ batchResult.total_lines_read }} linhas processadas</span>
+            <a
+              href="/api/v1/schedules/batch/template-csv"
+              download
+              class="flex items-center space-x-1.5 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-teal-700 dark:text-teal-300 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer shadow-sm"
+            >
+              <Download class="w-3.5 h-3.5" />
+              <span>Baixar Modelo</span>
+            </a>
           </div>
 
-          <div v-if="batchResult.failed_count > 0" class="bg-slate-950 border border-rose-900/50 rounded-xl p-3 text-xs">
-            <p class="font-bold text-rose-400 mb-2">{{ batchResult.failed_count }} inconsistências encontradas:</p>
-            <div class="max-h-32 overflow-y-auto space-y-1 pr-1 font-mono text-[11px]">
-              <div v-for="err in batchResult.errors" :key="err.linha" class="text-slate-300 border-b border-slate-200 dark:border-slate-800/60 pb-1">
-                <span class="text-rose-400 font-bold">Linha {{ err.linha }} (Placa {{ err.placa }}):</span> {{ err.erro }}
+          <!-- Área de Upload -->
+          <div class="border-2 border-dashed border-slate-300 dark:border-teal-500/40 hover:border-[#00A896] dark:hover:border-teal-400 rounded-2xl p-6 text-center transition-all bg-slate-50/60 dark:bg-[#00142c]/40 mb-4">
+            <UploadCloud class="w-8 h-8 text-teal-600 dark:text-teal-400 mx-auto mb-2" />
+            <p class="text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">
+              {{ batchFile ? batchFile.name : 'Selecione ou arraste sua planilha CSV aqui' }}
+            </p>
+            <p class="text-[10px] text-slate-500 dark:text-slate-400 mb-3">Formatos aceitos: .csv (delimitador ponto e vírgula ou vírgula)</p>
+            <input
+              type="file"
+              accept=".csv"
+              @change="onBatchFileSelected"
+              class="hidden"
+              id="batch-file-input"
+            />
+            <label
+              for="batch-file-input"
+              class="inline-flex items-center space-x-1.5 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 px-4 py-2 rounded-xl text-xs font-semibold cursor-pointer transition-all shadow-sm"
+            >
+              <span>Escolher Arquivo</span>
+            </label>
+          </div>
+
+          <!-- Erro Geral -->
+          <div v-if="batchError" class="bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 p-3 rounded-xl text-xs mb-4 flex items-center space-x-2">
+            <AlertCircle class="w-4 h-4 shrink-0 text-rose-500 dark:text-rose-400" />
+            <span>{{ batchError }}</span>
+          </div>
+
+          <!-- Relatório de Resultado -->
+          <div v-if="batchResult" class="space-y-3 mb-4">
+            <div class="bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-850 p-3.5 rounded-xl text-xs text-emerald-800 dark:text-emerald-200 flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <CheckCircle2 class="w-4 h-4 text-emerald-500" />
+                <span><strong>{{ batchResult.created_count }}</strong> agendamentos criados com sucesso!</span>
+              </div>
+              <span class="text-[11px] text-slate-600 dark:text-slate-400">{{ batchResult.total_lines_read }} linhas processadas</span>
+            </div>
+
+            <div v-if="batchResult.failed_count > 0" class="bg-slate-50 dark:bg-[#00142c] border border-rose-200 dark:border-rose-900/50 rounded-xl p-3 text-xs">
+              <p class="font-bold text-rose-600 dark:text-rose-400 mb-2">{{ batchResult.failed_count }} inconsistências encontradas:</p>
+              <div class="max-h-32 overflow-y-auto space-y-1 pr-1 font-mono text-[11px]">
+                <div v-for="err in batchResult.errors" :key="err.linha" class="text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800/60 pb-1">
+                  <span class="text-rose-600 dark:text-rose-400 font-bold">Linha {{ err.linha }} (Placa {{ err.placa }}):</span> {{ err.erro }}
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div class="flex justify-end space-x-2 pt-2 border-t border-slate-800">
-          <button
-            type="button"
-            @click="isBatchModalOpen = false"
-            class="px-4 py-2 rounded-xl text-xs text-slate-300 hover:bg-slate-800 cursor-pointer"
-          >
-            Fechar
-          </button>
-          <button
-            type="button"
-            @click="uploadBatchSchedules"
-            :disabled="!batchFile || isUploadingBatch"
-            class="flex items-center space-x-1.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white px-5 py-2 rounded-xl text-xs font-bold shadow-lg shadow-emerald-600/20 cursor-pointer transition-all"
-          >
-            <UploadCloud class="w-4 h-4" />
-            <span>{{ isUploadingBatch ? 'Processando Grade...' : 'Processar Importação' }}</span>
-          </button>
+          <div class="flex justify-end space-x-2 pt-2 border-t border-slate-200 dark:border-teal-500/20">
+            <button
+              type="button"
+              @click="isBatchModalOpen = false"
+              class="px-4 py-2 rounded-xl text-xs text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+            >
+              Fechar
+            </button>
+            <button
+              type="button"
+              @click="uploadBatchSchedules"
+              :disabled="!batchFile || isUploadingBatch"
+              class="flex items-center space-x-1.5 bg-gradient-to-r from-[#00A896] to-emerald-600 hover:from-teal-600 hover:to-emerald-500 disabled:opacity-50 text-white px-5 py-2 rounded-xl text-xs font-bold shadow-lg shadow-teal-500/20 cursor-pointer transition-all"
+            >
+              <UploadCloud class="w-4 h-4" />
+              <span>{{ isUploadingBatch ? 'Processando Grade...' : 'Processar Importação' }}</span>
+            </button>
+          </div>
         </div>
       </div>
-    </div>
     </transition>
 
   </div>

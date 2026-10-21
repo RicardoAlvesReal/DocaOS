@@ -426,8 +426,8 @@ onMounted(async () => {
           
           <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-teal-500/20">
             <div>
-              <h3 class="text-base font-bold text-white">Emitir Crachá Digital & Credencial</h3>
-              <p class="text-xs text-slate-400">Credenciamento de pedestres, ajudantes e prestadores de serviços</p>
+              <h3 class="text-base font-bold text-slate-900 dark:text-white">Emitir Crachá Digital & Credencial</h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Credenciamento de pedestres, ajudantes e prestadores de serviços</p>
             </div>
             <button @click="isCreateModalOpen = false" class="text-slate-400 hover:text-white cursor-pointer">
               <X class="w-5 h-5" />
@@ -569,7 +569,7 @@ onMounted(async () => {
     <!-- =================================================================== -->
     <transition name="modal">
       <div v-if="selectedBadgeForPrint" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-200 dark:border-teal-500/20 rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4 relative">
+        <div class="modal-panel bg-white dark:bg-[#001c3d] text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-teal-500/20 rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4 relative">
           
           <button 
             @click="selectedBadgeForPrint = null"

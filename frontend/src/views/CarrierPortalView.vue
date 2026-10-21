@@ -39,9 +39,14 @@ const form = ref({
   invoice_number: '',
   vehicle_plate: '',
   trailer_plate: '',
+  vehicle_body_type: 'Baú Fechado',
+  temperature_controlled: false,
+  temperature_target: '',
   driver_name: '',
   driver_cpf: '',
   driver_phone: '',
+  helper_name: '',
+  helper_cpf: '',
   scheduled_date: new Date().toISOString().split('T')[0],
   scheduled_time: '14:00',
   dock_id: '',
@@ -84,9 +89,14 @@ async function handleBooking() {
       invoice_number: form.value.invoice_number,
       vehicle_plate: form.value.vehicle_plate.replace(/[^A-Za-z0-9]/g, '').toUpperCase(),
       trailer_plate: form.value.trailer_plate ? form.value.trailer_plate.replace(/[^A-Za-z0-9]/g, '').toUpperCase() : null,
+      vehicle_body_type: form.value.vehicle_body_type,
+      temperature_controlled: form.value.temperature_controlled,
+      temperature_target: form.value.temperature_target || null,
       driver_name: form.value.driver_name,
       driver_cpf: form.value.driver_cpf,
       driver_phone: form.value.driver_phone,
+      helper_name: form.value.helper_name || null,
+      helper_cpf: form.value.helper_cpf || null,
       scheduled_window_start: startIso,
       scheduled_window_end: endIso,
       dock_id: form.value.dock_id || null,
@@ -108,7 +118,7 @@ async function handleBooking() {
     bookingSuccess.value = created
 
     // Gera QR Code para exibição instantânea
-    const qrString = created.qr_code_data || `ROTAFLOW:${created.access_token}:${created.vehicle_plate}`
+    const qrString = created.qr_code_data || `DOCAOS:${created.access_token}:${created.vehicle_plate}`
     bookingQrCodeUrl.value = await QRCode.toDataURL(qrString, { width: 260, margin: 2 })
 
   } catch (err) {
@@ -139,12 +149,12 @@ onMounted(() => {
     <!-- Header -->
     <header class="max-w-4xl w-full mx-auto flex items-center justify-between py-3 relative z-10 border-b border-slate-800/80">
       <div class="flex items-center space-x-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500/20 to-blue-600/20 border border-sky-400/30 p-1.5 flex items-center justify-center shadow-lg">
-          <img src="/rotaflow-icon.png" alt="RotaFlow" class="w-full h-full object-contain" />
+        <div class="w-10 h-10 rounded-xl bg-teal-500/10 border border-teal-500/30 p-1 flex items-center justify-center shadow-lg">
+          <img src="/docaos-icon.png" alt="DocaOS" class="w-full h-full object-contain" />
         </div>
         <div>
-          <span class="text-base font-black text-white">Rota<span class="text-sky-400">Flow</span></span>
-          <span class="block text-[10px] font-mono text-slate-400">Portal do Transportador &bull; Agendamento Autônomo</span>
+          <span class="text-base font-black text-white">Doca<span class="text-[#00A896]">OS</span></span>
+          <span class="block text-[10px] font-mono text-slate-400">Portal do Transportador &bull; Agendamento Autônomo (docaos.log.br)</span>
         </div>
       </div>
 
@@ -299,6 +309,43 @@ onMounted(() => {
               <User class="w-4 h-4 text-sky-400" />
               <span>2. Veículo & Motorista</span>
             </h3>
+            <!-- Especificação do Veículo & Carroceria -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3 bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+              <div>
+                <label class="block text-[11px] font-mono text-slate-400 mb-1">Tipo de Carroceria *</label>
+                <select
+                  v-model="form.vehicle_body_type"
+                  class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#086cfe] cursor-pointer"
+                >
+                  <option value="Baú Fechado">Baú Fechado</option>
+                  <option value="Sider Lateral">Sider (Carga Lateral)</option>
+                  <option value="Frigorífico / Reefer">Frigorífico (Refrigerado)</option>
+                  <option value="Grade Baixa">Grade Baixa</option>
+                  <option value="Prancha / Container">Prancha / Container</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[11px] font-mono text-slate-400 mb-1">Refrigeração</label>
+                <label class="flex items-center space-x-2 mt-2 cursor-pointer text-xs text-slate-300">
+                  <input
+                    type="checkbox"
+                    v-model="form.temperature_controlled"
+                    class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-sky-500"
+                  />
+                  <span>Termoking Ativo</span>
+                </label>
+              </div>
+              <div v-if="form.temperature_controlled">
+                <label class="block text-[11px] font-mono text-slate-400 mb-1">Temperatura Alvo</label>
+                <input
+                  v-model="form.temperature_target"
+                  type="text"
+                  placeholder="Ex: -18°C"
+                  class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-[#086cfe]"
+                />
+              </div>
+            </div>
+
             <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
               <div>
                 <label class="block text-[11px] font-mono text-slate-400 mb-1">Placa do Cavalo *</label>
@@ -340,15 +387,37 @@ onMounted(() => {
                 />
               </div>
             </div>
-            <div class="mt-3">
-              <label class="block text-[11px] font-mono text-slate-400 mb-1">CPF do Motorista *</label>
-              <input
-                v-model="form.driver_cpf"
-                type="text"
-                required
-                placeholder="000.000.000-00"
-                class="w-full sm:w-1/2 bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-xs font-mono text-white focus:outline-none focus:border-[#086cfe]"
-              />
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+              <div>
+                <label class="block text-[11px] font-mono text-slate-400 mb-1">CPF do Motorista *</label>
+                <input
+                  v-model="form.driver_cpf"
+                  type="text"
+                  required
+                  placeholder="000.000.000-00"
+                  class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-xs font-mono text-white focus:outline-none focus:border-[#086cfe]"
+                />
+              </div>
+
+              <!-- Ajudante de Descarga (Chapa) -->
+              <div class="bg-indigo-950/20 border border-indigo-900/50 p-2.5 rounded-xl">
+                <span class="text-[10px] font-mono uppercase font-bold text-indigo-300 block mb-1">Ajudante de Carga / Chapa (Crachá Digital)</span>
+                <div class="grid grid-cols-2 gap-2">
+                  <input
+                    v-model="form.helper_name"
+                    type="text"
+                    placeholder="Nome do ajudante"
+                    class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-[11px] text-white focus:outline-none focus:border-indigo-500"
+                  />
+                  <input
+                    v-model="form.helper_cpf"
+                    type="text"
+                    placeholder="CPF ajudante"
+                    class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-[11px] font-mono text-white focus:outline-none focus:border-indigo-500"
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
@@ -410,7 +479,7 @@ onMounted(() => {
 
     <!-- Footer -->
     <footer class="max-w-4xl w-full mx-auto text-center py-4 text-[11px] font-mono text-slate-500 border-t border-slate-800/60 relative z-10">
-      Desenvolvido e Mantido por RAOS Tecnologia (CNPJ 66.914.167/0001-76) &bull; RotaFlow YMS
+      DocaOS &bull; Patio & Dock Operating System (docaos.log.br)
     </footer>
 
   </div>

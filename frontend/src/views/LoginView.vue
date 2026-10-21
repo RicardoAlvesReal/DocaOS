@@ -18,8 +18,8 @@ const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
 
-const email = ref('operador@rotaflow.com.br')
-const password = ref('rotaflow123')
+const email = ref('operador@docaos.log.br')
+const password = ref('operador123')
 const isLoading = ref(false)
 const errorMessage = ref('')
 
@@ -71,19 +71,19 @@ function handleEnterDemo() {
         
         <!-- Logo & Header -->
         <div class="text-center space-y-3">
-          <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-sky-500/20 to-blue-600/20 border border-sky-400/30 p-2 flex items-center justify-center mx-auto shadow-xl shadow-sky-500/15">
-            <img src="/rotaflow-icon.png" alt="RotaFlow" class="w-full h-full object-contain" />
+          <div class="w-14 h-14 rounded-2xl bg-teal-500/10 border border-teal-500/30 p-2 flex items-center justify-center mx-auto shadow-xl shadow-teal-500/15">
+            <img src="/docaos-icon.png" alt="DocaOS" class="w-full h-full object-contain" />
           </div>
           <div>
             <div class="flex items-center justify-center space-x-2">
-              <span class="text-2xl font-black tracking-tight text-white">
-                Rota<span class="text-sky-400">Flow</span>
+              <span class="text-3xl font-black tracking-tight text-white">
+                Doca<span class="text-[#00A896]">OS</span>
               </span>
-              <span class="text-xs uppercase font-mono font-bold tracking-wider px-2 py-0.5 rounded bg-sky-950 text-sky-400 border border-sky-800">
-                YMS
+              <span class="text-xs uppercase font-mono font-bold tracking-wider px-2 py-0.5 rounded bg-teal-950 text-[#00E5C8] border border-teal-800">
+                PATIO & DOCK
               </span>
             </div>
-            <p class="text-xs text-slate-400 mt-1">Acesso Operacional & Orquestração de Pátios</p>
+            <p class="text-xs text-slate-400 mt-1">Patio & Dock Operating System &bull; docaos.log.br</p>
           </div>
         </div>
 
@@ -103,7 +103,7 @@ function handleEnterDemo() {
                 v-model="email"
                 type="email"
                 required
-                placeholder="operador@rotaflow.com.br"
+                placeholder="operador@docaos.log.br"
                 class="w-full bg-slate-950/80 border border-white/[0.08] rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-[#086cfe] focus:ring-1 focus:ring-[#086cfe] transition-all"
               />
             </div>
@@ -165,7 +165,7 @@ function handleEnterDemo() {
       <div class="mt-6 text-center space-y-2 text-xs text-slate-500 font-mono">
         <p>
           Problemas de acesso? 
-          <a href="https://api.whatsapp.com/send?phone=5527996174965&text=Ol%C3%A1!%20Preciso%20de%20suporte%20no%20acesso%20do%20RotaFlow." target="_blank" class="text-sky-400 hover:underline">
+          <a href="https://api.whatsapp.com/send?phone=5527996174965&text=Ol%C3%A1!%20Preciso%20de%20suporte%20no%20acesso%20do%20DocaOS." target="_blank" class="text-teal-400 hover:underline">
             Fale com o suporte técnico
           </a>
         </p>
@@ -180,7 +180,7 @@ function handleEnterDemo() {
 
     <!-- Footer -->
     <footer class="py-2 text-center text-[11px] text-slate-600 font-mono relative z-10">
-      &copy; {{ new Date().getFullYear() }} RotaFlow YMS &bull; Desenvolvido e mantido por RAOS Tecnologia
+      &copy; {{ new Date().getFullYear() }} DocaOS &bull; Patio & Dock Operating System (docaos.log.br)
     </footer>
 
   </div>

@@ -1,6 +1,6 @@
 /**
- * RotaFlow YMS - Utilitário de Notificações WhatsApp para Motoristas
- * Suporta despacho direto via link wa.me e webhook para gateways (Evolution, Z-API, Twilio)
+ * DocaOS - Patio & Dock Operating System (docaos.log.br)
+ * Utilitário de Notificações WhatsApp para Motoristas e Chapas
  */
 
 export function formatWhatsAppUrl(phone, text) {
@@ -23,7 +23,7 @@ export function buildDockCallMessage({ driverName, vehiclePlate, dockName, wareh
          `Seu veículo placa *${vehiclePlate}* foi convocado para carregar/descarregar na *${dockName || 'DOCA DESIGNADA'}*.\n\n` +
          `📍 *Ação necessária:* Dirija-se imediatamente com seu veículo para a doca informada.\n` +
          `⏱️ O início da operação física já foi autorizado pela torre de controle.\n\n` +
-         `_RotaFlow YMS • Portaria & Logística_`
+         `_DocaOS • Patio & Dock Operating System (docaos.log.br)_`
 }
 
 export function buildCheckinLinkMessage({ driverName, vehiclePlate, warehouseName, checkinUrl }) {

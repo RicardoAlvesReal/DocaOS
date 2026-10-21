@@ -382,7 +382,7 @@ function formatDate(isoStr) {
 
     <!-- Footer -->
     <footer class="py-3 text-center border-t border-slate-900">
-      <p class="text-[10px] text-slate-600 font-medium">RotaFlow YMS &bull; Operação Logística Integrada</p>
+      <p class="text-[10px] text-slate-500 font-medium">DocaOS &bull; Patio & Dock Operating System (docaos.log.br)</p>
     </footer>
 
   </div>

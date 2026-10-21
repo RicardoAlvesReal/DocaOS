@@ -55,7 +55,7 @@ function copyEmail() {
 }
 
 function openWhatsAppDirect(customMessage) {
-  const msg = customMessage || `Olá! Vim pelo site da RotaFlow e gostaria de falar com a equipe da RAOS Tecnologia sobre a implantação do YMS no nosso armazém.`
+  const msg = customMessage || `Olá! Vim pelo site do DocaOS (docaos.log.br) e gostaria de falar com a equipe sobre a implantação do sistema no nosso armazém.`
   window.open(`https://api.whatsapp.com/send?phone=55${contactInfo.whatsappRaw}&text=${encodeURIComponent(msg)}`, '_blank')
 }
 
@@ -92,7 +92,7 @@ const calculatedRoi = computed(() => {
   // ~35% das carretas sofrem retenção com cobrança
   const billedTrucks = Math.round(monthlyTrucks * 0.35)
   const monthlyCostWithoutYms = Math.round(billedTrucks * excess * hourlyFee.value)
-  // RotaFlow reduz o Dwell Time em até 78%
+  // DocaOS reduz o Dwell Time em até 78%
   const monthlySavings = Math.round(monthlyCostWithoutYms * 0.78)
   const hoursSavedPerYear = Math.round(monthlyTrucks * excess * 12 * 0.75)
 
@@ -173,21 +173,21 @@ const webhookPayloads = {
     <header class="border-b border-slate-800/80 bg-[#070a12]/95 sticky top-0 z-50">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
         
-        <!-- Marca Principal RotaFlow -->
+        <!-- Marca Principal DocaOS -->
         <div class="flex items-center space-x-3 cursor-pointer" @click="router.push('/')">
-          <div class="w-10 h-10 rounded-lg bg-sky-500/10 border border-sky-500/20 p-1 flex items-center justify-center">
-            <img src="/rotaflow-icon.png" alt="RotaFlow" class="w-full h-full object-contain" />
+          <div class="w-10 h-10 rounded-xl bg-teal-500/10 border border-teal-500/30 p-1 flex items-center justify-center shadow-sm">
+            <img src="/docaos-icon.png" alt="DocaOS" class="w-full h-full object-contain" />
           </div>
           <div>
             <div class="flex items-center space-x-2">
-              <span class="text-xl font-bold tracking-tight text-white">
-                Rota<span class="text-sky-400">Flow</span>
+              <span class="text-2xl font-black tracking-tight text-white">
+                Doca<span class="text-[#00A896]">OS</span>
               </span>
-              <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
-                YMS
+              <span class="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-teal-950 text-[#00E5C8] border border-teal-800">
+                PATIO & DOCK OS
               </span>
             </div>
-            <p class="text-xs text-slate-400">Gestão de Pátios & Agendamento de Docas</p>
+            <p class="text-xs font-mono text-slate-400">docaos.log.br</p>
           </div>
         </div>
 
@@ -240,14 +240,14 @@ const webhookPayloads = {
 
         <!-- Statement Parágrafo -->
         <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-normal max-w-2xl mx-auto">
-          O <strong>RotaFlow YMS</strong> elimina filas na portaria com check-in em segundos, direciona caminhões para docas livres e audita o <em>Dwell Time</em> sob a <strong>Lei Federal 11.442/2007</strong>.
+          O <strong>DocaOS</strong> elimina filas na portaria com check-in em segundos, direciona caminhões para docas livres, emite crachás digitais e audita o <em>Dwell Time</em> sob a <strong>Lei Federal 11.442/2007</strong>.
         </p>
 
         <!-- Botões de Ação Imediata (Sólidos, sem gradientes) -->
         <div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
           <button
-            @click="openWhatsAppDirect('Olá! Gostaria de agendar uma apresentação de 20 minutos do RotaFlow YMS para o nosso terminal logístico.')"
-            class="w-full sm:w-auto flex items-center justify-center space-x-2 bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold px-6 py-3.5 rounded-lg transition-all cursor-pointer"
+            @click="openWhatsAppDirect('Olá! Gostaria de agendar uma apresentação de 20 minutos do DocaOS (docaos.log.br) para o nosso terminal logístico.')"
+            class="w-full sm:w-auto flex items-center justify-center space-x-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-6 py-3.5 rounded-lg transition-all cursor-pointer"
           >
             <span>Falar com o Time de Engenharia</span>
             <ArrowRight class="w-4 h-4" />
@@ -294,11 +294,11 @@ const webhookPayloads = {
           <!-- Terminal Header Autêntico (sem fake mac dots) -->
           <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-800 mb-6 gap-2">
             <div class="flex items-center space-x-2 text-xs text-slate-300">
-              <span class="font-bold text-white">ROTAFLOW YMS</span>
+              <span class="font-bold text-white">DOCAOS</span>
               <span class="text-slate-600">&bull;</span>
-              <span>TERMINAL VITÓRIA HUB 01</span>
+              <span>PATIO & DOCK OS</span>
               <span class="text-slate-600">&bull;</span>
-              <span class="text-slate-400">TELEMETRIA EM TEMPO REAL</span>
+              <span class="text-teal-400 font-mono">docaos.log.br</span>
             </div>
 
             <div class="flex items-center space-x-2 text-xs text-emerald-400 bg-emerald-950/60 border border-emerald-800/80 px-2.5 py-1 rounded">
@@ -492,7 +492,7 @@ const webhookPayloads = {
               Cálculo de Estadia sob a Lei Federal 11.442/2007 (Art. 5º-A)
             </h3>
             <p class="text-sm text-slate-300 leading-relaxed">
-              Evite cobranças arbitrárias de horas paradas por transportadoras. O RotaFlow calcula exatamente a tolerância legal de 5 horas a partir do carimbo de tempo da portaria e emite relatórios com valor por tonelada/hora formatados para contestação ou pagamento transparente.
+              Evite cobranças arbitrárias de horas paradas por transportadoras. O DocaOS calcula exatamente a tolerância legal de 5 horas a partir do carimbo de tempo da portaria e emite relatórios com valor por tonelada/hora formatados para contestação ou pagamento transparente.
             </p>
           </div>
 
@@ -605,7 +605,7 @@ const webhookPayloads = {
             <div class="space-y-2">
               <h2 class="text-3xl font-extrabold text-white">Quanto o seu pátio perde por mês em sobreestadias?</h2>
               <p class="text-sm text-slate-300 leading-relaxed">
-                Ajuste os parâmetros da sua operação e calcule a redução de custos proporcionada pelo RotaFlow sob a Lei 11.442/2007.
+                Ajuste os parâmetros da sua operação e calcule a redução de custos proporcionada pelo DocaOS sob a Lei 11.442/2007.
               </p>
             </div>
 
@@ -706,7 +706,7 @@ const webhookPayloads = {
             </div>
 
             <button
-              @click="openWhatsAppDirect(`Olá! Simulei a economia de ${formatBRL(calculatedRoi.monthlySavings)}/mês na calculadora do RotaFlow para ${dailyTrucks} carretas/dia. Gostaria de entender a implantação.`)"
+              @click="openWhatsAppDirect(`Olá! Simulei a economia de ${formatBRL(calculatedRoi.monthlySavings)}/mês na calculadora do DocaOS (docaos.log.br) para ${dailyTrucks} carretas/dia. Gostaria de entender a implantação.`)"
               class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider py-4 px-6 rounded-lg flex items-center justify-center space-x-2 transition-all cursor-pointer"
             >
               <PhoneCall class="w-4 h-4" />
@@ -898,7 +898,7 @@ const webhookPayloads = {
             Pronto para transformar a eficiência do seu pátio?
           </h2>
           <p class="text-base text-slate-300 leading-relaxed">
-            Fale diretamente com os engenheiros responsáveis pelo desenvolvimento da plataforma RotaFlow na <strong>RAOS Tecnologia</strong>.
+            Fale diretamente com os engenheiros responsáveis pelo desenvolvimento da plataforma DocaOS na <strong>RAOS Tecnologia</strong>.
           </p>
         </div>
 
@@ -907,7 +907,7 @@ const webhookPayloads = {
           
           <!-- Card WhatsApp -->
           <a
-            :href="`https://api.whatsapp.com/send?phone=55${contactInfo.whatsappRaw}&text=Ol%C3%A1!%20Gostaria%20de%20falar%20com%20a%20RAOS%20Tecnologia%20sobre%20o%20RotaFlow%20YMS.`"
+            :href="`https://api.whatsapp.com/send?phone=55${contactInfo.whatsappRaw}&text=Olá!%20Gostaria%20de%20falar%20com%20a%20equipe%20sobre%20o%20DocaOS%20(docaos.log.br).`"
             target="_blank"
             class="bg-[#070a12] border border-slate-800 hover:border-emerald-500/50 p-5 rounded-xl space-y-3 transition-all group block"
           >
@@ -967,17 +967,17 @@ const webhookPayloads = {
     <footer class="border-t border-slate-800 bg-[#050811] py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-slate-800">
         
-        <!-- Coluna 1 & 2: Logomarca RotaFlow + Crédito RAOS Desenvolvedora -->
+        <!-- Coluna 1 & 2: Logomarca DocaOS + Crédito RAOS Desenvolvedora -->
         <div class="md:col-span-2 space-y-4">
           <div class="flex items-center space-x-3">
-            <div class="w-9 h-9 rounded-lg bg-sky-500/10 border border-sky-500/20 p-1 flex items-center justify-center">
-              <img src="/rotaflow-icon.png" alt="RotaFlow YMS" class="w-full h-full object-contain" />
+            <div class="w-10 h-10 rounded-xl bg-teal-500/10 border border-teal-500/30 p-1 flex items-center justify-center shadow-sm">
+              <img src="/docaos-icon.png" alt="DocaOS" class="w-full h-full object-contain" />
             </div>
             <div>
-              <span class="text-xl font-bold text-white">
-                Rota<span class="text-sky-400">Flow</span> <span class="text-slate-400 text-xs">YMS</span>
+              <span class="text-2xl font-black text-white">
+                Doca<span class="text-[#00A896]">OS</span> <span class="text-teal-400 text-xs font-mono font-bold">docaos.log.br</span>
               </span>
-              <p class="text-xs text-slate-400">Yard Management System & Orquestração de Pátios</p>
+              <p class="text-xs text-slate-400">Patio & Dock Operating System &bull; Gestão de Pátios & Docas</p>
             </div>
           </div>
           <p class="text-xs text-slate-400 leading-relaxed max-w-md">
@@ -1029,7 +1029,7 @@ const webhookPayloads = {
       </div>
 
       <div class="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-4">
-        <p>&copy; {{ new Date().getFullYear() }} RotaFlow YMS. Todos os direitos reservados. Desenvolvido por <strong>RAOS Tecnologia</strong>.</p>
+        <p>&copy; {{ new Date().getFullYear() }} DocaOS &bull; Patio & Dock Operating System (docaos.log.br). Desenvolvido por <strong>RAOS Tecnologia</strong>.</p>
         <div class="flex items-center space-x-4">
           <span>CNPJ: 66.914.167/0001-76</span>
           <span>&bull;</span>

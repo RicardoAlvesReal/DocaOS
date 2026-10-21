@@ -9,10 +9,71 @@ export const useYardStore = defineStore('yard', () => {
   const currentTenant = ref(null)
   const docks = ref([])
   const schedules = ref([])
+  const badges = ref([])
   const isLoading = ref(false)
   const isWsConnected = ref(false)
   const notification = ref(null)
   let ws = null
+
+  // Dados de Crachás Digitais de Demonstração / Sandbox
+  const MOCK_BADGES = [
+    {
+      id: 'demo-badge-1',
+      badge_code: 'BADGE-M7701',
+      full_name: 'Carlos Alberto Silva',
+      document_number: '12345678900',
+      phone: '(11) 98765-4321',
+      category: 'Motorista',
+      company_name: 'Rodonaves Transportes',
+      vehicle_plate: 'BRA2E19',
+      authorized_zones: 'Pátio Geral, Doca 01 e Doca 03',
+      status: 'Ativo',
+      valid_until: new Date(Date.now() + 90 * 86400000).toISOString(),
+      notes: 'Motorista titular homologado com CNH E e MOPP ativo.'
+    },
+    {
+      id: 'demo-badge-2',
+      badge_code: 'BADGE-A8842',
+      full_name: 'Wellington Gomes Pereira (Chapa)',
+      document_number: '45678912344',
+      phone: '(11) 97777-8888',
+      category: 'Ajudante_Chapa',
+      company_name: 'Cooperativa de Chapas Portuários',
+      vehicle_plate: 'BRA2E19',
+      authorized_zones: 'Doca 01 e Área de Desova',
+      status: 'Em_Patio',
+      valid_until: new Date(Date.now() + 30 * 86400000).toISOString(),
+      notes: 'Ajudante de descarga autorizado com EPI completo verificado.'
+    },
+    {
+      id: 'demo-badge-3',
+      badge_code: 'BADGE-P9910',
+      full_name: 'Eduardo Tavares (Thermo King)',
+      document_number: '78912345688',
+      phone: '(13) 99666-5544',
+      category: 'Prestador_Servico',
+      company_name: 'Refrigeração TermoLog Santos',
+      vehicle_plate: 'VIX1J99',
+      authorized_zones: 'Câmaras Frias & Docas Frigoríficas',
+      status: 'Ativo',
+      valid_until: new Date(Date.now() + 180 * 86400000).toISOString(),
+      notes: 'Técnico credenciado para manutenção de unidades refrigeradas.'
+    },
+    {
+      id: 'demo-badge-4',
+      badge_code: 'BADGE-F1005',
+      full_name: 'Juliana Castro',
+      document_number: '32165498711',
+      phone: '(11) 96655-4433',
+      category: 'Fiscal_Patio',
+      company_name: 'ComLog Operações',
+      vehicle_plate: null,
+      authorized_zones: 'Acesso Total (Pátio, Guarita, Galpões)',
+      status: 'Ativo',
+      valid_until: new Date(Date.now() + 365 * 86400000).toISOString(),
+      notes: 'Fiscal de pátio e conferente com liberação de rádio e tablet.'
+    }
+  ]
 
   // Dados Simulados para Modo Sandbox / Demonstração
   const MOCK_TENANT = {
@@ -56,7 +117,7 @@ export const useYardStore = defineStore('yard', () => {
       released_at: null,
       dock_id: null,
       dock_name: null,
-      qr_code_data: 'ROTAFLOW-DEMO-BRA2E19',
+      qr_code_data: 'DOCAOS-DEMO-BRA2E19',
       overdue_minutes: 0,
       detention_fee: 0
     },
@@ -78,7 +139,7 @@ export const useYardStore = defineStore('yard', () => {
       released_at: null,
       dock_id: null,
       dock_name: null,
-      qr_code_data: 'ROTAFLOW-DEMO-SPX9A88',
+      qr_code_data: 'DOCAOS-DEMO-SPX9A88',
       overdue_minutes: 0,
       detention_fee: 0
     },
@@ -100,7 +161,7 @@ export const useYardStore = defineStore('yard', () => {
       released_at: null,
       dock_id: 'dock-02',
       dock_name: 'Doca #02',
-      qr_code_data: 'ROTAFLOW-DEMO-VIX1J99',
+      qr_code_data: 'DOCAOS-DEMO-VIX1J99',
       overdue_minutes: 0,
       detention_fee: 0
     },
@@ -122,7 +183,7 @@ export const useYardStore = defineStore('yard', () => {
       released_at: null,
       dock_id: 'dock-05',
       dock_name: 'Doca #05',
-      qr_code_data: 'ROTAFLOW-DEMO-RIO4K77',
+      qr_code_data: 'DOCAOS-DEMO-RIO4K77',
       overdue_minutes: 0,
       detention_fee: 0
     },
@@ -144,7 +205,7 @@ export const useYardStore = defineStore('yard', () => {
       released_at: new Date(now.getTime() - 95 * 60000).toISOString(),
       dock_id: 'dock-01',
       dock_name: 'Doca #01',
-      qr_code_data: 'ROTAFLOW-DEMO-BHZ3M44',
+      qr_code_data: 'DOCAOS-DEMO-BHZ3M44',
       overdue_minutes: 0,
       detention_fee: 0
     },
@@ -166,7 +227,7 @@ export const useYardStore = defineStore('yard', () => {
       released_at: new Date(now.getTime() - 60 * 60000).toISOString(),
       dock_id: 'dock-03',
       dock_name: 'Doca #03',
-      qr_code_data: 'ROTAFLOW-DEMO-CWB8T55',
+      qr_code_data: 'DOCAOS-DEMO-CWB8T55',
       overdue_minutes: 90,
       detention_fee: 147.60
     }
@@ -296,7 +357,7 @@ export const useYardStore = defineStore('yard', () => {
         checkin_gate_at: null,
         dock_in_at: null,
         released_at: null,
-        qr_code_data: `ROTAFLOW-DEMO-${payload.vehicle_plate}`,
+        qr_code_data: `DOCAOS-DEMO-${payload.vehicle_plate}`,
         overdue_minutes: 0,
         detention_fee: 0
       }
@@ -443,11 +504,134 @@ export const useYardStore = defineStore('yard', () => {
     }
   }
 
+  async function fetchBadges(category = null, query = null) {
+    if (authStore.isDemoMode) {
+      let list = [...MOCK_BADGES]
+      if (category) list = list.filter(b => b.category === category)
+      if (query) {
+        const q = query.toLowerCase()
+        list = list.filter(b => 
+          (b.full_name || '').toLowerCase().includes(q) ||
+          (b.document_number || '').includes(q) ||
+          (b.badge_code || '').toLowerCase().includes(q)
+        )
+      }
+      badges.value = list
+      return list
+    }
+
+    if (!currentTenant.value) return []
+    try {
+      let url = `/api/v1/badges/?tenant_id=${currentTenant.value.id}`
+      if (category) url += `&category=${encodeURIComponent(category)}`
+      if (query) url += `&q=${encodeURIComponent(query)}`
+
+      const res = await fetch(url, {
+        headers: authStore.getAuthHeader()
+      })
+      if (res.ok) {
+        const data = await res.json()
+        badges.value = data
+        return data
+      }
+      return []
+    } catch (err) {
+      console.warn('Falha ao buscar crachás:', err)
+      return []
+    }
+  }
+
+  async function createBadge(badgeData) {
+    if (authStore.isDemoMode) {
+      const code = `BADGE-DEMO-${Date.now().toString().slice(-4)}`
+      const newB = {
+        id: `badge-${Date.now()}`,
+        badge_code: code,
+        full_name: badgeData.full_name,
+        document_number: badgeData.document_number,
+        phone: badgeData.phone,
+        category: badgeData.category,
+        company_name: badgeData.company_name,
+        vehicle_plate: badgeData.vehicle_plate,
+        authorized_zones: badgeData.authorized_zones || 'Pátio & Docas',
+        status: 'Ativo',
+        valid_until: badgeData.valid_until,
+        notes: badgeData.notes
+      }
+      badges.value.unshift(newB)
+      showNotification(`Crachá Digital emitido para ${newB.full_name}! (Sandbox)`, 'success')
+      return newB
+    }
+
+    if (!currentTenant.value) throw new Error('Selecione um armazém ativo.')
+    try {
+      const res = await fetch('/api/v1/badges/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...authStore.getAuthHeader()
+        },
+        body: JSON.stringify({
+          ...badgeData,
+          tenant_id: currentTenant.value.id
+        })
+      })
+
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.detail || 'Falha ao emitir crachá digital.')
+      }
+
+      const created = await res.json()
+      badges.value.unshift(created)
+      showNotification(`Crachá ${created.badge_code} emitido com sucesso!`, 'success')
+      return created
+    } catch (err) {
+      showNotification(err.message, 'error')
+      throw err
+    }
+  }
+
+  async function updateBadgeStatus(badgeId, newStatus) {
+    if (authStore.isDemoMode) {
+      const target = badges.value.find(b => b.id === badgeId)
+      if (target) {
+        target.status = newStatus
+        showNotification(`Status do crachá atualizado para "${newStatus}" (Sandbox)`, 'info')
+      }
+      return
+    }
+
+    try {
+      const res = await fetch(`/api/v1/badges/${badgeId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          ...authStore.getAuthHeader()
+        },
+        body: JSON.stringify({ status: newStatus })
+      })
+
+      if (res.ok) {
+        const updated = await res.json()
+        const idx = badges.value.findIndex(b => b.id === badgeId)
+        if (idx !== -1) {
+          badges.value[idx] = updated
+        }
+        showNotification(`Crachá ${updated.badge_code} alterado para "${newStatus}"`, 'info')
+        return updated
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   return {
     tenants,
     currentTenant,
     docks,
     schedules,
+    badges,
     isLoading,
     isWsConnected,
     notification,
@@ -464,6 +648,9 @@ export const useYardStore = defineStore('yard', () => {
     fetchSchedules,
     createSchedule,
     updateScheduleStatus,
+    fetchBadges,
+    createBadge,
+    updateBadgeStatus,
     initWebSocket
   }
 })

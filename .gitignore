@@ -51,3 +51,14 @@ pnpm-debug.log*
 .idea/
 .DS_Store
 Thumbs.db
+
+# Media & Temporary recordings
+*.mp4
+*.mp3
+*.pdf
+screen_recordings/
+video_frames/
+screenshots/
+capture_*.cjs
+generate_portfolio_pdf.cjs
+test_*.cjs

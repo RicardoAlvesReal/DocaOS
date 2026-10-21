@@ -23,7 +23,8 @@ import {
   Download,
   CheckCircle2,
   LayoutGrid,
-  MapPin
+  MapPin,
+  IdCard
 } from 'lucide-vue-next'
 
 const yardStore = useYardStore()
@@ -121,6 +122,11 @@ function initNewScheduleForm() {
     driver_phone: '',
     vehicle_plate: '',
     trailer_plate: '',
+    vehicle_body_type: 'Baú Fechado',
+    temperature_controlled: false,
+    temperature_target: '',
+    helper_name: '',
+    helper_cpf: '',
     scheduled_window_start: start.toISOString().slice(0, 16),
     scheduled_window_end: end.toISOString().slice(0, 16),
     dock_id: '',
@@ -221,6 +227,24 @@ async function submitNewSchedule() {
       scheduled_window_end: new Date(newScheduleForm.value.scheduled_window_end).toISOString()
     }
     await yardStore.createSchedule(payload)
+
+    // Se informado ajudante de carga, emite crachá digital automático para a portaria
+    if (newScheduleForm.value.helper_name && newScheduleForm.value.helper_cpf) {
+      try {
+        await yardStore.createBadge({
+          full_name: newScheduleForm.value.helper_name,
+          document_number: newScheduleForm.value.helper_cpf,
+          category: 'Ajudante_Chapa',
+          company_name: newScheduleForm.value.carrier_name,
+          vehicle_plate: newScheduleForm.value.vehicle_plate,
+          authorized_zones: 'Doca & Pátio Geral',
+          notes: `Ajudante vinculado à viagem do motorista ${newScheduleForm.value.driver_name}`
+        })
+      } catch (e) {
+        console.warn('Erro ao emitir crachá automático do ajudante:', e)
+      }
+    }
+
     isNewScheduleModalOpen.value = false
   } catch (err) {
     scheduleError.value = err.message
@@ -595,6 +619,43 @@ async function submitNewSchedule() {
             </div>
           </div>
 
+          <!-- Especificações de Carroceria & Refrigeração (Diferencial Competitivo) -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-950/70 p-3 rounded-xl border border-slate-800">
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-300 mb-1">Tipo de Carroceria *</label>
+              <select
+                v-model="newScheduleForm.vehicle_body_type"
+                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-sky-500 cursor-pointer"
+              >
+                <option value="Baú Fechado">Baú Fechado</option>
+                <option value="Sider Lateral">Sider (Carga Lateral)</option>
+                <option value="Frigorífico / Reefer">Frigorífico (Refrigerado)</option>
+                <option value="Grade Baixa">Grade Baixa</option>
+                <option value="Prancha / Container">Prancha / Container</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-300 mb-1">Refrigeração</label>
+              <label class="flex items-center space-x-2 mt-2 cursor-pointer text-xs text-slate-300">
+                <input
+                  type="checkbox"
+                  v-model="newScheduleForm.temperature_controlled"
+                  class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-sky-500"
+                />
+                <span>Termoking Ativo</span>
+              </label>
+            </div>
+            <div v-if="newScheduleForm.temperature_controlled">
+              <label class="block text-[11px] font-semibold text-slate-300 mb-1">Temperatura Alvo</label>
+              <input
+                v-model="newScheduleForm.temperature_target"
+                type="text"
+                placeholder="Ex: -18°C ou +4°C"
+                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-sky-500"
+              />
+            </div>
+          </div>
+
           <!-- Motorista -->
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
@@ -626,6 +687,38 @@ async function submitNewSchedule() {
                 class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-sky-500"
               />
             </div>
+          </div>
+
+          <!-- Ajudante de Carga / Descarga (Chapa) com Emissão de Crachá Digital -->
+          <div class="bg-indigo-950/30 border border-indigo-900/60 p-3.5 rounded-xl space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-indigo-300 flex items-center space-x-1.5">
+                <IdCard class="w-3.5 h-3.5 text-indigo-400" />
+                <span>Ajudante de Carga / Descarga (Chapa)</span>
+              </span>
+              <span class="text-[9px] font-mono bg-indigo-950 text-indigo-300 border border-indigo-800 px-1.5 py-0.5 rounded font-bold">CRACHÁ AUTOMÁTICO</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-[11px] font-medium text-slate-300 mb-1">Nome do Ajudante (Opcional)</label>
+                <input
+                  v-model="newScheduleForm.helper_name"
+                  type="text"
+                  placeholder="Ex: Wellington Gomes Pereira"
+                  class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500"
+                />
+              </div>
+              <div>
+                <label class="block text-[11px] font-medium text-slate-300 mb-1">CPF do Ajudante (Opcional)</label>
+                <input
+                  v-model="newScheduleForm.helper_cpf"
+                  type="text"
+                  placeholder="000.000.000-00"
+                  class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-indigo-500"
+                />
+              </div>
+            </div>
+            <p class="text-[10px] text-indigo-300/80">O sistema emitirá automaticamente o Crachá Digital com QR Code para liberar o ajudante na portaria.</p>
           </div>
 
           <!-- Janela de Horário e Doca Pré-alocada -->
@@ -720,7 +813,7 @@ async function submitNewSchedule() {
         <!-- Download do Modelo CSV -->
         <div class="bg-slate-950/80 border border-slate-800 p-4 rounded-2xl flex items-center justify-between mb-4">
           <div>
-            <h4 class="text-xs font-bold text-white">Modelo Padrão RotaFlow (.csv)</h4>
+            <h4 class="text-xs font-bold text-white">Modelo Padrão DocaOS (.csv)</h4>
             <p class="text-[11px] text-slate-400">Contém colunas oficiais de placa, motorista, transportadora e horários.</p>
           </div>
           <a

@@ -39,6 +39,10 @@ class GateScanRequest(BaseModel):
     vehicle_plate: Optional[str] = None
     tenant_id: Optional[str] = None
     notes: Optional[str] = None
+    seal_number: Optional[str] = None
+    seal_status: Optional[str] = None
+    has_damage: Optional[bool] = None
+    damage_notes: Optional[str] = None
 
 
 class GateScanResponse(BaseModel):
@@ -52,4 +56,7 @@ class GateScanResponse(BaseModel):
     previous_status: str
     new_status: str
     checkin_at: Optional[datetime] = None
+    seal_number: Optional[str] = None
+    seal_status: Optional[str] = None
+    badge_info: Optional[dict] = None
 

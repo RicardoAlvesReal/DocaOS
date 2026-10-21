@@ -3,9 +3,9 @@ from sqlalchemy.engine import URL
 
 
 class Settings(BaseSettings):
-    PROJECT_NAME: str = "RotaFlow YMS"
+    PROJECT_NAME: str = "DocaOS - Patio & Dock Operating System"
     API_V1_STR: str = "/api/v1"
-    SECRET_KEY: str = "rotaflow_yms_secret_key_change_in_production_b2b"
+    SECRET_KEY: str = "docaos_yms_secret_key_change_in_production_b2b"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
 
     POSTGRES_SERVER: str = "localhost"

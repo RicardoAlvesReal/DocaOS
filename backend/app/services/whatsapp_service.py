@@ -34,7 +34,7 @@ async def dispatch_whatsapp_notification(
     # Modelos de Mensagens Padronizadas
     messages = {
         "Agendado": (
-            f"🚚 *ROTAFLOW &bull; {tenant.name}*\n\n"
+            f"🚚 *DOCAOS &bull; {tenant.name}*\n\n"
             f"Olá *{schedule.driver_name}*, sua janela de descarregamento/carga está confirmada!\n\n"
             f"📦 *Veículo:* {schedule.vehicle_plate}\n"
             f"🏢 *Doca Prevista:* {dock_name}\n"
@@ -42,7 +42,7 @@ async def dispatch_whatsapp_notification(
             f"📲 Acesse seu comprovante e *QR Code de entrada* na cancela pelo link:\n{driver_url}"
         ),
         "Aguardando_Patio": (
-            f"✅ *ROTAFLOW &bull; ENTRADA CONFIRMADA*\n\n"
+            f"✅ *DOCAOS &bull; ENTRADA CONFIRMADA*\n\n"
             f"Motorista *{schedule.driver_name}*, sua entrada no pátio do terminal *{tenant.name}* foi validada na portaria.\n\n"
             f"🅿️ *Posição:* Aguardando no pátio interno.\n"
             f"⚠️ Fique atento ao celular! Enviaremos uma mensagem aqui assim que sua doca for liberada."
@@ -53,14 +53,14 @@ async def dispatch_whatsapp_notification(
             f"📍 *Favor encostar IMEDIATAMENTE na {dock_name}!* Os operadores já estão aguardando para iniciar a movimentação da carga."
         ),
         "Liberado": (
-            f"🏁 *ROTAFLOW &bull; OPERAÇÃO CONCLUÍDA*\n\n"
+            f"🏁 *DOCAOS &bull; OPERAÇÃO CONCLUÍDA*\n\n"
             f"*{schedule.driver_name}*, a operação física do veículo *{schedule.vehicle_plate}* foi finalizada com sucesso no terminal *{tenant.name}*.\n\n"
             f"🟢 Cancela de saída autorizada na portaria. Tenha uma excelente viagem!"
         )
     }
 
     message_body = messages.get(event_type, (
-        f"📢 *ROTAFLOW &bull; {tenant.name}*\n\n"
+        f"📢 *DOCAOS &bull; {tenant.name}*\n\n"
         f"Atualização do veículo *{schedule.vehicle_plate}*: status alterado para *{event_type}*."
     ))
 

@@ -57,6 +57,15 @@ const routes = [
     }
   },
   {
+    path: '/crachas',
+    name: 'DigitalBadges',
+    component: () => import('../views/DigitalBadgeView.vue'),
+    meta: { 
+      title: 'Crachá Digital & Pedestres',
+      requiresAuth: true
+    }
+  },
+  {
     path: '/docas',
     name: 'Docks',
     component: DocksView,
@@ -125,7 +134,7 @@ const router = createRouter({
 
 // Guarda de Rotas para Proteger /admin e /app
 router.beforeEach((to, from, next) => {
-  document.title = `${to.meta.title || 'YMS'} | RotaFlow`
+  document.title = `${to.meta.title || 'Patio & Dock OS'} | DocaOS (docaos.log.br)`
   const authStore = useAuthStore()
 
   // 1. Proteção de Super Admin

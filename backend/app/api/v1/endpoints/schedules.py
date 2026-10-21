@@ -123,7 +123,7 @@ def download_batch_template():
     return Response(
         content=content.encode("utf-8-sig"),
         media_type="text/csv; charset=utf-8",
-        headers={"Content-Disposition": 'attachment; filename="modelo_importacao_agendamentos_rotaflow.csv"'}
+        headers={"Content-Disposition": 'attachment; filename="modelo_importacao_agendamentos_docaos.csv"'}
     )
 
 

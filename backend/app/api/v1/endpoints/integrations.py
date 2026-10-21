@@ -95,7 +95,7 @@ async def test_webhook(webhook_id: UUID, db: Session = Depends(get_db)):
 
     test_payload = {
         "event": "test.ping",
-        "message": "Teste de conectividade RotaFlow YMS",
+        "message": "Teste de conectividade DocaOS (docaos.log.br)",
         "tenant_id": str(sub.tenant_id),
         "timestamp": datetime.now(timezone.utc).isoformat()
     }
@@ -327,11 +327,11 @@ async def send_whatsapp_notification(
                 f"Olá, *{payload.driver_name}*!\n"
                 f"Seu veículo placa *{payload.vehicle_plate}* foi chamado para a *{dock}*.\n\n"
                 f"📍 Por favor, encoste o caminhão imediatamente.\n"
-                f"_RotaFlow YMS • Gestão de Pátios_"
+                f"_DocaOS • Patio & Dock Operating System (docaos.log.br)_"
             )
         else:
             message = (
-                f"📋 *ROTAFLOW YMS*\n\n"
+                f"📋 *DOCAOS*\n\n"
                 f"Olá, *{payload.driver_name}*! Notificação referente ao veículo *{payload.vehicle_plate}*."
             )
 

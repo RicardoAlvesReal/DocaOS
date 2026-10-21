@@ -65,13 +65,16 @@ export const useAuthStore = defineStore('auth', () => {
     isDemoMode.value = true
     user.value = {
       name: 'Visitante (Modo Sandbox)',
-      email: 'demo@rotaflow.com.br',
+      email: 'demo@docaos.log.br',
       role: 'demo_operator',
       tenant_id: 'demo-sandbox-01',
-      tenant_name: 'Terminal Demonstrativo Santos (Sandbox)'
+      tenant_name: 'Terminal Demonstrativo DocaOS (Sandbox)'
     }
+    localStorage.setItem('docaos_demo_mode', 'true')
     localStorage.setItem('rotaflow_demo_mode', 'true')
+    localStorage.setItem('docaos_user', JSON.stringify(user.value))
     localStorage.setItem('rotaflow_user', JSON.stringify(user.value))
+    localStorage.removeItem('docaos_token')
     localStorage.removeItem('rotaflow_token')
     localStorage.removeItem('raos_admin_token')
   }

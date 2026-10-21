@@ -29,7 +29,8 @@ import {
   ChevronRight,
   ArrowLeft,
   Crown,
-  MapPin
+  MapPin,
+  IdCard
 } from 'lucide-vue-next'
 
 const yardStore = useYardStore()
@@ -96,6 +97,7 @@ const navItems = [
   { name: 'Docas', path: '/docas', icon: DoorClosed, badge: () => yardStore.occupiedDocksCount ? `${yardStore.occupiedDocksCount} ocupada(s)` : null },
   { name: 'Mapa do Pátio (GPS)', path: '/mapa', icon: MapPin },
   { name: 'Portaria & Cancela', path: '/portaria', icon: ScanLine },
+  { name: 'Crachá Digital', path: '/crachas', icon: IdCard, badge: () => yardStore.badges?.length ? `${yardStore.badges.length}` : null },
   { name: 'Equipe & Fiscais', path: '/equipe', icon: Users },
   { name: 'Relatórios & ROI', path: '/relatorios', icon: BarChart3 },
   { name: 'Integrações & APIs', path: '/integracoes', icon: Network }
@@ -183,14 +185,14 @@ function handleExitDemo() {
 
         <!-- Logo Mobile Operacional -->
         <div v-else class="flex items-center space-x-2 cursor-pointer" @click="handleNavClick('/app')">
-          <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-sky-500/20 to-blue-600/20 border border-sky-400/30 p-1 flex items-center justify-center shadow-md">
-            <img src="/rotaflow-icon.png" alt="RotaFlow" class="w-full h-full object-contain" />
+          <div class="w-8 h-8 rounded-lg bg-teal-500/10 border border-teal-500/30 p-1 flex items-center justify-center shadow-md">
+            <img src="/docaos-icon.png" alt="DocaOS" class="w-full h-full object-contain" />
           </div>
           <span class="text-lg font-black tracking-tight text-white">
-            Rota<span class="text-sky-400">Flow</span>
+            Doca<span class="text-[#00A896]">OS</span>
           </span>
-          <span class="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-sky-950 text-sky-400 border border-sky-800 uppercase">
-            YMS
+          <span class="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-teal-950 text-[#00E5C8] border border-teal-800 uppercase">
+            PATIO & DOCK
           </span>
         </div>
       </div>
@@ -434,19 +436,19 @@ function handleExitDemo() {
         <!-- Logo & Brand Header Operacional -->
         <div class="flex items-center justify-between">
           <div class="flex items-center space-x-3 cursor-pointer" @click="handleNavClick('/app')">
-            <div class="w-9 h-9 rounded-lg bg-sky-500/10 border border-sky-500/20 p-1 flex items-center justify-center shrink-0">
-              <img src="/rotaflow-icon.png" alt="RotaFlow YMS" class="w-full h-full object-contain" />
+            <div class="w-10 h-10 rounded-xl bg-teal-500/10 border border-teal-500/30 p-1 flex items-center justify-center shrink-0 shadow-sm">
+              <img src="/docaos-icon.png" alt="DocaOS" class="w-full h-full object-contain" />
             </div>
             <div>
               <div class="flex items-center space-x-2">
-                <span class="text-lg font-bold tracking-tight text-white">
-                  Rota<span class="text-sky-400">Flow</span>
+                <span class="text-xl font-black tracking-tight text-white">
+                  Doca<span class="text-[#00A896]">OS</span>
                 </span>
-                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
-                  YMS
+                <span class="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-teal-950 text-[#00E5C8] border border-teal-800 uppercase">
+                  OPERATING SYSTEM
                 </span>
               </div>
-              <p class="text-[11px] text-slate-400">Gestão de Pátios</p>
+              <p class="text-[10px] font-mono text-slate-400">docaos.log.br</p>
             </div>
           </div>
 
@@ -469,7 +471,7 @@ function handleExitDemo() {
           </p>
           <div class="flex items-center space-x-2 pt-1">
             <a 
-              href="https://api.whatsapp.com/send?phone=5527996174965&text=Ol%C3%A1!%20Gostei%20do%20piloto%20do%20RotaFlow%20e%20gostaria%20de%20implantar%20no%20meu%20armaz%C3%A9m." 
+              href="https://api.whatsapp.com/send?phone=5527996174965&text=Ol%C3%A1!%20Gostei%20do%20piloto%20do%20DocaOS%20e%20gostaria%20de%20implantar%20no%20meu%20armaz%C3%A9m." 
               target="_blank"
               class="flex-1 bg-sky-600 hover:bg-sky-500 text-white text-center font-bold py-1.5 px-2 rounded-lg text-xs uppercase tracking-wider transition-all"
             >

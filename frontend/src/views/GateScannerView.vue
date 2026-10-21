@@ -22,7 +22,10 @@ import {
   Eye,
   X,
   Zap,
-  MapPin
+  MapPin,
+  IdCard,
+  ClipboardCheck,
+  ShieldCheck
 } from 'lucide-vue-next'
 
 const yardStore = useYardStore()
@@ -33,6 +36,13 @@ const scanInputRef = ref(null)
 const isScanning = ref(false)
 const scanResult = ref(null)
 const scanError = ref('')
+
+// Vistoria de Portaria (Lacre & Avarias - Diferencial ISO/OEA)
+const showInspection = ref(false)
+const sealNumber = ref('')
+const sealStatus = ref('Intacto')
+const hasDamage = ref(false)
+const damageNotes = ref('')
 
 // Câmera & Leitor Óptico Web
 const isCameraActive = ref(false)
@@ -47,8 +57,13 @@ const showQrModal = ref(false)
 const sampleQrDataUrl = ref('')
 const samplePlateSelected = ref('BRA2E19')
 
-// Placas ativas para teste rápido no Sandbox / Demonstração
+// Placas e Crachás ativos para teste rápido no Sandbox / Demonstração
 const demoPlates = ['BRA2E19', 'SPX9A88', 'VIX1J99']
+const demoBadges = [
+  { code: 'BADGE-M7701', label: 'Carlos (Motorista)' },
+  { code: 'BADGE-A8842', label: 'Wellington (Chapa)' },
+  { code: 'BADGE-P9910', label: 'Eduardo (Thermo King)' }
+]
 
 // Identifica com segurança se a aplicação está em modo Sandbox / Demonstração
 const isSandboxMode = computed(() => Boolean(
@@ -56,6 +71,7 @@ const isSandboxMode = computed(() => Boolean(
   yardStore.currentTenant?.id === 'demo-tenant-id' || 
   yardStore.currentTenant?.name?.includes('Sandbox') ||
   authStore.user?.role === 'demo_operator' ||
+  localStorage.getItem('docaos_demo_mode') === 'true' ||
   localStorage.getItem('rotaflow_demo_mode') === 'true'
 ))
 
@@ -250,6 +266,45 @@ async function performScan(customValue = null) {
   if (isSandboxMode.value) {
     setTimeout(() => {
       try {
+        // A. Verificação se é leitura de Crachá Digital (Pedestre / Ajudante)
+        if (valueToSearch.includes('BADGE') || valueToSearch.startsWith('DOCAOS:BADGE:') || valueToSearch.startsWith('ROTAFLOW:BADGE:')) {
+          const cleanCode = valueToSearch.replace('DOCAOS:BADGE:', '').replace('ROTAFLOW:BADGE:', '').split(':')[0]
+          const badge = (yardStore.badges || []).find(b => 
+            b.badge_code === cleanCode || 
+            b.document_number === cleanCode || 
+            valueToSearch.includes(b.badge_code)
+          )
+          if (badge) {
+            const isEntry = badge.status === 'Ativo'
+            badge.status = isEntry ? 'Em_Patio' : 'Ativo'
+            scanResult.value = {
+              success: true,
+              message: isEntry 
+                ? `ACESSO PEDESTRE AUTORIZADO! ${badge.full_name} liberado para: ${badge.authorized_zones}.` 
+                : `SAÍDA REGISTRADA: ${badge.full_name} deixou as dependências.`,
+              schedule_id: badge.id,
+              carrier_name: badge.company_name,
+              driver_name: badge.full_name,
+              vehicle_plate: badge.vehicle_plate || 'ACESSO A PÉ / PEDESTRE',
+              dock_name: `Zona: ${badge.authorized_zones}`,
+              previous_status: isEntry ? 'Ativo' : 'Em_Patio',
+              new_status: badge.status,
+              checkin_at: new Date(),
+              badge_info: {
+                badge_code: badge.badge_code,
+                category: badge.category,
+                document_number: badge.document_number,
+                authorized_zones: badge.authorized_zones
+              }
+            }
+            yardStore.showNotification(`Crachá ${badge.badge_code} validado na portaria! (Sandbox)`, 'success')
+            scanInput.value = ''
+            isScanning.value = false
+            return
+          }
+        }
+
+        // B. Verificação de Agendamento de Veículo
         const clean = valueToSearch.replace(/[^A-Za-z0-9]/g, '').toUpperCase()
         const found = yardStore.schedules.find(s => 
           (s.vehicle_plate || '').replace(/[^A-Za-z0-9]/g, '').toUpperCase() === clean || 
@@ -260,7 +315,7 @@ async function performScan(customValue = null) {
         )
 
         if (!found) {
-          throw new Error(`Nenhum agendamento ativo encontrado para "${valueToSearch}". No modo Sandbox, utilize as placas de teste sugeridas abaixo (ex: BRA2E19, SPX9A88 ou VIX1J99).`)
+          throw new Error(`Nenhum agendamento ou crachá ativo encontrado para "${valueToSearch}". No modo Sandbox, utilize as placas ou crachás de teste sugeridos abaixo.`)
         }
 
         const now = new Date()
@@ -278,7 +333,9 @@ async function performScan(customValue = null) {
             dock_name: 'Aguardando chamada de doca',
             previous_status: 'Agendado',
             new_status: 'Aguardando_Patio',
-            checkin_at: now
+            checkin_at: now,
+            seal_number: sealNumber.value || null,
+            seal_status: sealStatus.value || 'Intacto'
           }
           yardStore.showNotification(`Entrada confirmada para ${found.vehicle_plate}! (Sandbox)`, 'success')
         } else if (['Aguardando_Patio', 'Em_Doca'].includes(found.status)) {
@@ -327,10 +384,16 @@ async function performScan(customValue = null) {
   // 2. MODO REAL / PRODUÇÃO (Chamada à API do Backend)
   // =====================================================================
   try {
-    const isTokenOrQr = valueToSearch.includes('ROTAFLOW:') || valueToSearch.length > 20
-    const payload = isTokenOrQr 
-      ? { access_token: valueToSearch, tenant_id: yardStore.currentTenant?.id }
-      : { vehicle_plate: valueToSearch, tenant_id: yardStore.currentTenant?.id }
+    const isTokenOrQr = valueToSearch.includes('DOCAOS:') || valueToSearch.includes('ROTAFLOW:') || valueToSearch.includes('BADGE') || valueToSearch.length > 20
+    const payload = {
+      access_token: isTokenOrQr ? valueToSearch : undefined,
+      vehicle_plate: !isTokenOrQr ? valueToSearch : undefined,
+      tenant_id: yardStore.currentTenant?.id,
+      seal_number: sealNumber.value || undefined,
+      seal_status: sealStatus.value || 'Intacto',
+      has_damage: hasDamage.value || false,
+      damage_notes: damageNotes.value || undefined
+    }
 
     const res = await fetch('/api/v1/gate/scan', {
       method: 'POST',
@@ -397,14 +460,25 @@ onUnmounted(() => {
         </p>
       </div>
 
-      <router-link
-        to="/mapa"
-        class="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 px-4 py-2.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer shadow-lg"
-        title="Ver mapa de veículos se aproximando da portaria"
-      >
-        <MapPin class="w-4 h-4 text-emerald-400" />
-        <span>Ver Veículos no Mapa GPS</span>
-      </router-link>
+      <div class="flex flex-wrap items-center gap-2">
+        <router-link
+          to="/crachas"
+          class="flex items-center space-x-2 bg-indigo-950/80 hover:bg-indigo-900 text-indigo-300 hover:text-white border border-indigo-700/60 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer shadow-lg"
+          title="Ver e emitir crachás digitais para pedestres e terceiros"
+        >
+          <IdCard class="w-4 h-4 text-indigo-400" />
+          <span>Crachás Digitais</span>
+        </router-link>
+
+        <router-link
+          to="/mapa"
+          class="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer shadow-lg"
+          title="Ver mapa de veículos se aproximando da portaria"
+        >
+          <MapPin class="w-4 h-4 text-emerald-400" />
+          <span>Veículos no Mapa GPS</span>
+        </router-link>
+      </div>
     </div>
 
     <!-- Scanner Input Card -->
@@ -503,9 +577,74 @@ onUnmounted(() => {
             ref="scanInputRef"
             v-model="scanInput"
             type="text"
-            placeholder="Digite a Placa (ex: BRA2E19) ou use a pistola óptica no QR Code..."
+            placeholder="Digite a Placa (ex: BRA2E19) ou use a pistola óptica no QR Code ou Crachá..."
             class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-4 py-3.5 text-sm font-mono text-white placeholder-slate-500 focus:outline-none focus:border-[#086cfe] focus:ring-1 focus:ring-[#086cfe] uppercase tracking-wider"
           />
+        </div>
+
+        <!-- Gaveta de Vistoria de Portaria (Lacre & Avarias - ISO 9001 / OEA) -->
+        <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-3.5 space-y-3">
+          <button 
+            type="button" 
+            @click="showInspection = !showInspection"
+            class="flex items-center justify-between w-full text-xs font-semibold text-slate-300 hover:text-white cursor-pointer"
+          >
+            <div class="flex items-center space-x-2">
+              <ClipboardCheck class="w-4 h-4 text-sky-400" />
+              <span>Vistoria de Portaria (Conferência de Lacre & Avarias)</span>
+            </div>
+            <span class="text-[10px] font-mono text-sky-400 px-2 py-0.5 rounded bg-sky-950 border border-sky-800">
+              {{ showInspection ? 'Ocultar Checklist' : '+ Abrir Vistoria ISO' }}
+            </span>
+          </button>
+
+          <!-- Campos Expansíveis de Vistoria -->
+          <div v-show="showInspection" class="space-y-3 pt-3 border-t border-slate-800/80">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-400 mb-1">Nº do Lacre do Baú (Manifesto)</label>
+                <input
+                  v-model="sealNumber"
+                  type="text"
+                  placeholder="Ex: LCR-88910"
+                  class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs font-mono uppercase text-white focus:outline-none focus:border-sky-500"
+                />
+              </div>
+
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-400 mb-1">Condição do Lacre</label>
+                <select
+                  v-model="sealStatus"
+                  class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-sky-500 cursor-pointer"
+                >
+                  <option value="Intacto">Intacto / Conferido</option>
+                  <option value="Rompido">Rompido / Violado (Alerta)</option>
+                  <option value="Divergente">Divergente do CTE</option>
+                  <option value="Sem_Lacre">Sem Lacre (Carga Seca/Local)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Registro de Avarias / Divergência -->
+            <div class="space-y-2 pt-1">
+              <label class="flex items-center space-x-2 cursor-pointer text-xs text-slate-300">
+                <input
+                  type="checkbox"
+                  v-model="hasDamage"
+                  class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-rose-600 focus:ring-rose-500"
+                />
+                <span :class="{ 'text-rose-400 font-bold': hasDamage }">Identificada avaria na carroceria ou carga na portaria</span>
+              </label>
+
+              <input
+                v-if="hasDamage"
+                v-model="damageNotes"
+                type="text"
+                placeholder="Descreva a avaria para registro na timeline de auditoria ISO..."
+                class="w-full bg-slate-900 border border-rose-800 rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-rose-500"
+              />
+            </div>
+          </div>
         </div>
 
         <button
@@ -514,13 +653,13 @@ onUnmounted(() => {
           class="w-full bg-[#086cfe] hover:bg-blue-600 disabled:opacity-50 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-blue-600/25 text-xs font-mono uppercase tracking-wider flex items-center justify-center space-x-2 transition-all active:scale-[0.98] cursor-pointer"
         >
           <span v-if="isScanning" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-          <span v-else>Validar Acesso na Cancela</span>
+          <span v-else>Validar Acesso na Cancela / Catraca</span>
           <ArrowRight v-if="!isScanning" class="w-4 h-4" />
         </button>
       </form>
 
       <!-- Quick Test Chips & Simulação de Leitor Óptico -->
-      <div class="pt-3 border-t border-slate-800/80 space-y-2">
+      <div class="pt-3 border-t border-slate-800/80 space-y-2.5">
         <div class="flex items-center justify-between">
           <span class="text-[11px] font-mono text-slate-400 font-medium">Testes rápidos & Simulação de Leitor Óptico:</span>
           <span v-if="isSandboxMode" class="text-[10px] font-mono text-amber-400 flex items-center space-x-1">
@@ -528,18 +667,38 @@ onUnmounted(() => {
             <span>Sandbox Ativo</span>
           </span>
         </div>
-        <div class="flex flex-wrap gap-2">
+        
+        <!-- Veículos -->
+        <div class="flex flex-wrap gap-2 items-center">
+          <span class="text-[10px] font-mono uppercase text-slate-500">Veículos:</span>
           <button
             v-for="p in demoPlates"
             :key="p"
             @click="simulateOpticalScan(p)"
-            class="px-3 py-1.5 rounded-xl bg-slate-950 hover:bg-slate-800 text-xs font-mono text-sky-300 hover:text-white border border-sky-500/30 hover:border-sky-400 transition-colors cursor-pointer flex items-center space-x-1.5"
+            class="px-2.5 py-1 rounded-xl bg-slate-950 hover:bg-slate-800 text-xs font-mono text-sky-300 hover:text-white border border-sky-500/30 hover:border-sky-400 transition-colors cursor-pointer flex items-center space-x-1"
             :title="`Disparar leitura óptica com bip para ${p}`"
           >
             <Volume2 class="w-3.5 h-3.5 text-emerald-400" />
             <Truck class="w-3.5 h-3.5 text-sky-400" />
             <span>{{ p }}</span>
-            <span class="text-[10px] text-slate-500">(Bip Óptico)</span>
+          </button>
+        </div>
+
+        <!-- Crachás Digitais de Pedestres -->
+        <div class="flex flex-wrap gap-2 items-center pt-1 border-t border-slate-900">
+          <span class="text-[10px] font-mono uppercase text-indigo-400 flex items-center space-x-1">
+            <IdCard class="w-3 h-3" />
+            <span>Crachás:</span>
+          </span>
+          <button
+            v-for="b in demoBadges"
+            :key="b.code"
+            @click="simulateOpticalScan(b.code)"
+            class="px-2.5 py-1 rounded-xl bg-indigo-950/50 hover:bg-indigo-900/60 text-xs font-mono text-indigo-300 hover:text-white border border-indigo-700/50 hover:border-indigo-500 transition-colors cursor-pointer flex items-center space-x-1"
+            :title="`Disparar leitura óptica do crachá ${b.code}`"
+          >
+            <Volume2 class="w-3.5 h-3.5 text-indigo-400" />
+            <span>{{ b.label }}</span>
           </button>
         </div>
       </div>
@@ -562,28 +721,50 @@ onUnmounted(() => {
           <CheckCircle2 class="w-7 h-7" />
         </div>
         <div>
-          <span class="text-[11px] uppercase font-mono font-bold tracking-wider text-emerald-400">Cancela Liberada</span>
+          <span class="text-[11px] uppercase font-mono font-bold tracking-wider text-emerald-400">
+            {{ scanResult.badge_info ? 'Credencial Validada • Catraca/Portaria Liberada' : 'Cancela Liberada • Veículo Autorizado' }}
+          </span>
           <h2 class="text-base sm:text-lg font-bold text-white">{{ scanResult.message }}</h2>
         </div>
       </div>
 
+      <!-- Detalhes do Acesso -->
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-950/90 p-4 rounded-2xl border border-slate-800 text-xs">
         <div>
-          <span class="text-slate-500 text-[10px] font-mono uppercase block">Placa</span>
-          <p class="text-sm font-mono font-bold text-white mt-0.5">{{ scanResult.vehicle_plate }}</p>
+          <span class="text-slate-500 text-[10px] font-mono uppercase block">
+            {{ scanResult.badge_info ? 'Código do Crachá' : 'Placa do Veículo' }}
+          </span>
+          <p class="text-sm font-mono font-bold text-white mt-0.5">
+            {{ scanResult.badge_info ? scanResult.badge_info.badge_code : scanResult.vehicle_plate }}
+          </p>
         </div>
         <div>
-          <span class="text-slate-500 text-[10px] font-mono uppercase block">Motorista</span>
+          <span class="text-slate-500 text-[10px] font-mono uppercase block">
+            {{ scanResult.badge_info ? 'Colaborador / Terceiro' : 'Motorista' }}
+          </span>
           <p class="font-semibold text-slate-200 mt-0.5 truncate">{{ scanResult.driver_name }}</p>
         </div>
         <div>
-          <span class="text-slate-500 text-[10px] font-mono uppercase block">Transportadora</span>
+          <span class="text-slate-500 text-[10px] font-mono uppercase block">Empresa</span>
           <p class="font-semibold text-slate-200 mt-0.5 truncate">{{ scanResult.carrier_name }}</p>
         </div>
         <div>
-          <span class="text-slate-500 text-[10px] font-mono uppercase block">Doca / Pátio</span>
+          <span class="text-slate-500 text-[10px] font-mono uppercase block">
+            {{ scanResult.badge_info ? 'Zonas Liberadas' : 'Doca / Pátio' }}
+          </span>
           <p class="font-semibold text-sky-400 mt-0.5 truncate">{{ scanResult.dock_name }}</p>
         </div>
+      </div>
+
+      <!-- Lacre conferido (se houver) -->
+      <div v-if="scanResult.seal_number" class="p-2.5 rounded-xl bg-slate-950/90 border border-emerald-800/60 text-xs font-mono text-emerald-300 flex items-center justify-between">
+        <span class="flex items-center space-x-1.5">
+          <ShieldCheck class="w-4 h-4 text-emerald-400" />
+          <span>Lacre do Baú Conferido: <strong>{{ scanResult.seal_number }}</strong></span>
+        </span>
+        <span class="text-[10px] font-bold uppercase bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">
+          {{ scanResult.seal_status || 'Intacto' }}
+        </span>
       </div>
 
       <div class="flex items-center justify-between text-xs text-slate-400 pt-1 font-mono">

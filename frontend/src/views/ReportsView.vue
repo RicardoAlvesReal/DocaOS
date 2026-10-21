@@ -561,8 +561,8 @@ function formatCurrency(val) {
       <div class="border-b-2 border-slate-900 pb-4 mb-6 flex justify-between items-start">
         <div>
           <div class="flex items-center space-x-2 text-sky-800 font-black text-xs tracking-widest uppercase mb-1">
-            <Warehouse class="w-4 h-4 text-sky-800 inline" />
-            <span>ROTAFLOW &bull; SISTEMA DE GESTÃO DE PÁTIO (YMS)</span>
+            <Warehouse class="w-4 h-4 text-emerald-800 inline" />
+            <span>DOCAOS &bull; PATIO & DOCK OPERATING SYSTEM (docaos.log.br)</span>
           </div>
           <h1 class="text-xl font-black text-slate-950 uppercase tracking-tight">
             Laudo Técnico de Auditoria Operacional & Estadia de Pátio
@@ -663,7 +663,7 @@ function formatCurrency(val) {
       <div class="bg-slate-50 border border-slate-300 p-3 rounded mb-8 text-[9px] text-slate-700 space-y-1">
         <p class="font-bold text-slate-900">CERTIFICAÇÃO TÉCNICA E AUDITORIA DIGITAL:</p>
         <p>
-          1. Declara-se, para todos os efeitos fiscais, operacionais e de comprovação de estadia, que os dados constantes neste laudo foram aferidos por telemetria veicular, cancelas automatizadas, cercas georreferenciadas (GPS Geofence) e carimbos de tempo (Timestamps) invioláveis gerados pela plataforma RotaFlow.
+          1. Declara-se, para todos os efeitos fiscais, operacionais e de comprovação de estadia, que os dados constantes neste laudo foram aferidos por telemetria veicular, cancelas automatizadas, cercas georreferenciadas (GPS Geofence) e carimbos de tempo (Timestamps) invioláveis gerados pela plataforma DocaOS (docaos.log.br).
         </p>
         <p>
           2. Em estrita observância ao Artigo 5º-A da Lei nº 11.442/2007 (com redação dada pela Lei nº 13.103/2015), o prazo máximo para carga e descarga é computado a partir do momento da chegada física comprovada por este instrumento, incidindo a taxa de indenização estabelecida por hora ou fração excedente.

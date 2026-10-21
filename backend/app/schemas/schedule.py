@@ -13,6 +13,22 @@ class ScheduleBase(BaseModel):
     driver_phone: Optional[str] = None
     vehicle_plate: str
     trailer_plate: Optional[str] = None
+    
+    # Especificações de Frota & Equipamento
+    vehicle_body_type: Optional[str] = "Baú Fechado"
+    temperature_controlled: Optional[bool] = False
+    temperature_target: Optional[str] = None
+    
+    # Vistoria de Portaria (Lacre & Avarias)
+    seal_number: Optional[str] = None
+    seal_status: Optional[str] = "Intacto"
+    has_damage: Optional[bool] = False
+    damage_notes: Optional[str] = None
+    
+    # Ajudantes de Descarga
+    helper_name: Optional[str] = None
+    helper_cpf: Optional[str] = None
+
     scheduled_window_start: datetime
     scheduled_window_end: datetime
     dock_id: Optional[UUID] = None
@@ -38,6 +54,10 @@ class ScheduleStatusUpdate(BaseModel):
     dock_id: Optional[UUID] = None
     notes: Optional[str] = None
     recorded_by: Optional[str] = "Torre de Controle"
+    seal_number: Optional[str] = None
+    seal_status: Optional[str] = None
+    has_damage: Optional[bool] = None
+    damage_notes: Optional[str] = None
 
 
 class YardEventResponse(BaseModel):

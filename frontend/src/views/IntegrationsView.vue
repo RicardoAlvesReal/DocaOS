@@ -286,7 +286,7 @@ onMounted(() => {
         <div>
           <h3 class="text-sm font-bold text-white mb-1">Webhooks de Saída (Push Events)</h3>
           <p class="text-xs text-slate-400 leading-relaxed">
-            Quando um caminhão conclui a carga/descarga ou sai da portaria, o RotaFlow envia um POST assinado com <strong>HMAC-SHA256</strong> para o seu servidor, liberando faturamento no ERP instantaneamente.
+            Quando um caminhão conclui a carga/descarga ou sai da portaria, o DocaOS envia um POST assinado com <strong>HMAC-SHA256</strong> para o seu servidor, liberando faturamento no ERP instantaneamente.
           </p>
         </div>
       </div>
@@ -481,7 +481,7 @@ onMounted(() => {
             Conectores de Rastreadores (Autotrac, Sascar, OnixSat, Omnilink, Cobli)
           </h2>
           <p class="text-xs text-slate-400 max-w-2xl mt-1">
-            Permite ao RotaFlow receber a posição GPS dos caminhões em trânsito pela rodovia via sinal de satélite/GPRS, calculando a distância e prevendo o horário de chegada ao pátio.
+            Permite ao DocaOS receber a posição GPS dos caminhões em trânsito pela rodovia via sinal de satélite/GPRS, calculando a distância e prevendo o horário de chegada ao pátio.
           </p>
         </div>
 

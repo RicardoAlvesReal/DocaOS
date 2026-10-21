@@ -43,7 +43,7 @@ const MOCK_TEAM = [
   {
     id: 'mock-user-1',
     name: 'Carlos Alberto Vistoriador',
-    email: 'carlos.fiscal@rotaflow.com.br',
+    email: 'carlos.fiscal@docaos.log.br',
     role: 'fiscal_patio',
     is_active: true,
     created_at: new Date().toISOString()
@@ -51,7 +51,7 @@ const MOCK_TEAM = [
   {
     id: 'mock-user-2',
     name: 'Marcos Vinicius Portaria',
-    email: 'portaria.santos@rotaflow.com.br',
+    email: 'portaria.santos@docaos.log.br',
     role: 'gatekeeper',
     is_active: true,
     created_at: new Date().toISOString()
@@ -59,7 +59,7 @@ const MOCK_TEAM = [
   {
     id: 'mock-user-3',
     name: 'Renata Oliveira Doca',
-    email: 'renata.docas@rotaflow.com.br',
+    email: 'renata.docas@docaos.log.br',
     role: 'tenant_operator',
     is_active: true,
     created_at: new Date().toISOString()
@@ -67,7 +67,7 @@ const MOCK_TEAM = [
   {
     id: 'mock-user-4',
     name: 'Rodrigo Mendes Supervisor',
-    email: 'rodrigo.gerente@rotaflow.com.br',
+    email: 'rodrigo.gerente@docaos.log.br',
     role: 'tenant_manager',
     is_active: true,
     created_at: new Date().toISOString()

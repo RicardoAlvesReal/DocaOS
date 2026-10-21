@@ -30,7 +30,7 @@ def get_driver_appointment(access_token: str, db: Session = Depends(get_db)):
         )
 
     # Gera QR code com o access_token e placa para leitura imediata na guarita
-    qr_payload = f"ROTAFLOW:{schedule.access_token}:{schedule.vehicle_plate}"
+    qr_payload = f"DOCAOS:{schedule.access_token}:{schedule.vehicle_plate}"
     qr_code_image = generate_qr_code_base64(qr_payload)
 
     tenant = schedule.tenant
@@ -121,7 +121,7 @@ def confirm_driver_data(access_token: str, confirmation: DriverConfirmation, db:
 
     db.commit()
 
-    qr_payload = f"ROTAFLOW:{schedule.access_token}:{schedule.vehicle_plate}"
+    qr_payload = f"DOCAOS:{schedule.access_token}:{schedule.vehicle_plate}"
     qr_code_image = generate_qr_code_base64(qr_payload)
 
     return {

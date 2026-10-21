@@ -48,10 +48,13 @@ async def dispatch_tenant_webhook(
 
                 headers = {
                     "Content-Type": "application/json",
-                    "User-Agent": "RotaFlow-YMS-Webhook/2.0",
+                    "User-Agent": "DocaOS-Webhook/2.0",
+                    "X-DocaOS-Event": event_type,
+                    "X-DocaOS-Signature": f"sha256={signature}",
+                    "X-DocaOS-Timestamp": datetime.now(timezone.utc).isoformat(),
+                    # Compatibilidade retroativa
                     "X-RotaFlow-Event": event_type,
-                    "X-RotaFlow-Signature": f"sha256={signature}",
-                    "X-RotaFlow-Timestamp": datetime.now(timezone.utc).isoformat()
+                    "X-RotaFlow-Signature": f"sha256={signature}"
                 }
 
                 try:

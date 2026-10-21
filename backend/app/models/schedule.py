@@ -29,6 +29,21 @@ class Schedule(Base):
     vehicle_plate = Column(String(20), nullable=False, index=True)
     trailer_plate = Column(String(20), nullable=True)
     
+    # Especificações Técnicas de Frota & Equipamento (Diferencial Competitivo)
+    vehicle_body_type = Column(String(60), default="Baú Fechado", nullable=True)  # Baú Fechado, Sider Lateral, Frigorífico, Grade Baixa, Prancha
+    temperature_controlled = Column(Boolean, default=False, nullable=True)
+    temperature_target = Column(String(40), nullable=True)  # Ex: "-18°C", "+4°C"
+    
+    # Vistoria de Portaria / Auditoria de Lacre & Avarias (ISO 9001 / OEA)
+    seal_number = Column(String(60), nullable=True)
+    seal_status = Column(String(40), default="Intacto", nullable=True)  # Intacto, Rompido, Divergente, Não_Aplicável
+    has_damage = Column(Boolean, default=False, nullable=True)
+    damage_notes = Column(Text, nullable=True)
+    
+    # Ajudantes de Descarga / Chapas (Vinculação a Crachá Digital)
+    helper_name = Column(String(150), nullable=True)
+    helper_cpf = Column(String(30), nullable=True)
+    
     # Janela de Horário Reservada (Time Slot)
     scheduled_window_start = Column(DateTime(timezone=True), nullable=False, index=True)
     scheduled_window_end = Column(DateTime(timezone=True), nullable=False, index=True)

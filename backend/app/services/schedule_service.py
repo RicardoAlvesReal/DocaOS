@@ -167,6 +167,14 @@ async def update_schedule_status(
     schedule.status = new_status
     if status_update.notes:
         schedule.notes = status_update.notes
+    if status_update.seal_number is not None:
+        schedule.seal_number = status_update.seal_number
+    if status_update.seal_status is not None:
+        schedule.seal_status = status_update.seal_status
+    if status_update.has_damage is not None:
+        schedule.has_damage = status_update.has_damage
+    if status_update.damage_notes is not None:
+        schedule.damage_notes = status_update.damage_notes
 
     # Registrar evento de auditoria
     event = YardEvent(

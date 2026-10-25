@@ -1,6 +1,7 @@
 import io
 import base64
 import qrcode
+from typing import Optional, List
 from datetime import datetime, timezone
 from uuid import UUID
 from sqlalchemy.orm import Session
@@ -248,5 +249,179 @@ async def update_schedule_status(
             extra_notes=status_update.notes
         )
 
+    # Se uma doca foi liberada nesta transição e o armazém tiver automação ativa, convoca o próximo da fila
+    if old_status != new_status and new_status in ["Liberado", "Cancelado"] and schedule.dock_id:
+        freed_dock = db.query(Dock).filter(Dock.id == schedule.dock_id).first()
+        if freed_dock and tenant and tenant.has_auto_dock_assignment:
+            await try_auto_dispatch_dock_to_queue(db=db, dock=freed_dock, tenant=tenant)
+
     return schedule
+
+
+def is_dock_compatible_with_cargo(dock_type: Optional[str], cargo_type: Optional[str]) -> bool:
+    """Verifica compatibilidade técnica entre a doca física e a carga do caminhão."""
+    if not dock_type or dock_type.lower() in ["geral", "carga geral", "crossdocking", "disponivel"]:
+        return True
+
+    dt = dock_type.lower()
+    ct = (cargo_type or "").lower()
+
+    if "frigo" in dt or "refrig" in dt:
+        return any(k in ct for k in ["congel", "refrig", "frio", "aliment", "sorvete", "carne", "vacina", "perec"])
+
+    if "granel" in dt:
+        return any(k in ct for k in ["granel", "grão", "soja", "milho", "adubo", "fertil"])
+
+    if "seca" in dt:
+        return not any(k in ct for k in ["congel", "refrig"])
+
+    return True
+
+
+async def try_auto_dispatch_dock_to_queue(
+    db: Session,
+    dock: Dock,
+    tenant: Optional[Tenant] = None
+) -> Optional[Schedule]:
+    """
+    Quando uma doca fica livre, se a automação estiver habilitada,
+    busca o próximo caminhão em 'Aguardando_Patio' compatível,
+    aloca a doca, altera para 'Em_Doca' e notifica o motorista no WhatsApp.
+    """
+    if not tenant:
+        tenant = db.query(Tenant).filter(Tenant.id == dock.tenant_id).first()
+
+    if not tenant or not tenant.has_auto_dock_assignment:
+        return None
+
+    if tenant.auto_dock_mode not in ["on_release", "on_arrival_and_release"]:
+        return None
+
+    if dock.status != "Livre":
+        return None
+
+    # Busca caminhões aguardando no pátio ordenados por chegada/início de janela
+    waiting_schedules = (
+        db.query(Schedule)
+        .filter(
+            Schedule.tenant_id == dock.tenant_id,
+            Schedule.status == "Aguardando_Patio"
+        )
+        .order_by(Schedule.checkin_at.asc(), Schedule.scheduled_window_start.asc())
+        .all()
+    )
+
+    if not waiting_schedules:
+        return None
+
+    target = None
+    # 1. Prioridade: agendamento que já tinha esta doca pré-reservada
+    for s in waiting_schedules:
+        if s.dock_id == dock.id:
+            target = s
+            break
+
+    # 2. Prioridade: agendamento sem doca prévia compatível
+    if not target:
+        for s in waiting_schedules:
+            if not s.dock_id and is_dock_compatible_with_cargo(dock.dock_type, s.cargo_type):
+                target = s
+                break
+
+    # 3. Fallback: primeiro compatível da fila
+    if not target:
+        for s in waiting_schedules:
+            if is_dock_compatible_with_cargo(dock.dock_type, s.cargo_type):
+                target = s
+                break
+
+    if target:
+        update_in = ScheduleStatusUpdate(
+            status="Em_Doca",
+            dock_id=dock.id,
+            notes=f"Auto-Dispatch Automático: Vaga liberada na {dock.code} ({dock.name}). Convocado automaticamente pelo sistema.",
+            recorded_by="Robô Auto-Dispatch DocaOS"
+        )
+        updated = await update_schedule_status(db=db, schedule=target, status_update=update_in)
+        return updated
+
+    return None
+
+
+async def try_auto_dispatch_on_arrival(
+    db: Session,
+    schedule: Schedule
+) -> Optional[Schedule]:
+    """
+    Ao registrar entrada no pátio (check-in na portaria ou geofence),
+    se a automação estiver habilitada e houver doca livre compatível,
+    já aloca imediatamente e despacha o caminhão direto para a doca sem deixá-lo retido na espera.
+    """
+    tenant = db.query(Tenant).filter(Tenant.id == schedule.tenant_id).first()
+    if not tenant or not tenant.has_auto_dock_assignment:
+        return None
+
+    if tenant.auto_dock_mode not in ["on_arrival", "on_arrival_and_release"]:
+        return None
+
+    # Se já tem doca pré-atribuída e ela está livre
+    if schedule.dock_id:
+        dock = db.query(Dock).filter(Dock.id == schedule.dock_id, Dock.tenant_id == tenant.id).first()
+        if dock and dock.status == "Livre":
+            update_in = ScheduleStatusUpdate(
+                status="Em_Doca",
+                dock_id=dock.id,
+                notes=f"Auto-Dispatch de Portaria: Doca {dock.name} livre. Direcionamento imediato.",
+                recorded_by="Robô Auto-Dispatch Portaria Express"
+            )
+            return await update_schedule_status(db=db, schedule=schedule, status_update=update_in)
+
+    # Busca qualquer doca livre compatível
+    free_docks = (
+        db.query(Dock)
+        .filter(
+            Dock.tenant_id == tenant.id,
+            Dock.status == "Livre"
+        )
+        .order_by(Dock.code.asc())
+        .all()
+    )
+
+    for dock in free_docks:
+        if is_dock_compatible_with_cargo(dock.dock_type, schedule.cargo_type):
+            update_in = ScheduleStatusUpdate(
+                status="Em_Doca",
+                dock_id=dock.id,
+                notes=f"Auto-Dispatch de Portaria: Vaga compatível localizada na {dock.name}.",
+                recorded_by="Robô Auto-Dispatch Portaria Express"
+            )
+            return await update_schedule_status(db=db, schedule=schedule, status_update=update_in)
+
+    return None
+
+
+async def run_batch_auto_dispatch(db: Session, tenant_id: UUID) -> List[dict]:
+    """
+    Executa uma rodada completa de alocação automática para todas as docas livres
+    e caminhões em espera para o armazém especificado.
+    """
+    free_docks = (
+        db.query(Dock)
+        .filter(Dock.tenant_id == tenant_id, Dock.status == "Livre")
+        .order_by(Dock.code.asc())
+        .all()
+    )
+    results = []
+    for dock in free_docks:
+        sch = await try_auto_dispatch_dock_to_queue(db=db, dock=dock)
+        if sch:
+            results.append({
+                "dock_code": dock.code,
+                "dock_name": dock.name,
+                "schedule_id": str(sch.id),
+                "vehicle_plate": sch.vehicle_plate,
+                "driver_name": sch.driver_name,
+                "carrier_name": sch.carrier_name
+            })
+    return results
 

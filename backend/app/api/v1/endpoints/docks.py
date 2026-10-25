@@ -2,11 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from uuid import UUID
 from typing import List, Optional
+from pydantic import BaseModel
 
 from app.core.database import get_db
 from app.models.dock import Dock
 from app.models.tenant import Tenant
 from app.schemas.dock import DockCreate, DockResponse, DockUpdate
+from app.services.schedule_service import run_batch_auto_dispatch
 
 router = APIRouter(prefix="/docks", tags=["Docas"])
 
@@ -70,3 +72,51 @@ def update_dock(dock_id: UUID, dock_in: DockUpdate, db: Session = Depends(get_db
     db.commit()
     db.refresh(dock)
     return dock
+
+
+class AutoDispatchRequest(BaseModel):
+    tenant_id: UUID
+
+
+class DockAutomationSettingsUpdate(BaseModel):
+    tenant_id: UUID
+    has_auto_dock_assignment: bool
+    auto_dock_mode: Optional[str] = "on_arrival_and_release"
+
+
+@router.post("/auto-dispatch")
+async def trigger_auto_dispatch(payload: AutoDispatchRequest, db: Session = Depends(get_db)):
+    """Executa varredura de auto-alocação imediata de docas livres para caminhões aguardando no pátio"""
+    tenant = db.query(Tenant).filter(Tenant.id == payload.tenant_id).first()
+    if not tenant:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tenant não encontrado.")
+
+    results = await run_batch_auto_dispatch(db=db, tenant_id=payload.tenant_id)
+    return {
+        "success": True,
+        "dispatched_count": len(results),
+        "dispatches": results,
+        "has_auto_dock_assignment": tenant.has_auto_dock_assignment
+    }
+
+
+@router.post("/settings")
+def update_dock_automation_settings(payload: DockAutomationSettingsUpdate, db: Session = Depends(get_db)):
+    """Atualiza as configurações de automação / auto-dispatch de docas do armazém"""
+    tenant = db.query(Tenant).filter(Tenant.id == payload.tenant_id).first()
+    if not tenant:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tenant não encontrado.")
+
+    tenant.has_auto_dock_assignment = payload.has_auto_dock_assignment
+    if payload.auto_dock_mode:
+        tenant.auto_dock_mode = payload.auto_dock_mode
+
+    db.commit()
+    db.refresh(tenant)
+
+    return {
+        "success": True,
+        "has_auto_dock_assignment": tenant.has_auto_dock_assignment,
+        "auto_dock_mode": tenant.auto_dock_mode,
+        "message": f"Automação de docas {'ATIVADA' if tenant.has_auto_dock_assignment else 'PAUSADA (Modo Manual)'} com sucesso!"
+    }

@@ -17,11 +17,33 @@ import {
   Clock,
   ExternalLink,
   Sparkles,
-  Info
+  Info,
+  Zap,
+  Sliders,
+  ShieldCheck
 } from 'lucide-vue-next'
 
 const yardStore = useYardStore()
 const viewMode = ref('grid') // 'grid' | 'agenda'
+const isAutoDispatchLoading = ref(false)
+
+async function handleToggleAutoDispatch() {
+  isAutoDispatchLoading.value = true
+  try {
+    await yardStore.toggleAutoDockAssignment()
+  } finally {
+    isAutoDispatchLoading.value = false
+  }
+}
+
+async function handleTriggerBatch() {
+  isAutoDispatchLoading.value = true
+  try {
+    await yardStore.triggerBatchAutoDispatch()
+  } finally {
+    isAutoDispatchLoading.value = false
+  }
+}
 
 const isNewDockModalOpen = ref(false)
 const newDockForm = ref({
@@ -225,6 +247,83 @@ async function callNextTruckToDock(dock) {
           <PlusCircle class="w-4 h-4" />
           <span>+ Cadastrar Doca</span>
         </button>
+      </div>
+    </div>
+
+    <!-- Painel de Automação de Docas & Controle do Operador -->
+    <div 
+      class="p-4 rounded-2xl border transition-all"
+      :class="yardStore.currentTenant?.has_auto_dock_assignment 
+        ? 'bg-gradient-to-r from-teal-950/40 via-[#001c3d] to-emerald-950/30 border-teal-500/40 shadow-lg shadow-teal-500/5' 
+        : 'bg-white dark:bg-[#001c3d] border-slate-200 dark:border-slate-800'"
+    >
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        
+        <div class="flex items-start space-x-3.5">
+          <div 
+            class="p-2.5 rounded-xl border mt-0.5 shrink-0"
+            :class="yardStore.currentTenant?.has_auto_dock_assignment 
+              ? 'bg-teal-500/20 border-teal-500/40 text-teal-400' 
+              : 'bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-400'"
+          >
+            <Zap class="w-5 h-5" :class="yardStore.currentTenant?.has_auto_dock_assignment ? 'animate-pulse text-[#00E5C8]' : ''" />
+          </div>
+
+          <div>
+            <div class="flex items-center space-x-2">
+              <h2 class="text-sm font-bold text-white flex items-center space-x-1.5">
+                <span>Automação & Auto-Dispatch de Docas</span>
+              </h2>
+              <span 
+                class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full uppercase"
+                :class="yardStore.currentTenant?.has_auto_dock_assignment 
+                  ? 'bg-emerald-950 text-emerald-300 border border-emerald-700' 
+                  : 'bg-amber-950/80 text-amber-300 border border-amber-800'"
+              >
+                {{ yardStore.currentTenant?.has_auto_dock_assignment ? '🟢 MODO AUTOMÁTICO ATIVO' : '⏸️ MODO MANUAL / ASSISTIDO' }}
+              </span>
+            </div>
+            
+            <p class="text-xs text-slate-300 dark:text-slate-400 mt-1 max-w-2xl leading-relaxed">
+              <template v-if="yardStore.currentTenant?.has_auto_dock_assignment">
+                O sistema aloca automaticamente a doca livre compatível e dispara WhatsApp para o motorista quando a vaga desocupar ou na chegada. Você pode intervir e trocar a doca a qualquer momento.
+              </template>
+              <template v-else>
+                O operador tem controle total manual para convocar e direcionar cada caminhão da fila individualmente pelo painel ou Kanban.
+              </template>
+            </p>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2.5 shrink-0">
+          <!-- Botão de Rodada Manual de Auto-Alocação -->
+          <button
+            @click="handleTriggerBatch"
+            :disabled="isAutoDispatchLoading || yardStore.waitingYardList.length === 0"
+            class="flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-[#00142c] dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 transition-all cursor-pointer disabled:opacity-50"
+            :title="yardStore.waitingYardList.length > 0 ? 'Varre e aloca caminhões em espera nas docas livres' : 'Nenhum caminhão aguardando no pátio'"
+          >
+            <Sparkles class="w-3.5 h-3.5 text-teal-400" />
+            <span>Alocar Fila Imediata</span>
+            <span v-if="yardStore.waitingYardList.length > 0" class="px-1.5 py-0.2 bg-teal-500 text-slate-950 text-[10px] font-mono font-bold rounded-full">
+              {{ yardStore.waitingYardList.length }}
+            </span>
+          </button>
+
+          <!-- Toggle de Liga/Desliga da Automação -->
+          <button
+            @click="handleToggleAutoDispatch"
+            :disabled="isAutoDispatchLoading"
+            class="flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-md"
+            :class="yardStore.currentTenant?.has_auto_dock_assignment 
+              ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/20' 
+              : 'bg-slate-700 hover:bg-slate-600 text-slate-100'"
+          >
+            <Sliders class="w-3.5 h-3.5" />
+            <span>{{ yardStore.currentTenant?.has_auto_dock_assignment ? 'Pausar Automação' : 'Ativar Auto-Dispatch' }}</span>
+          </button>
+        </div>
+
       </div>
     </div>
 

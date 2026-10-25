@@ -14,6 +14,8 @@ class TenantBase(BaseModel):
     plan_tier: Optional[str] = "Professional"
     has_whatsapp_automation: Optional[bool] = False
     has_carrier_portal: Optional[bool] = False
+    has_auto_dock_assignment: Optional[bool] = False
+    auto_dock_mode: Optional[str] = "on_arrival_and_release"
     monthly_fee: Optional[float] = 1800.0
     billing_due_day: Optional[int] = 10
     billing_status: Optional[str] = "active"
@@ -47,6 +49,8 @@ class TenantUpdate(BaseModel):
     plan_tier: Optional[str] = None
     has_whatsapp_automation: Optional[bool] = None
     has_carrier_portal: Optional[bool] = None
+    has_auto_dock_assignment: Optional[bool] = None
+    auto_dock_mode: Optional[str] = None
     monthly_fee: Optional[float] = None
     billing_due_day: Optional[int] = None
     billing_status: Optional[str] = None

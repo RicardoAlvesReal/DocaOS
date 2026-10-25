@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.core.database import engine, Base, SessionLocal
+from sqlalchemy import text
 from app.api.v1.router import api_router
 from app.services.websocket_manager import manager
 from app.core.security import get_password_hash
@@ -188,6 +189,15 @@ def seed_initial_demo_data():
 def on_startup():
     # Cria tabelas no PostgreSQL
     Base.metadata.create_all(bind=engine)
+    # Garante colunas de auto-dispatch no PostgreSQL caso a tabela já existisse
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE tenants ADD COLUMN IF NOT EXISTS has_auto_dock_assignment BOOLEAN DEFAULT FALSE;"))
+            conn.execute(text("ALTER TABLE tenants ADD COLUMN IF NOT EXISTS auto_dock_mode VARCHAR(50) DEFAULT 'on_arrival_and_release';"))
+            conn.commit()
+    except Exception as e:
+        print(f"[STARTUP MIGRATION NOTICE] {e}")
+
     # Popula dados de demonstração para o piloto se vazio
     seed_initial_demo_data()
 

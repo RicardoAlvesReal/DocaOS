@@ -21,6 +21,8 @@ class Tenant(Base):
     plan_tier = Column(String(50), default="Professional", nullable=False)  # Starter, Professional, Enterprise
     has_whatsapp_automation = Column(Boolean, default=False, nullable=False)  # Robô de Notificação de WhatsApp
     has_carrier_portal = Column(Boolean, default=False, nullable=False)  # Portal de Auto-Agendamento do Transportador
+    has_auto_dock_assignment = Column(Boolean, default=False, nullable=False)  # Automação / Auto-Dispatch de Docas
+    auto_dock_mode = Column(String(50), default="on_arrival_and_release", nullable=False)  # on_arrival, on_release, on_arrival_and_release
 
     # Gestão Comercial & Faturamento Direto (Boletos Bancários)
     monthly_fee = Column(Float, default=1800.0, nullable=False)  # Mensalidade definida livremente (R$/mês)

@@ -89,6 +89,7 @@ const editTenantForm = ref({
   detention_fee_per_hour: 150.0,
   has_whatsapp_automation: false,
   has_carrier_portal: false,
+  has_auto_dock_assignment: false,
   whatsapp_api_url: '',
   whatsapp_api_token: '',
   latitude: null,
@@ -119,6 +120,7 @@ const newTenantForm = ref({
   detention_fee_per_hour: 150.0,
   has_whatsapp_automation: true,
   has_carrier_portal: true,
+  has_auto_dock_assignment: true,
   latitude: null,
   longitude: null,
   geofence_radius_meters: 1000,
@@ -276,6 +278,7 @@ function openEditTenantModal(tenant) {
     detention_fee_per_hour: tenant.detention_fee_per_hour || 150.0,
     has_whatsapp_automation: Boolean(tenant.has_whatsapp_automation),
     has_carrier_portal: Boolean(tenant.has_carrier_portal),
+    has_auto_dock_assignment: Boolean(tenant.has_auto_dock_assignment),
     whatsapp_api_url: tenant.whatsapp_api_url || '',
     whatsapp_api_token: tenant.whatsapp_api_token || '',
     latitude: tenant.latitude ?? null,
@@ -1116,6 +1119,14 @@ onMounted(() => {
                 <span class="text-[11px] text-slate-400">Link exclusivo para transportadoras agendarem sozinhas</span>
               </div>
               <input type="checkbox" v-model="editTenantForm.has_carrier_portal" class="w-5 h-5 accent-sky-500" />
+            </label>
+
+            <label class="flex items-center justify-between pt-2 border-t border-slate-900 cursor-pointer">
+              <div>
+                <span class="text-xs font-semibold text-white block">Automação & Auto-Dispatch de Docas</span>
+                <span class="text-[11px] text-slate-400">Alocação e convocação autônoma de vagas livres para o WhatsApp</span>
+              </div>
+              <input type="checkbox" v-model="editTenantForm.has_auto_dock_assignment" class="w-5 h-5 accent-teal-500" />
             </label>
           </div>
 

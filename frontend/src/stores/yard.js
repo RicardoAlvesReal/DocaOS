@@ -84,6 +84,8 @@ export const useYardStore = defineStore('yard', () => {
     plan_tier: 'Enterprise',
     has_whatsapp_automation: true,
     has_carrier_portal: true,
+    has_auto_dock_assignment: true,
+    auto_dock_mode: 'on_arrival_and_release',
     max_docks: 5,
     grace_period_minutes: 30,
     detention_fee_per_hour: 150.0
@@ -626,6 +628,85 @@ export const useYardStore = defineStore('yard', () => {
     }
   }
 
+  async function toggleAutoDockAssignment(enabled = null) {
+    if (!currentTenant.value) return
+    const targetState = enabled !== null ? enabled : !currentTenant.value.has_auto_dock_assignment
+    
+    if (authStore.isDemoMode) {
+      currentTenant.value.has_auto_dock_assignment = targetState
+      showNotification(`Automação de Docas ${targetState ? 'ATIVADA' : 'PAUSADA (Modo Manual)'} (Modo Sandbox)`, 'info')
+      return targetState
+    }
+
+    try {
+      const res = await fetch('/api/v1/docks/settings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...authStore.getAuthHeader()
+        },
+        body: JSON.stringify({
+          tenant_id: currentTenant.value.id,
+          has_auto_dock_assignment: targetState,
+          auto_dock_mode: currentTenant.value.auto_dock_mode || 'on_arrival_and_release'
+        })
+      })
+
+      if (res.ok) {
+        currentTenant.value.has_auto_dock_assignment = targetState
+        showNotification(
+          targetState 
+            ? '⚡ Auto-Dispatch de Docas ATIVADO: motoristas serão convocados automaticamente!' 
+            : '⏸️ Modo Manual ATIVADO: operador assume controle exclusivo de chamadas.',
+          'success'
+        )
+        return targetState
+      }
+    } catch (err) {
+      console.error(err)
+      showNotification('Falha ao atualizar configuração de automação.', 'error')
+    }
+  }
+
+  async function triggerBatchAutoDispatch() {
+    if (!currentTenant.value) return
+    
+    if (authStore.isDemoMode) {
+      const waiting = waitingYardList.value[0]
+      const freeDock = docks.value.find(d => d.status === 'Livre' || d.status === 'Disponivel')
+      if (waiting && freeDock) {
+        await updateScheduleStatus(waiting.id, 'Em_Doca', freeDock.id, 'Auto-Dispatch Simulado')
+        showNotification(`⚡ Veículo ${waiting.vehicle_plate} convocado automaticamente para a ${freeDock.name}!`, 'success')
+      } else {
+        showNotification('Nenhum caminhão aguardando ou nenhuma doca livre no momento.', 'warning')
+      }
+      return
+    }
+
+    try {
+      const res = await fetch('/api/v1/docks/auto-dispatch', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...authStore.getAuthHeader()
+        },
+        body: JSON.stringify({ tenant_id: currentTenant.value.id })
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        await Promise.all([fetchDocks(), fetchSchedules()])
+        if (data.dispatched_count > 0) {
+          showNotification(`⚡ ${data.dispatched_count} caminhão(ões) alocados e convocados automaticamente!`, 'success')
+        } else {
+          showNotification('Varredura concluída: nenhuma doca livre compatível ou fila vazia.', 'info')
+        }
+      }
+    } catch (err) {
+      showNotification('Erro ao executar auto-alocação.', 'error')
+    }
+  }
+
   return {
     tenants,
     currentTenant,
@@ -651,6 +732,8 @@ export const useYardStore = defineStore('yard', () => {
     fetchBadges,
     createBadge,
     updateBadgeStatus,
+    toggleAutoDockAssignment,
+    triggerBatchAutoDispatch,
     initWebSocket
   }
 })

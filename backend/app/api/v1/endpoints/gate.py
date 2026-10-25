@@ -8,7 +8,7 @@ from app.models.schedule import Schedule
 from app.models.badge import Badge
 from app.schemas.driver import GateScanRequest, GateScanResponse
 from app.schemas.schedule import ScheduleStatusUpdate
-from app.services.schedule_service import update_schedule_status
+from app.services.schedule_service import update_schedule_status, try_auto_dispatch_on_arrival
 
 router = APIRouter(prefix="/gate", tags=["Portaria / Cancela"])
 
@@ -133,7 +133,16 @@ async def scan_gate_checkin(scan_in: GateScanRequest, db: Session = Depends(get_
             damage_notes=scan_in.damage_notes
         )
         schedule = await update_schedule_status(db=db, schedule=schedule, status_update=status_update)
-        message_text = f"ENTRADA REGISTRADA! Veículo {schedule.vehicle_plate} autorizado a acessar o pátio."
+
+        # Se auto-dispatch de portaria estiver ativo no armazém, verifica se já há doca livre
+        dispatched_schedule = await try_auto_dispatch_on_arrival(db=db, schedule=schedule)
+        if dispatched_schedule:
+            schedule = dispatched_schedule
+            dock_disp_name = schedule.dock.name if schedule.dock else "Doca Principal"
+            message_text = f"ENTRADA REGISTRADA & DOCA LIVRE! Veículo {schedule.vehicle_plate} direcionado automaticamente para a {dock_disp_name}."
+        else:
+            message_text = f"ENTRADA REGISTRADA! Veículo {schedule.vehicle_plate} autorizado a acessar o pátio interno."
+
         if schedule.seal_number:
             message_text += f" (Lacre conferido: {schedule.seal_number})"
     # Se já estiver dentro do pátio / em doca, registra SAÍDA e libera cancela

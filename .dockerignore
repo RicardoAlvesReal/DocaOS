@@ -1,0 +1,33 @@
+# Git e IDE
+.git
+.gitignore
+.vscode
+.idea
+.gemini
+
+# Mídia pesada e apresentações (não necessários no container de produção)
+*.mp4
+*.pdf
+*.mp3
+screen_recordings/
+screenshots/
+video_frames/
+
+# Python caches e venvs
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+backend/sql_app.db
+backend/.env
+
+# Node & Frontend
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/*.cjs
+build_docaos_official_video.py
+backend/generate_docaos_voiceover.py

@@ -146,6 +146,42 @@ A interface web estará acessível em: **`http://localhost:5173`**
 
 ---
 
+## ☁️ Deploy em Produção na Fly.io
+
+O repositório já está 100% configurado para deploy imediato no **[Fly.io](https://fly.io)** através de arquitetura de contêiner unificada (*multi-stage build* que compila o frontend Vue 3 e empacota junto ao FastAPI, servindo SPA, API REST e WebSockets em uma única porta 8080 de alta performance).
+
+### Passo a passo rápido:
+
+1. **Autentique no Fly CLI**:
+   ```bash
+   fly auth login
+   ```
+
+2. **Crie ou conecte um banco PostgreSQL**:
+   * *Opção A: Criar um Fly Postgres dedicado:*
+     ```bash
+     fly postgres create --name docaos-db --region gru --initial-cluster-size 1 --vm-size shared-cpu-1x --volume-size 10
+     fly postgres attach docaos-db -a docaos
+     ```
+   * *Opção B: Conectar a um banco externo (ex: Neon, Supabase):*
+     ```bash
+     fly secrets set DATABASE_URL="postgresql+psycopg://usuario:senha@host:5432/docaos" -a docaos
+     ```
+
+3. **Configure as chaves secretas de produção**:
+   ```bash
+   fly secrets set SECRET_KEY="sua_chave_secreta_super_segura_de_producao" -a docaos
+   ```
+
+4. **Execute o Deploy**:
+   ```bash
+   fly deploy
+   ```
+
+O Fly.io compilará os assets do frontend e o backend no remote builder e disponibilizará o sistema com certificado SSL/HTTPS automático na região `gru` (São Paulo).
+
+---
+
 ## 🔑 Credenciais de Acesso (Demonstração)
 
 | Usuário | E-mail | Senha | Função |
@@ -162,3 +198,4 @@ A interface web estará acessível em: **`http://localhost:5173`**
 * **Domínio Oficial**: [docaos.log.br](https://docaos.log.br)
 * **Desenvolvido e Mantido por**: **RAOS Tecnologia LTDA** (CNPJ: `66.914.167/0001-76`)
 * **Repositório Oficial**: [https://github.com/RicardoAlvesReal/DocaOS.git](https://github.com/RicardoAlvesReal/DocaOS.git)
+

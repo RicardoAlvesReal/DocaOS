@@ -1,7 +1,10 @@
+import os
 import uuid
 from datetime import datetime, timedelta, timezone
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 from app.core.config import settings
 from app.core.database import engine, Base, SessionLocal
@@ -39,6 +42,7 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
 
 
 @app.websocket("/ws/yard/{tenant_id}")
+@app.websocket("/api/v1/ws/yard/{tenant_id}")
 async def websocket_yard_endpoint(websocket: WebSocket, tenant_id: str):
     """Canal WebSocket para sincronização em tempo real do Kanban da Torre de Controle"""
     await manager.connect(websocket, tenant_id)
@@ -50,6 +54,7 @@ async def websocket_yard_endpoint(websocket: WebSocket, tenant_id: str):
         manager.disconnect(websocket, tenant_id)
     except Exception:
         manager.disconnect(websocket, tenant_id)
+
 
 
 def seed_initial_demo_data():
@@ -202,12 +207,45 @@ def on_startup():
     seed_initial_demo_data()
 
 
-@app.get("/")
-def root():
-    return {
-        "app": settings.PROJECT_NAME,
-        "version": "2.0.0",
-        "status": "online",
-        "docs": "/docs",
-        "realtime_ws": "/ws/yard/{tenant_id}"
-    }
+# ==========================================
+# Suporte a SPA Frontend (Vue 3 + Vite)
+# ==========================================
+dist_candidates = [
+    settings.FRONTEND_DIST_DIR,
+    os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "frontend_dist"),
+    os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "frontend", "dist")
+]
+frontend_dist_path = None
+for candidate in dist_candidates:
+    if candidate and os.path.exists(candidate) and os.path.isfile(os.path.join(candidate, "index.html")):
+        frontend_dist_path = os.path.abspath(candidate)
+        break
+
+if frontend_dist_path:
+    assets_dir = os.path.join(frontend_dist_path, "assets")
+    if os.path.exists(assets_dir):
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
+
+    @app.get("/{full_path:path}", include_in_schema=False)
+    async def serve_spa_app(full_path: str):
+        # Ignora rotas de API ou OpenAPI
+        clean_path = full_path.strip("/")
+        if clean_path.startswith("api/") or clean_path == "api" or clean_path in ("docs", "redoc", "openapi.json"):
+            raise HTTPException(status_code=404, detail="Endpoint not found")
+
+        potential_file = os.path.join(frontend_dist_path, full_path)
+        if full_path and os.path.isfile(potential_file):
+            return FileResponse(potential_file)
+
+        return FileResponse(os.path.join(frontend_dist_path, "index.html"))
+else:
+    @app.get("/")
+    def root():
+        return {
+            "app": settings.PROJECT_NAME,
+            "version": "2.0.0",
+            "status": "online",
+            "docs": "/docs",
+            "realtime_ws": "/ws/yard/{tenant_id}"
+        }
+

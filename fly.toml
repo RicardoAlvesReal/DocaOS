@@ -1,0 +1,37 @@
+# fly.toml app configuration file for DocaOS
+# Referência: https://fly.io/docs/reference/configuration/
+
+app = 'docaos'
+primary_region = 'gru'
+
+[build]
+  dockerfile = 'Dockerfile'
+
+[env]
+  PORT = '8080'
+  PROJECT_NAME = 'DocaOS - Patio & Dock Operating System'
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ['app']
+
+  [http_service.concurrency]
+    type = 'requests'
+    hard_limit = 250
+    soft_limit = 200
+
+[[http_service.checks]]
+  grace_period = '15s'
+  interval = '30s'
+  method = 'GET'
+  timeout = '5s'
+  path = '/api/v1/tenants/'
+
+[[vm]]
+  memory = '512mb'
+  cpu_kind = 'shared'
+  cpus = 1
